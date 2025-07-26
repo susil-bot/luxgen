@@ -1,4 +1,4 @@
-# Trainer Platform Frontend
+# LuxGen - Trainer Platform Frontend
 
 A modern React TypeScript frontend application for the Trainer Platform, featuring a beautiful UI, real-time interactions, and comprehensive user management.
 
@@ -40,14 +40,14 @@ A modern React TypeScript frontend application for the Trainer Platform, featuri
 
 - Node.js 18+
 - npm or yarn
-- Backend API running (trainer-backend)
+- Backend API running (luxgen-core)
 
 ## 🔧 Installation
 
 1. **Clone the repository**
 ```bash
-git clone <your-frontend-repo-url>
-cd trainer-frontend
+git clone https://github.com/susil-bot/luxgen.git
+cd luxgen
 ```
 
 2. **Install dependencies**
@@ -252,3 +252,7 @@ This project is licensed under the MIT License.
 ## 🆘 Support
 
 For support, email support@trainerplatform.com or create an issue in the repository. 
+
+## 🆘 Support
+
+For support, email support@luxgen.com or create an issue in the repository.
