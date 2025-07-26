@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, LogIn, Building2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, LogIn, Building2, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoginForm as LoginFormType } from '../../types';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -9,6 +11,8 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const { login, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginFormType>({
     email: '',
     password: '',
@@ -16,6 +20,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Handle email verification success message
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.message) {
+      setSuccessMessage(state.message);
+      if (state.email) {
+        setFormData(prev => ({ ...prev, email: state.email }));
+      }
+      // Clear the state to prevent showing the message again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     console.log("signning in.....")
@@ -70,6 +88,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                  <p className="text-sm text-green-800">{successMessage}</p>
+                </div>
+              </div>
+            )}
+            
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-600">{error}</p>
@@ -95,9 +122,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <input
                   id="password"

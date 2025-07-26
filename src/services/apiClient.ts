@@ -1,4 +1,4 @@
-const baseURL = process.env.REACT_APP_API_BASE_URL || ' http://192.168.1.9:3001';
+const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://192.168.1.9:3001/api/v1';
 
 interface ApiResponse<T = any> {
   success: boolean;

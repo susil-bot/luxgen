@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock, User, Phone, Building, CheckCircle, AlertCircle } from 'lucide-react';
-import apiClient from '../../services/apiClient';
+import apiServices from '../../services/apiServices';
 
 interface RegisterFormData {
   email: string;
@@ -119,7 +119,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
 
     setIsLoading(true);
     try {
-      const response = await apiClient.post('/api/v1/registration/register', {
+      const response = await apiServices.register({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -131,17 +131,32 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
       });
 
       if (response.success) {
-        toast('Registration successful! Please check your email for verification.', {
-          icon: '✅',
-          style: {
-            background: '#10B981',
-            color: '#fff',
-          },
-        });
-        onSuccess?.();
-        navigate('/verify-email', { 
-          state: { email: formData.email, registrationId: response.data?.registrationId }
-        });
+        // Check if user was automatically logged in (has token)
+        if (response.data?.token) {
+          toast('Registration successful! Welcome to the platform.', {
+            icon: '✅',
+            style: {
+              background: '#10B981',
+              color: '#fff',
+            },
+          });
+          onSuccess?.();
+          // Navigate to dashboard or onboarding
+          navigate('/dashboard');
+        } else {
+          // User needs email verification
+          toast('Registration successful! Please check your email for verification.', {
+            icon: '✅',
+            style: {
+              background: '#10B981',
+              color: '#fff',
+            },
+          });
+          onSuccess?.();
+          navigate('/verify-email', { 
+            state: { email: formData.email, registrationId: response.data?.registrationId }
+          });
+        }
       } else {
         toast(response.message || 'Registration failed', {
           icon: '❌',
