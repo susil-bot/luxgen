@@ -65,6 +65,16 @@ A comprehensive, enterprise-grade training platform built with modern technologi
 - **MongoDB**: 7.x (via Docker)
 - **Redis**: 7.x (via Docker)
 
+## 📚 Documentation
+
+For comprehensive documentation, guides, and implementation details, please visit the **[docs](./docs/)** directory:
+
+- **[📖 Documentation Index](./docs/README.md)** - Complete documentation overview
+- **[🚀 Development Guide](./docs/DEVELOPMENT_GUIDE.md)** - Quick start for developers
+- **[🏗️ Architecture](./docs/DATABASE_ARCHITECTURE.md)** - System architecture and design
+- **[🧪 Testing Guide](./docs/TESTING_GUIDE.md)** - Testing strategies and implementation
+- **[🔧 API Integration](./docs/FRONTEND_API_GUIDE.md)** - Frontend API client setup
+
 ## 🛠️ Installation & Setup
 
 ### 1. Clone the Repository
