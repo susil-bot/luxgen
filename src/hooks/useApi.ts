@@ -120,7 +120,7 @@ export function useApi<T = any>(
     }));
 
     try {
-      const response = await apiClient.request<T>(endpoint, {
+      const response = await apiClient.get<T>(endpoint, {
         ...config,
         showToast,
         showLoading,

@@ -364,7 +364,7 @@ class TenantService {
 
   // Resend verification email
   async resendVerification(id: string): Promise<ApiResponse<void>> {
-    return apiClient.post(`/api/tenants/${id}/resend-verification`);
+    return apiClient.post(`/api/tenants/${id}/resend-verification`, {});
   }
 
   // Update subscription
@@ -472,7 +472,7 @@ class TenantService {
     const queryString = params.toString();
     const endpoint = `/api/tenants/export/${format}${queryString ? `?${queryString}` : ''}`;
     
-    return apiClient.get(endpoint, { showToast: false });
+    return apiClient.get(endpoint);
   }
 
   // Utility methods

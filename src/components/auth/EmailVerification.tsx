@@ -42,8 +42,8 @@ const EmailVerification: React.FC = () => {
     setIsResending(true);
     try {
       const response = await apiClient.post('/api/user-registration/resend-verification', {
-        email,
-        registrationId
+        email: email,
+        registrationId: registrationId,
       });
 
       if (response.success) {
@@ -54,6 +54,7 @@ const EmailVerification: React.FC = () => {
             color: '#fff',
           },
         });
+        setIsResending(false);
         setCountdown(60); // 60 second cooldown
       } else {
         toast(response.message || 'Failed to resend verification email', {
@@ -63,6 +64,7 @@ const EmailVerification: React.FC = () => {
             color: '#fff',
           },
         });
+        setIsResending(false);
       }
     } catch (error: any) {
       console.error('Resend error:', error);
@@ -83,7 +85,7 @@ const EmailVerification: React.FC = () => {
     try {
       const response = await apiClient.get(`/api/user-registration/status/${registrationId}`);
 
-      if (response.success && response.data.isEmailVerified) {
+      if (response.success && response.data?.isEmailVerified) {
         toast('Email verified successfully!', {
           icon: '✅',
           style: {
@@ -91,11 +93,10 @@ const EmailVerification: React.FC = () => {
             color: '#fff',
           },
         });
-        navigate('/login', { 
-          state: { message: 'Email verified successfully! You can now log in.' }
-        });
+        navigate('/login');
       } else {
-        toast('Email not verified yet. Please check your inbox and click the verification link.');
+        // Email not verified yet, continue showing verification page
+        console.log('Email not verified yet');
       }
     } catch (error: any) {
       console.error('Verification check error:', error);

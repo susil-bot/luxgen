@@ -159,12 +159,12 @@ class ApiServices {
     tenantId: string, 
     notificationId: string
   ): Promise<ApiResponse<void>> {
-    return apiClient.put(`/api/polls/${tenantId}/notifications/${notificationId}/read`);
+    return apiClient.put(`/api/polls/${tenantId}/notifications/${notificationId}/read`, {});
   }
 
   // Poll Actions
   async sendPoll(tenantId: string, pollId: string): Promise<ApiResponse<void>> {
-    return apiClient.post(`/api/polls/${tenantId}/${pollId}/send`);
+    return apiClient.post(`/api/polls/${tenantId}/${pollId}/send`, {});
   }
 
   // Users API
@@ -177,7 +177,7 @@ class ApiServices {
   }
 
   // Authentication
-  async login(credentials: { email: string; password: string }): Promise<ApiResponse<{ token: string; user: User }>> {
+  async login(credentials: any): Promise<ApiResponse<any>> {
     const response = await apiClient.post('/api/auth/login', credentials);
     if (response.success && response.data?.token) {
       apiClient.setAuthToken(response.data.token);
@@ -186,12 +186,12 @@ class ApiServices {
   }
 
   async logout(): Promise<ApiResponse<void>> {
-    const response = await apiClient.post('/api/auth/logout');
+    const response = await apiClient.post('/api/auth/logout', {});
     apiClient.setAuthToken(null);
     return response;
   }
 
-  async register(userData: Partial<User> & { password: string }): Promise<ApiResponse<{ token: string; user: User }>> {
+  async register(userData: any): Promise<ApiResponse<any>> {
     const response = await apiClient.post('/api/auth/register', userData);
     if (response.success && response.data?.token) {
       apiClient.setAuthToken(response.data.token);
@@ -269,9 +269,7 @@ class ApiServices {
 
   // Export functionality
   async exportPollData(tenantId: string, pollId: string, format: 'csv' | 'json' = 'csv'): Promise<ApiResponse<string>> {
-    return apiClient.get(`/api/polls/${tenantId}/${pollId}/export?format=${format}`, {
-      showToast: false,
-    });
+    return apiClient.get(`/api/polls/${tenantId}/${pollId}/export?format=${format}`);
   }
 
   // Bulk operations

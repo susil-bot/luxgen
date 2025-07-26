@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Save, Globe, Users, Database, Shield, Settings } from 'lucide-react';
+import { X, Save, Globe, Users, Database, Shield } from 'lucide-react';
 import { Tenant, TenantPlan } from '../../types/multiTenancy';
+import apiClient from '../../services/apiClient';
 
 interface CreateTenantModalProps {
   isOpen: boolean;
@@ -168,7 +169,7 @@ const CreateTenantModal: React.FC<CreateTenantModalProps> = ({ isOpen, onClose, 
     try {
       const selectedPlan = planOptions[formData.planType];
       
-      const newTenant: Omit<Tenant, 'id' | 'createdAt' | 'updatedAt'> = {
+      const payload = {
         name: formData.name,
         slug: formData.slug,
         domain: formData.domain || undefined,
@@ -233,8 +234,14 @@ const CreateTenantModal: React.FC<CreateTenantModalProps> = ({ isOpen, onClose, 
         },
       };
 
-      await onSave(newTenant);
-      handleClose();
+      // Call backend API directly
+      const response = await apiClient.post('/api/tenants/create', payload);
+      if (response.success) {
+        onSave(response.data); // Pass the created tenant back
+        handleClose();
+      } else {
+        alert(response.message || 'Failed to create tenant');
+      }
     } catch (error) {
       console.error('Error creating tenant:', error);
     } finally {

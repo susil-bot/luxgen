@@ -114,11 +114,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
   };
 
   const handleSubmit = async () => {
+    console.log('👉 Submit button clicked. Starting registration process...');
     if (!validateStep(currentStep)) return;
 
     setIsLoading(true);
     try {
-      const response = await apiClient.post('/api/user-registration/register', {
+      const response = await apiClient.post('/api/v1/registration/register', {
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -139,7 +140,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
         });
         onSuccess?.();
         navigate('/verify-email', { 
-          state: { email: formData.email, registrationId: response.data.registrationId }
+          state: { email: formData.email, registrationId: response.data?.registrationId }
         });
       } else {
         toast(response.message || 'Registration failed', {
