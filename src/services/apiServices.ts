@@ -99,7 +99,7 @@ class ApiServices {
     role?: string;
     marketingConsent?: boolean;
   }): Promise<ApiResponse<any>> {
-    const response = await apiClient.post('/registration/register', userData);
+    const response = await apiClient.post('/auth/register', userData);
     if (response.success && response.data?.token) {
       apiClient.setAuthToken(response.data.token);
       // Store user data in localStorage
@@ -113,15 +113,15 @@ class ApiServices {
     email: string;
     registrationId: string;
   }): Promise<ApiResponse<any>> {
-    return apiClient.post('/registration/resend-verification', data);
+    return apiClient.post('/auth/resend-verification', data);
   }
 
   async checkEmailVerification(registrationId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/registration/status/${registrationId}`);
+    return apiClient.get(`/auth/verification-status/${registrationId}`);
   }
 
   async verifyEmail(token: string): Promise<ApiResponse<any>> {
-    return apiClient.post('/registration/verify-email', { token });
+    return apiClient.post('/auth/verify-email', { token });
   }
 
   // Password Reset API

@@ -11,7 +11,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
   className = "",
   size = 'md'
 }) => {
-  const { theme, toggleTheme } = useTheme();
+  const { isDarkMode, setDarkMode } = useTheme();
 
   const sizeClasses = {
     sm: 'p-1.5',
@@ -27,14 +27,14 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
   return (
     <button
-      onClick={toggleTheme}
+      onClick={() => setDarkMode(!isDarkMode)}
       className={`${sizeClasses[size]} text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${className}`}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
     >
-      {theme === 'light' ? (
-        <Moon size={iconSizes[size]} />
-      ) : (
+      {isDarkMode ? (
         <Sun size={iconSizes[size]} />
+      ) : (
+        <Moon size={iconSizes[size]} />
       )}
     </button>
   );

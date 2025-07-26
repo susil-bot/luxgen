@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Phone, Building, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNotifications } from '../common/NotificationSystem';
 import { useErrorHandler } from '../../utils/errorHandler';
+import ErrorDisplay from '../common/ErrorDisplay';
+import { formatFormError } from '../../utils/authErrorHandler';
 import apiServices from '../../services/apiServices';
 
 interface RegisterFormData {
@@ -45,6 +47,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [apiError, setApiError] = useState<any>(null);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -104,6 +107,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
         return newErrors;
       });
     }
+    // Clear API error when user starts typing
+    if (apiError) {
+      setApiError(null);
+    }
   };
 
   const handleNextStep = () => {
@@ -121,6 +128,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
     if (!validateStep(currentStep)) return;
 
     setIsLoading(true);
+    setApiError(null);
+    
     try {
       const response = await apiServices.register({
         email: formData.email,
@@ -166,6 +175,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           });
         }
       } else {
+        // Create error object for consistent handling
+        const errorObj = {
+          response: {
+            status: 400,
+            data: {
+              message: response.message || 'Unable to create your account. Please try again.',
+              code: 'REGISTRATION_FAILED'
+            }
+          }
+        };
+        setApiError(errorObj);
         showError(
           'Registration Failed',
           response.message || 'Unable to create your account. Please try again.',
@@ -175,6 +195,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
     } catch (error: any) {
       console.error('Registration error:', error);
       handleError(error, 'registration-form');
+      setApiError(error);
     } finally {
       setIsLoading(false);
     }
@@ -501,6 +522,38 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           {renderStepIndicator()}
           
           <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+            {apiError && (
+              <ErrorDisplay
+                error={apiError}
+                context="register"
+                onDismiss={() => setApiError(null)}
+                onAction={(action) => {
+                  switch (action) {
+                    case 'EMAIL_ALREADY_EXISTS':
+                      // Navigate to login
+                      onSwitchToLogin?.();
+                      break;
+                    case 'DOMAIN_NOT_ALLOWED':
+                      // Clear email field
+                      setFormData(prev => ({ ...prev, email: '' }));
+                      setApiError(null);
+                      break;
+                    case 'WEAK_PASSWORD':
+                      // Go back to step 1 (password step)
+                      setCurrentStep(1);
+                      setApiError(null);
+                      break;
+                    case 'TERMS_NOT_ACCEPTED':
+                      // Go to step 3 (terms step)
+                      setCurrentStep(3);
+                      setApiError(null);
+                      break;
+                    default:
+                      console.log('Action not implemented:', action);
+                  }
+                }}
+              />
+            )}
             {renderCurrentStep()}
 
             <div className="flex justify-between">

@@ -1,10 +1,13 @@
 import React from 'react';
 import { useOnboarding } from '../../contexts/OnboardingContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const OnboardingTrigger: React.FC = () => {
-  const { startOnboarding, isOnboarding } = useOnboarding();
+  const { startOnboarding, isOnboarding, shouldShowOnboarding } = useOnboarding();
+  const { isAuthenticated } = useAuth();
 
-  if (isOnboarding) return null;
+  // Only show trigger for authenticated users who should see onboarding and aren't currently in onboarding
+  if (!isAuthenticated || !shouldShowOnboarding() || isOnboarding) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-40">

@@ -12,6 +12,7 @@ Welcome to the Trainer Platform documentation! This directory contains comprehen
 - **[Database Mindmap](./DATABASE_MINDMAP.md)** - Visual database relationship mapping
 - **[Database Recommendations](./DATABASE_RECOMMENDATIONS.md)** - Database optimization and best practices
 - **[Multi-Tenancy Architecture](./MULTI_TENANCY_ARCHITECTURE.md)** - Multi-tenant system design and implementation
+- **[Theme System Guide](./THEME_SYSTEM_GUIDE.md)** - Global theme configuration and responsive design
 
 ### **Feature Architecture**
 - **[AI Chatbot](./AI_CHATBOT.md)** - AI-powered chatbot system design
@@ -42,6 +43,9 @@ Welcome to the Trainer Platform documentation! This directory contains comprehen
 - **[Notification & Error Handling](./NOTIFICATION_ERROR_HANDLING.md)** - Notification system and error management
 - **[Onboarding](./ONBOARDING.md)** - User onboarding flow implementation
 - **[Branding Update](./BRANDING_UPDATE.md)** - Platform branding and UI updates
+- **[AI Content Creation](./AI_CONTENT_CREATION_GUIDE.md)** - AI-powered content creation system
+- **[API Integration](./API_INTEGRATION_GUIDE.md)** - Complete API integration guide
+- **[Code Review](./CODE_REVIEW_AI_CONTENT_CREATION.md)** - Comprehensive code review and analysis
 
 ## 🚀 **Deployment & Operations**
 

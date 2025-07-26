@@ -7,6 +7,8 @@ import { SearchModal } from '../modals';
 import ThemeToggle from '../common/ThemeToggle';
 import NotificationBell from '../common/NotificationBell';
 import useModal from '../../hooks/useModal';
+import OnboardingFlow from '../onboarding/OnboardingFlow';
+import OnboardingTrigger from '../onboarding/OnboardingTrigger';
 
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -83,6 +85,10 @@ const MainLayout: React.FC = () => {
           // Handle search logic here
         }}
       />
+
+      {/* Onboarding Components - Only for authenticated users */}
+      <OnboardingFlow />
+      <OnboardingTrigger />
     </div>
   );
 };
