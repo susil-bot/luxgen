@@ -84,15 +84,33 @@ const SignInPage: React.FC = () => {
       const response = await login(formData.email, formData.password, formData.tenantSlug);
       
       if (response.success) {
-        toast.success('Welcome back!');
+        toast('Welcome back!', {
+          icon: '✅',
+          style: {
+            background: '#10B981',
+            color: '#fff',
+          },
+        });
         const redirectTo = searchParams.get('redirect') || '/dashboard';
         navigate(redirectTo, { replace: true });
       } else {
-        toast.error(response.message || 'Sign in failed');
+        toast(response.message || 'Sign in failed', {
+          icon: '❌',
+          style: {
+            background: '#EF4444',
+            color: '#fff',
+          },
+        });
       }
     } catch (error) {
       console.error('Sign in error:', error);
-      toast.error('An unexpected error occurred');
+              toast('An unexpected error occurred', {
+          icon: '❌',
+          style: {
+            background: '#EF4444',
+            color: '#fff',
+          },
+        });
     } finally {
       setIsLoading(false);
     }
