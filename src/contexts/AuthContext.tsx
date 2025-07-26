@@ -2,11 +2,7 @@ import React, { createContext, useContext, useReducer, useEffect, ReactNode } fr
 import { User, AuthState, LoginForm } from '../types';
 import apiServices from '../services/apiServices';
 
-// Add new user detection
-const isNewUser = (email: string): boolean => {
-  const existingUsers = ['superadmin@trainer.com', 'admin@trainer.com', 'trainer@trainer.com', 'user@trainer.com'];
-  return !existingUsers.includes(email);
-};
+// User detection will be handled by the API response
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string, tenantSlug?: string) => Promise<{ success: boolean; message?: string }>;

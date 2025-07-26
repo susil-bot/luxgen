@@ -76,16 +76,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </div>
 
         <div className="bg-white shadow-xl rounded-2xl p-8 space-y-6">
-          {/* Demo Credentials Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
-            <div className="text-xs text-blue-700 space-y-1">
-              <div><strong>Super Admin:</strong> superadmin@trainer.com / password123</div>
-              <div><strong>Admin:</strong> admin@trainer.com / password123</div>
-              <div><strong>Trainer:</strong> trainer@trainer.com / password123</div>
-              <div><strong>User:</strong> user@trainer.com / password123</div>
-            </div>
-          </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {successMessage && (
