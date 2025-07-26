@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User, AuthState, LoginForm } from '../types';
 import apiServices from '../services/apiServices';
+import { useNotifications } from '../components/common/NotificationSystem';
+import { useErrorHandler } from '../utils/errorHandler';
 
 // User detection will be handled by the API response
 
@@ -68,6 +70,8 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const { showSuccess, showError, showInfo } = useNotifications();
+  const { handleError, handleAuthError } = useErrorHandler();
 
   // Check for existing token on app load
   useEffect(() => {
@@ -100,13 +104,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(user));
         
         dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token } });
+        
+        showSuccess(
+          'Login Successful',
+          `Welcome back, ${user.firstName || user.email}!`,
+          { duration: 4000 }
+        );
+        
         return { success: true };
       } else {
         dispatch({ type: 'LOGIN_FAILURE' });
         return { success: false, message: response.message || 'Invalid email or password' };
       }
-    } catch (error) {
+    } catch (error: any) {
       dispatch({ type: 'LOGIN_FAILURE' });
+      handleError(error, 'auth-login');
       return { success: false, message: 'Login failed' };
     }
   };
@@ -114,8 +126,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       await apiServices.logout();
-    } catch (error) {
+      showInfo('Logged Out', 'You have been successfully logged out.', { duration: 3000 });
+    } catch (error: any) {
       console.error('Logout error:', error);
+      handleError(error, 'auth-logout');
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');

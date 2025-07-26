@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock, User, Phone, Building, CheckCircle, AlertCircle } from 'lucide-react';
+import { useNotifications } from '../common/NotificationSystem';
+import { useErrorHandler } from '../../utils/errorHandler';
 import apiServices from '../../services/apiServices';
 
 interface RegisterFormData {
@@ -24,6 +25,8 @@ interface RegisterFormProps {
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin }) => {
   const navigate = useNavigate();
+  const { showSuccess, showError, showInfo, showWarning } = useNotifications();
+  const { handleError, handleValidationError } = useErrorHandler();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -133,48 +136,45 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
       if (response.success) {
         // Check if user was automatically logged in (has token)
         if (response.data?.token) {
-          toast('Registration successful! Welcome to the platform.', {
-            icon: '✅',
-            style: {
-              background: '#10B981',
-              color: '#fff',
-            },
-          });
+          showSuccess(
+            'Account Created Successfully!',
+            'Your account has been created successfully. You are now signed in.',
+            { duration: 5000 }
+          );
           onSuccess?.();
           // Navigate to dashboard or onboarding
           navigate('/dashboard');
         } else {
           // User needs email verification
-          toast('Registration successful! Please check your email for verification.', {
-            icon: '✅',
-            style: {
-              background: '#10B981',
-              color: '#fff',
-            },
-          });
+          showSuccess(
+            'Account Created Successfully!',
+            'Please check your email for verification instructions.',
+            { 
+              duration: 6000,
+              action: {
+                label: 'Resend Email',
+                onClick: () => {
+                  // TODO: Implement resend verification email
+                  showInfo('Email Sent', 'Verification email has been resent.');
+                }
+              }
+            }
+          );
           onSuccess?.();
           navigate('/verify-email', { 
             state: { email: formData.email, registrationId: response.data?.registrationId }
           });
         }
       } else {
-        toast(response.message || 'Registration failed', {
-          icon: '❌',
-          style: {
-            background: '#EF4444',
-            color: '#fff',
-          },
-        });
+        showError(
+          'Registration Failed',
+          response.message || 'Unable to create your account. Please try again.',
+          { duration: 6000 }
+        );
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-              toast(error.message || 'Registration failed. Please try again.', {
-          icon: '❌',
-          style: {
-            background: '#EF4444',
-            color: '#fff',
-          },
-        });
+      handleError(error, 'registration-form');
     } finally {
       setIsLoading(false);
     }
@@ -203,7 +203,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
 
   const renderStep1 = () => (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Your Account</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign Up</h2>
       
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">

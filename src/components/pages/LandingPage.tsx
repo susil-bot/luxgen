@@ -208,7 +208,7 @@ const LandingPage: React.FC = () => {
       <footer className="bg-gray-900 text-white py-12">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h3 className="text-lg font-semibold mb-4">Trainer Platform</h3>
+                          <h3 className="text-lg font-semibold mb-4">Platform</h3>
             <p className="text-gray-400 mb-6">
               Built with ❤️ for the training and development community
             </p>

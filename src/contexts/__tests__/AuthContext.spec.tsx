@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../AuthContext';
+import { NotificationProvider } from '../../components/common/NotificationSystem';
 import apiServices from '../../services/apiServices';
 
 // Mock dependencies
@@ -57,9 +58,11 @@ const TestComponent = () => {
 
 const renderWithAuthProvider = (component: React.ReactElement) => {
   return render(
-    <AuthProvider>
-      {component}
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        {component}
+      </AuthProvider>
+    </NotificationProvider>
   );
 };
 

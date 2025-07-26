@@ -104,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
           <div className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center">
             <Building2 className="h-5 w-5 text-white" />
           </div>
-          <span className="ml-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Trainer Platform</span>
+          <span className="ml-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Platform</span>
         </div>
         <button
           onClick={() => setIsMobileOpen(false)}

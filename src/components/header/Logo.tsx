@@ -9,7 +9,7 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ className = "", showText = true }) => {
   return (
     <Link to="/" className={`flex items-center text-teal-600 ${className}`}>
-      <span className="sr-only">Trainer Platform Home</span>
+              <span className="sr-only">Platform Home</span>
       <svg 
         className="h-8" 
         viewBox="0 0 28 24" 
@@ -23,7 +23,7 @@ const Logo: React.FC<LogoProps> = ({ className = "", showText = true }) => {
       </svg>
       {showText && (
         <span className="ml-2 text-lg font-bold text-gray-900">
-          Trainer Platform
+          Platform
         </span>
       )}
     </Link>

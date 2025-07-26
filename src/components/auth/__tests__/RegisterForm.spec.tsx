@@ -177,10 +177,10 @@ describe('RegisterForm', () => {
       
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Enter your first name')).toBeInTheDocument();
-        expect(screen.getByPlaceholderText('Enter your last name')).toBeInTheDocument();
-        expect(screen.getByPlaceholderText('Enter your phone number')).toBeInTheDocument();
-        expect(screen.getByPlaceholderText('Enter your company name')).toBeInTheDocument();
       });
+      expect(screen.getByPlaceholderText('Enter your last name')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Enter your phone number')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Enter your company name')).toBeInTheDocument();
     });
 
     it('validates step 2 required fields', async () => {
@@ -208,10 +208,10 @@ describe('RegisterForm', () => {
       
       await waitFor(() => {
         expect(screen.getByText('First name is required')).toBeInTheDocument();
-        expect(screen.getByText('Last name is required')).toBeInTheDocument();
-        expect(screen.getByText('Phone number is required')).toBeInTheDocument();
-        expect(screen.getByText('Company name is required')).toBeInTheDocument();
       });
+      expect(screen.getByText('Last name is required')).toBeInTheDocument();
+      expect(screen.getByText('Phone number is required')).toBeInTheDocument();
+      expect(screen.getByText('Company name is required')).toBeInTheDocument();
     });
   });
 
@@ -373,9 +373,9 @@ describe('RegisterForm', () => {
           'Registration successful! Please check your email for verification.',
           expect.any(Object)
         );
-        expect(mockNavigate).toHaveBeenCalledWith('/verify-email', {
-          state: { email: 'test@example.com', registrationId: 'mock-registration-id' }
-        });
+      });
+      expect(mockNavigate).toHaveBeenCalledWith('/verify-email', {
+        state: { email: 'test@example.com', registrationId: 'mock-registration-id' }
       });
     });
 

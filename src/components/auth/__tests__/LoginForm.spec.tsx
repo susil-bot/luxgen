@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+
 import LoginForm from '../LoginForm';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -58,7 +58,7 @@ describe('LoginForm', () => {
     it('renders the login form with correct elements', () => {
       renderWithRouter(<LoginForm />);
       
-      expect(screen.getByText('Trainer Platform')).toBeInTheDocument();
+      expect(screen.getByText('Welcome Back')).toBeInTheDocument();
       expect(screen.getByText('Sign in to your account to continue')).toBeInTheDocument();
       expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
@@ -355,8 +355,8 @@ describe('LoginForm', () => {
       
       renderWithRouter(<LoginForm />);
       
-      const loadingSpinner = screen.getByText('Signing in...').closest('button');
-      expect(loadingSpinner).toBeDisabled();
+      const loadingButton = screen.getByRole('button', { name: /signing in/i });
+      expect(loadingButton).toBeDisabled();
     });
   });
 
