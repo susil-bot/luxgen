@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, LogIn, Building2, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Building2, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoginForm as LoginFormType } from '../../types';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -10,6 +10,12 @@ import { formatFormError } from '../../utils/authErrorHandler';
 
 interface LoginFormProps {
   onSuccess?: () => void;
+}
+
+interface ValidationErrors {
+  email?: string;
+  password?: string;
+  tenantDomain?: string;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
@@ -26,7 +32,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<any>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle email verification success message
   useEffect(() => {
@@ -41,9 +49,67 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     }
   }, [location.state]);
 
+  // Clear errors when user starts typing
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    
+    // Clear specific field error
+    if (validationErrors[name as keyof ValidationErrors]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
+    
+    // Clear general error
+    if (error) {
+      setError(null);
+    }
+  };
+
+  // Validate form fields
+  const validateForm = (): boolean => {
+    const errors: ValidationErrors = {};
+
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    // Password validation
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters long';
+    }
+
+    // Tenant domain validation (optional)
+    if (formData.tenantDomain && !/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/.test(formData.tenantDomain)) {
+      errors.tenantDomain = 'Please enter a valid domain name';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setValidationErrors({});
+
+    // Validate form
+    if (!validateForm()) {
+      showError('Validation Error', 'Please check the form and try again.', { duration: 5000 });
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       showInfo('Signing In', 'Please wait while we authenticate your credentials...', { duration: 3000 });
@@ -69,27 +135,78 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           }
         };
         setError(errorObj);
-        showError(
-          'Login Failed',
-          response.message || 'Please check your credentials and try again.',
-          { duration: 6000 }
-        );
+        
+        // Show specific error message based on response
+        if (response.message?.includes('not found')) {
+          showError('Account Not Found', 'No account found with this email address. Please check your email or create a new account.', { duration: 6000 });
+        } else if (response.message?.includes('password')) {
+          showError('Invalid Password', 'The password you entered is incorrect. Please try again or reset your password.', { duration: 6000 });
+        } else if (response.message?.includes('verified')) {
+          showError('Email Not Verified', 'Please verify your email address before signing in. Check your inbox for a verification link.', { duration: 6000 });
+        } else if (response.message?.includes('locked')) {
+          showError('Account Locked', 'Your account has been temporarily locked due to multiple failed attempts. Please try again in 15 minutes or reset your password.', { duration: 8000 });
+        } else {
+          showError('Login Failed', response.message || 'Please check your credentials and try again.', { duration: 6000 });
+        }
       }
     } catch (err: any) {
-      handleError(err, 'login-form');
-      setError(err);
+      console.error('Login error:', err);
+      
+      // Handle different types of errors
+      if (err.name === 'NetworkError' || err.message?.includes('network')) {
+        setError({
+          response: {
+            status: 0,
+            data: {
+              message: 'Network connection failed',
+              code: 'NETWORK_ERROR'
+            }
+          }
+        });
+        showError('Connection Error', 'Unable to connect to the server. Please check your internet connection and try again.', { duration: 8000 });
+      } else if (err.response?.status === 429) {
+        setError({
+          response: {
+            status: 429,
+            data: {
+              message: 'Too many login attempts',
+              code: 'RATE_LIMIT_EXCEEDED'
+            }
+          }
+        });
+        showError('Too Many Attempts', 'Too many login attempts. Please wait a few minutes before trying again.', { duration: 8000 });
+      } else if (err.response?.status >= 500) {
+        setError({
+          response: {
+            status: err.response.status,
+            data: {
+              message: 'Server error',
+              code: 'SERVER_ERROR'
+            }
+          }
+        });
+        showError('Server Error', 'We\'re experiencing technical difficulties. Please try again in a few minutes.', { duration: 8000 });
+      } else {
+        setError(err);
+        handleError(err, 'login-form');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    // Clear error when user starts typing
-    if (error) {
-      setError(null);
+  const getFieldError = (fieldName: keyof ValidationErrors): string | undefined => {
+    return validationErrors[fieldName];
+  };
+
+  const getFieldClassName = (fieldName: keyof ValidationErrors): string => {
+    const baseClass = "appearance-none relative block w-full px-3 py-3 pr-10 border placeholder-gray-500 text-gray-900 bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:z-10 sm:text-sm transition-colors";
+    const hasError = getFieldError(fieldName);
+    
+    if (hasError) {
+      return `${baseClass} border-red-300 focus:ring-red-500 focus:border-red-500`;
     }
+    return `${baseClass} border-gray-300 focus:ring-primary-500 focus:border-primary-500`;
   };
 
   return (
@@ -108,7 +225,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </div>
 
         <div className="bg-white shadow-xl rounded-2xl p-8 space-y-6">
-
           <form className="space-y-6" onSubmit={handleSubmit}>
             {successMessage && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
@@ -127,22 +243,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
                 onAction={(action) => {
                   switch (action) {
                     case 'USER_NOT_FOUND':
-                      // Navigate to registration
-                      window.location.href = '/register';
+                      navigate('/register');
                       break;
                     case 'EMAIL_NOT_VERIFIED':
-                      // Navigate to email verification
-                      window.location.href = '/verify-email';
+                      navigate('/verify-email');
                       break;
                     case 'ACCOUNT_LOCKED':
                     case 'INVALID_CREDENTIALS':
-                      // Navigate to forgot password
-                      window.location.href = '/forgot-password';
+                      navigate('/forgot-password');
                       break;
                     case 'TENANT_NOT_FOUND':
-                      // Clear tenant domain field
                       setFormData(prev => ({ ...prev, tenantDomain: '' }));
                       setError(null);
+                      break;
+                    case 'NETWORK_ERROR':
+                      // Retry the login
+                      handleSubmit(new Event('submit') as any);
                       break;
                     default:
                       console.log('Action not implemented:', action);
@@ -155,7 +271,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
-              <input
+              <div className="relative">
+                <input
                   id="email"
                   name="email"
                   type="email"
@@ -163,10 +280,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none relative block w-full px-3 py-3 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
+                  className={getFieldClassName('email')}
                   placeholder="Enter your email"
                 />
-
+                {getFieldError('email') && (
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                  </div>
+                )}
+              </div>
+              {getFieldError('email') && (
+                <p className="mt-1 text-sm text-red-600">{getFieldError('email')}</p>
+              )}
             </div>
 
             <div>
@@ -191,47 +316,67 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none relative block w-full px-3 py-3 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
+                  className={getFieldClassName('password')}
                   placeholder="Enter your password"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {getFieldError('password') && (
+                  <div className="absolute inset-y-0 right-0 pr-10 flex items-center pointer-events-none">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                  </div>
+                )}
               </div>
+              {getFieldError('password') && (
+                <p className="mt-1 text-sm text-red-600">{getFieldError('password')}</p>
+              )}
             </div>
 
             <div>
               <label htmlFor="tenantDomain" className="block text-sm font-medium text-gray-700 mb-2">
                 Organization Domain (Optional)
               </label>
-              <input
-                id="tenantDomain"
-                name="tenantDomain"
-                type="text"
-                value={formData.tenantDomain}
-                onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-3 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
-                placeholder="your-organization.trainer.com"
-              />
+              <div className="relative">
+                <input
+                  id="tenantDomain"
+                  name="tenantDomain"
+                  type="text"
+                  value={formData.tenantDomain}
+                  onChange={handleChange}
+                  className={getFieldClassName('tenantDomain')}
+                  placeholder="your-organization.trainer.com"
+                />
+                {getFieldError('tenantDomain') && (
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                  </div>
+                )}
+              </div>
+              {getFieldError('tenantDomain') && (
+                <p className="mt-1 text-sm text-red-600">{getFieldError('tenantDomain')}</p>
+              )}
             </div>
 
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || isSubmitting}
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? (
+                {(loading || isSubmitting) ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
                     Signing in...
                   </div>
                 ) : (

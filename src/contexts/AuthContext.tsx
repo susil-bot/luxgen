@@ -114,12 +114,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: true };
       } else {
         dispatch({ type: 'LOGIN_FAILURE' });
-        return { success: false, message: response.message || 'Invalid email or password' };
+        
+        // Provide more specific error messages based on response
+        let errorMessage = response.message || 'Invalid email or password';
+        
+        // Check for specific error patterns in the message
+        if (response.message?.toLowerCase().includes('not found')) {
+          errorMessage = 'No account found with this email address';
+        } else if (response.message?.toLowerCase().includes('password') || response.message?.toLowerCase().includes('invalid')) {
+          errorMessage = 'Invalid email or password';
+        } else if (response.message?.toLowerCase().includes('verify') || response.message?.toLowerCase().includes('email')) {
+          errorMessage = 'Please verify your email address before signing in';
+        } else if (response.message?.toLowerCase().includes('lock')) {
+          errorMessage = 'Account is temporarily locked due to multiple failed attempts';
+        } else if (response.message?.toLowerCase().includes('disable')) {
+          errorMessage = 'Account has been disabled. Please contact support';
+        } else if (response.message?.toLowerCase().includes('tenant') || response.message?.toLowerCase().includes('organization')) {
+          errorMessage = 'Organization not found. Please check the domain';
+        }
+        
+        return { success: false, message: errorMessage };
       }
     } catch (error: any) {
       dispatch({ type: 'LOGIN_FAILURE' });
+      
+      // Handle specific error types
+      let errorMessage = 'Login failed';
+      
+      if (error.name === 'NetworkError' || error.message?.includes('network')) {
+        errorMessage = 'Network connection failed. Please check your internet connection.';
+      } else if (error.response?.status === 429) {
+        errorMessage = 'Too many login attempts. Please wait a few minutes before trying again.';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again in a few minutes.';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Invalid email or password';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'Access denied. Please contact your administrator.';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Service not found. Please check the URL.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       handleError(error, 'auth-login');
-      return { success: false, message: 'Login failed' };
+      return { success: false, message: errorMessage };
     }
   };
 
