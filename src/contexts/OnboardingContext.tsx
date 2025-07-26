@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 interface OnboardingContextType {
   isOnboarding: boolean;
@@ -12,6 +13,7 @@ interface OnboardingContextType {
   goToStep: (step: number) => void;
   updateOnboardingData: (data: Partial<OnboardingData>) => void;
   skipOnboarding: () => void;
+  shouldShowOnboarding: () => boolean;
 }
 
 interface OnboardingData {
@@ -42,6 +44,7 @@ interface OnboardingProviderProps {
 }
 
 export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
@@ -59,30 +62,51 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
 
   const totalSteps = 4;
 
-  // Check if user needs onboarding on mount
+  // Check if user needs onboarding on mount - only for authenticated users
   useEffect(() => {
-    const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted');
-    const isNewUser = !hasCompletedOnboarding;
-    
-    if (isNewUser) {
-      setIsOnboarding(true);
+    if (!isAuthenticated) {
+      setIsOnboarding(false);
+      return;
     }
-  }, []);
+
+    // Add a small delay to prevent flashing on page load
+    const timer = setTimeout(() => {
+      const userOnboardingKey = user?.id ? `onboardingCompleted_${user.id}` : 'onboardingCompleted';
+      const userHasCompletedOnboarding = localStorage.getItem(userOnboardingKey);
+      
+      // Only show onboarding if user is authenticated and hasn't completed it
+      const shouldShowOnboarding = !userHasCompletedOnboarding && isAuthenticated;
+      
+      if (shouldShowOnboarding) {
+        setIsOnboarding(true);
+      } else {
+        setIsOnboarding(false);
+      }
+    }, 100); // Small delay to prevent flashing
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, user?.id]);
 
   const startOnboarding = () => {
+    if (!isAuthenticated) {
+      console.warn('Cannot start onboarding: user not authenticated');
+      return;
+    }
     setIsOnboarding(true);
     setCurrentStep(1);
   };
 
   const completeOnboarding = () => {
     setIsOnboarding(false);
-    localStorage.setItem('onboardingCompleted', 'true');
+    const userOnboardingKey = user?.id ? `onboardingCompleted_${user.id}` : 'onboardingCompleted';
+    localStorage.setItem(userOnboardingKey, 'true');
     localStorage.setItem('onboardingData', JSON.stringify(onboardingData));
   };
 
   const skipOnboarding = () => {
     setIsOnboarding(false);
-    localStorage.setItem('onboardingCompleted', 'true');
+    const userOnboardingKey = user?.id ? `onboardingCompleted_${user.id}` : 'onboardingCompleted';
+    localStorage.setItem(userOnboardingKey, 'true');
   };
 
   const nextStep = () => {
@@ -107,6 +131,13 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     setOnboardingData(prev => ({ ...prev, ...data }));
   };
 
+  const shouldShowOnboarding = () => {
+    if (!isAuthenticated) return false;
+    const userOnboardingKey = user?.id ? `onboardingCompleted_${user.id}` : 'onboardingCompleted';
+    const userHasCompletedOnboarding = localStorage.getItem(userOnboardingKey);
+    return !userHasCompletedOnboarding;
+  };
+
   const value: OnboardingContextType = {
     isOnboarding,
     currentStep,
@@ -119,6 +150,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
     goToStep,
     updateOnboardingData,
     skipOnboarding,
+    shouldShowOnboarding,
   };
 
   return (

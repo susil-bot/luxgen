@@ -7,6 +7,8 @@ jest.mock('../apiClient', () => ({
   post: jest.fn(),
   put: jest.fn(),
   delete: jest.fn(),
+  setAuthToken: jest.fn(),
+  getAuthToken: jest.fn(),
 }));
 
 const mockApiClient = apiClient as jest.Mocked<typeof apiClient>;
@@ -60,7 +62,7 @@ describe('apiServices', () => {
 
       const result = await apiServices.register(registrationData);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/registration/register', registrationData);
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/register', registrationData);
       expect(result).toEqual(mockResponse);
     });
 
@@ -80,7 +82,7 @@ describe('apiServices', () => {
       };
 
       await expect(apiServices.register(registrationData)).rejects.toThrow('Registration failed');
-      expect(mockApiClient.post).toHaveBeenCalledWith('/registration/register', registrationData);
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/register', registrationData);
     });
   });
 
@@ -112,7 +114,7 @@ describe('apiServices', () => {
 
       const result = await apiServices.logout();
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout', {});
       expect(result).toEqual(mockResponse);
     });
 
@@ -144,7 +146,7 @@ describe('apiServices', () => {
 
       const result = await apiServices.resendVerificationEmail(data);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/registration/resend-verification', data);
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/resend-verification', data);
       expect(result).toEqual(mockResponse);
     });
 
@@ -162,7 +164,7 @@ describe('apiServices', () => {
 
       const result = await apiServices.checkEmailVerification(registrationId);
 
-      expect(mockApiClient.get).toHaveBeenCalledWith(`/registration/status/${registrationId}`);
+      expect(mockApiClient.get).toHaveBeenCalledWith(`/auth/verification-status/${registrationId}`);
       expect(result).toEqual(mockResponse);
     });
 
@@ -174,7 +176,7 @@ describe('apiServices', () => {
 
       const result = await apiServices.verifyEmail(token);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/registration/verify-email', { token });
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/verify-email', { token });
       expect(result).toEqual(mockResponse);
     });
   });

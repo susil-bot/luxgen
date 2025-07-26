@@ -5,6 +5,8 @@ import { LoginForm as LoginFormType } from '../../types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useNotifications } from '../common/NotificationSystem';
 import { useErrorHandler } from '../../utils/errorHandler';
+import ErrorDisplay from '../common/ErrorDisplay';
+import { formatFormError } from '../../utils/authErrorHandler';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -23,7 +25,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     tenantDomain: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<any>(null);
   const [successMessage, setSuccessMessage] = useState('');
 
   // Handle email verification success message
@@ -41,7 +43,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(null);
 
     try {
       showInfo('Signing In', 'Please wait while we authenticate your credentials...', { duration: 3000 });
@@ -56,7 +58,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         );
         onSuccess?.();
       } else {
-        setError(response.message || 'Invalid email or password');
+        // Create error object for consistent handling
+        const errorObj = {
+          response: {
+            status: 401,
+            data: {
+              message: response.message || 'Invalid email or password',
+              code: 'INVALID_CREDENTIALS'
+            }
+          }
+        };
+        setError(errorObj);
         showError(
           'Login Failed',
           response.message || 'Please check your credentials and try again.',
@@ -65,7 +77,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       }
     } catch (err: any) {
       handleError(err, 'login-form');
-      setError('Invalid email or password');
+      setError(err);
     }
   };
 
@@ -74,6 +86,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) {
+      setError(null);
+    }
   };
 
   return (
@@ -104,9 +120,35 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             )}
             
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
+              <ErrorDisplay
+                error={error}
+                context="login"
+                onDismiss={() => setError(null)}
+                onAction={(action) => {
+                  switch (action) {
+                    case 'USER_NOT_FOUND':
+                      // Navigate to registration
+                      window.location.href = '/register';
+                      break;
+                    case 'EMAIL_NOT_VERIFIED':
+                      // Navigate to email verification
+                      window.location.href = '/verify-email';
+                      break;
+                    case 'ACCOUNT_LOCKED':
+                    case 'INVALID_CREDENTIALS':
+                      // Navigate to forgot password
+                      window.location.href = '/forgot-password';
+                      break;
+                    case 'TENANT_NOT_FOUND':
+                      // Clear tenant domain field
+                      setFormData(prev => ({ ...prev, tenantDomain: '' }));
+                      setError(null);
+                      break;
+                    default:
+                      console.log('Action not implemented:', action);
+                  }
+                }}
+              />
             )}
 
             <div>

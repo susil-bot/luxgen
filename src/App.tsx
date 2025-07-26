@@ -22,9 +22,9 @@ import ConnectedApps from './components/settings/ConnectedApps';
 import Plans from './components/settings/Plans';
 import Billing from './components/settings/Billing';
 import Feedback from './components/settings/Feedback';
-import OnboardingFlow from './components/onboarding/OnboardingFlow';
-import OnboardingTrigger from './components/onboarding/OnboardingTrigger';
+
 import AIChatbotInterface from './components/ai-chatbot/AIChatbotInterface';
+import AIContentCreationInterface from './components/ai-content/AIContentCreationInterface';
 import GroupManagementInterface from './components/group-management/GroupManagementInterface';
 import PresentationManagementInterface from './components/presentation-management/PresentationManagementInterface';
 import NotificationFeedbackInterface from './components/notification-feedback/NotificationFeedbackInterface';
@@ -33,6 +33,7 @@ import UserManagementInterface from './components/user-management/UserManagement
 import TrainerDashboard from './components/trainer/TrainerDashboard';
 import ParticipantDashboard from './components/participant/ParticipantDashboard';
 import NichePollsPage from './pages/NichePollsPage';
+import ErrorDemo from './components/auth/ErrorDemo';
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -117,6 +118,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/error-demo" element={<ErrorDemo />} />
       <Route 
         path="/login" 
         element={
@@ -187,6 +189,9 @@ const AppRoutes: React.FC = () => {
         {/* AI Chatbot */}
         <Route path="ai-assistant" element={<AIChatbotInterface />} />
         
+        {/* AI Content Creation */}
+        <Route path="ai-content" element={<AIContentCreationInterface />} />
+        
         {/* Settings and Profile */}
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsLayout />}>
@@ -212,7 +217,10 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
+    <ThemeProvider 
+      initialTheme="default"
+      initialDarkMode={false}
+    >
       <NotificationProvider>
         <MultiTenancyProvider>
           <AuthProvider>
@@ -222,8 +230,6 @@ const App: React.FC = () => {
                   <Router>
                     <div className="App">
                       <AppRoutes />
-                      <OnboardingFlow />
-                      <OnboardingTrigger />
                     </div>
                   </Router>
                 </GroupManagementProvider>
