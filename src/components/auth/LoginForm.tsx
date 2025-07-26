@@ -18,11 +18,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("signning in.....")
     e.preventDefault();
     setError('');
 
     try {
       const response = await login(formData.email, formData.password, formData.tenantDomain);
+      console.log("Response:", response);
       if (response.success) {
         onSuccess?.();
       } else {
