@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User, AuthState, LoginForm } from '../types';
+import apiServices from '../services/apiServices';
+import { useNotifications } from '../components/common/NotificationSystem';
+import { useErrorHandler } from '../utils/errorHandler';
 
-// Add new user detection
-const isNewUser = (email: string): boolean => {
-  const existingUsers = ['superadmin@trainer.com', 'admin@trainer.com', 'trainer@trainer.com', 'user@trainer.com'];
-  return !existingUsers.includes(email);
-};
+// User detection will be handled by the API response
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string, tenantSlug?: string) => Promise<{ success: boolean; message?: string }>;
@@ -71,6 +70,8 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const { showSuccess, showError, showInfo } = useNotifications();
+  const { handleError, handleAuthError } = useErrorHandler();
 
   // Check for existing token on app load
   useEffect(() => {
@@ -92,105 +93,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
     
     try {
-      // Simulate API call with dummy data
-      const dummyUsers: User[] = [
-        {
-          id: '1',
-          email: 'superadmin@trainer.com',
-          firstName: 'Super',
-          lastName: 'Admin',
-          role: 'super_admin',
-          tenantId: 'tenant-1',
-          isActive: true,
-          createdAt: new Date(),
-          lastLogin: new Date(),
-        },
-        {
-          id: '2',
-          email: 'admin@trainer.com',
-          firstName: 'Admin',
-          lastName: 'User',
-          role: 'admin',
-          tenantId: 'tenant-1',
-          isActive: true,
-          createdAt: new Date(),
-          lastLogin: new Date(),
-        },
-        {
-          id: '3',
-          email: 'trainer@trainer.com',
-          firstName: 'Lead',
-          lastName: 'Trainer',
-          role: 'trainer',
-          tenantId: 'tenant-1',
-          isActive: true,
-          createdAt: new Date(),
-          lastLogin: new Date(),
-        },
-        {
-          id: '4',
-          email: 'user@trainer.com',
-          firstName: 'Regular',
-          lastName: 'User',
-          role: 'user',
-          tenantId: 'tenant-1',
-          isActive: true,
-          createdAt: new Date(),
-          lastLogin: new Date(),
-        },
-      ];
-
-      // Find user by email
-      const user = dummyUsers.find(u => u.email === email);
+      const response = await apiServices.login({ email, password });
       
-      if (user && password === 'password123') {
-        const token = 'dummy-jwt-token-' + user.id;
+      if (response.success && response.data) {
+        const user = response.data.user;
+        const token = response.data.token;
         
         // Store in localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         
         dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token } });
-        return { success: true };
-      } else if (isNewUser(email) && password === 'password123') {
-        // Create new user
-        const newUser: User = {
-          id: Date.now().toString(),
-          email: email,
-          firstName: email.split('@')[0],
-          lastName: 'User',
-          role: 'user',
-          tenantId: tenantSlug || 'tenant-1',
-          isActive: true,
-          createdAt: new Date(),
-          lastLogin: new Date(),
-        };
         
-        const token = 'dummy-jwt-token-' + newUser.id;
+        showSuccess(
+          'Login Successful',
+          `Welcome back, ${user.firstName || user.email}!`,
+          { duration: 4000 }
+        );
         
-        // Store in localStorage
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(newUser));
-        
-        // Mark as new user for onboarding
-        localStorage.removeItem('onboardingCompleted');
-        
-        dispatch({ type: 'LOGIN_SUCCESS', payload: { user: newUser, token } });
         return { success: true };
       } else {
         dispatch({ type: 'LOGIN_FAILURE' });
-        return { success: false, message: 'Invalid email or password' };
+        return { success: false, message: response.message || 'Invalid email or password' };
       }
-    } catch (error) {
+    } catch (error: any) {
       dispatch({ type: 'LOGIN_FAILURE' });
-      throw error;
+      handleError(error, 'auth-login');
+      return { success: false, message: 'Login failed' };
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    dispatch({ type: 'LOGOUT' });
+  const logout = async () => {
+    try {
+      await apiServices.logout();
+      showInfo('Logged Out', 'You have been successfully logged out.', { duration: 3000 });
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      handleError(error, 'auth-logout');
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      dispatch({ type: 'LOGOUT' });
+    }
   };
 
   const hasRole = (roles: string[]): boolean => {

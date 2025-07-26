@@ -85,32 +85,136 @@ class ApiServices {
   }
 
   async getDatabaseStatus(): Promise<ApiResponse<DatabaseMonitorData>> {
-    return apiClient.get('/api/database/status');
+    return apiClient.get('/database/status');
+  }
+
+  // User Registration API
+  async register(userData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    company?: string;
+    role?: string;
+    marketingConsent?: boolean;
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/registration/register', userData);
+    if (response.success && response.data?.token) {
+      apiClient.setAuthToken(response.data.token);
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response;
+  }
+
+  // Email Verification API
+  async resendVerificationEmail(data: {
+    email: string;
+    registrationId: string;
+  }): Promise<ApiResponse<any>> {
+    return apiClient.post('/registration/resend-verification', data);
+  }
+
+  async checkEmailVerification(registrationId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/registration/status/${registrationId}`);
+  }
+
+  async verifyEmail(token: string): Promise<ApiResponse<any>> {
+    return apiClient.post('/registration/verify-email', { token });
+  }
+
+  // Password Reset API
+  async forgotPassword(data: { email: string }): Promise<ApiResponse<any>> {
+    return apiClient.post('/auth/forgot-password', data);
+  }
+
+  async resetPassword(data: { token: string; password: string }): Promise<ApiResponse<any>> {
+    return apiClient.post('/auth/reset-password', data);
+  }
+
+  // Authentication
+  async login(credentials: { email: string; password: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/auth/login', credentials);
+    if (response.success && response.data?.token) {
+      apiClient.setAuthToken(response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response;
+  }
+
+  async logout(): Promise<ApiResponse<void>> {
+    const response = await apiClient.post('/auth/logout', {});
+    apiClient.setAuthToken(null);
+    localStorage.removeItem('user');
+    return response;
+  }
+
+  async getCurrentUser(): Promise<ApiResponse<User>> {
+    return apiClient.get('/auth/me');
+  }
+
+  // Users API
+  async getUsers(): Promise<ApiResponse<User[]>> {
+    return apiClient.get('/users');
+  }
+
+  async getUser(userId: string): Promise<ApiResponse<User>> {
+    return apiClient.get(`/users/${userId}`);
+  }
+
+  async updateUser(userId: string, userData: Partial<User>): Promise<ApiResponse<User>> {
+    return apiClient.put(`/users/${userId}`, userData);
+  }
+
+  async deleteUser(userId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`/users/${userId}`);
+  }
+
+  // Tenant Management API
+  async createTenant(tenantData: any): Promise<ApiResponse<any>> {
+    return apiClient.post('/tenants/create', tenantData);
+  }
+
+  async getTenants(): Promise<ApiResponse<any[]>> {
+    return apiClient.get('/tenants');
+  }
+
+  async getTenant(tenantId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/tenants/${tenantId}`);
+  }
+
+  async updateTenant(tenantId: string, tenantData: any): Promise<ApiResponse<any>> {
+    return apiClient.put(`/tenants/${tenantId}`, tenantData);
+  }
+
+  async deleteTenant(tenantId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete(`/tenants/${tenantId}`);
   }
 
   // Polls API
   async getPolls(tenantId: string): Promise<ApiResponse<Poll[]>> {
-    return apiClient.get(`/api/polls/${tenantId}`);
+    return apiClient.get(`/polls/${tenantId}`);
   }
 
   async getPoll(tenantId: string, pollId: string): Promise<ApiResponse<Poll>> {
-    return apiClient.get(`/api/polls/${tenantId}/${pollId}`);
+    return apiClient.get(`/polls/${tenantId}/${pollId}`);
   }
 
   async createPoll(tenantId: string, pollData: Partial<Poll>): Promise<ApiResponse<Poll>> {
-    return apiClient.post(`/api/polls/${tenantId}`, pollData);
+    return apiClient.post(`/polls/${tenantId}`, pollData);
   }
 
   async updatePoll(tenantId: string, pollId: string, pollData: Partial<Poll>): Promise<ApiResponse<Poll>> {
-    return apiClient.put(`/api/polls/${tenantId}/${pollId}`, pollData);
+    return apiClient.put(`/polls/${tenantId}/${pollId}`, pollData);
   }
 
   async deletePoll(tenantId: string, pollId: string): Promise<ApiResponse<void>> {
-    return apiClient.delete(`/api/polls/${tenantId}/${pollId}`);
+    return apiClient.delete(`/polls/${tenantId}/${pollId}`);
   }
 
   async getPollStats(tenantId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/api/polls/${tenantId}/stats`);
+    return apiClient.get(`/polls/${tenantId}/stats`);
   }
 
   // Poll Responses
@@ -119,11 +223,11 @@ class ApiServices {
     pollId: string, 
     response: Partial<PollResponse>
   ): Promise<ApiResponse<PollResponse>> {
-    return apiClient.post(`/api/polls/${tenantId}/${pollId}/response`, response);
+    return apiClient.post(`/polls/${tenantId}/${pollId}/response`, response);
   }
 
   async getPollResponses(tenantId: string, pollId: string): Promise<ApiResponse<PollResponse[]>> {
-    return apiClient.get(`/api/polls/${tenantId}/${pollId}/responses`);
+    return apiClient.get(`/polls/${tenantId}/${pollId}/responses`);
   }
 
   // Poll Feedback
@@ -132,11 +236,11 @@ class ApiServices {
     pollId: string, 
     feedback: Partial<PollFeedback>
   ): Promise<ApiResponse<PollFeedback>> {
-    return apiClient.post(`/api/polls/${tenantId}/${pollId}/feedback`, feedback);
+    return apiClient.post(`/polls/${tenantId}/${pollId}/feedback`, feedback);
   }
 
   async getPollFeedback(tenantId: string, pollId: string): Promise<ApiResponse<PollFeedback[]>> {
-    return apiClient.get(`/api/polls/${tenantId}/${pollId}/feedback`);
+    return apiClient.get(`/polls/${tenantId}/${pollId}/feedback`);
   }
 
   // Notifications
@@ -150,7 +254,7 @@ class ApiServices {
     if (options?.unreadOnly) params.append('unreadOnly', options.unreadOnly.toString());
     
     const queryString = params.toString();
-    const endpoint = `/api/polls/${tenantId}/notifications${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/polls/${tenantId}/notifications${queryString ? `?${queryString}` : ''}`;
     
     return apiClient.get(endpoint);
   }
@@ -159,48 +263,12 @@ class ApiServices {
     tenantId: string, 
     notificationId: string
   ): Promise<ApiResponse<void>> {
-    return apiClient.put(`/api/polls/${tenantId}/notifications/${notificationId}/read`, {});
+    return apiClient.put(`/polls/${tenantId}/notifications/${notificationId}/read`, {});
   }
 
   // Poll Actions
   async sendPoll(tenantId: string, pollId: string): Promise<ApiResponse<void>> {
-    return apiClient.post(`/api/polls/${tenantId}/${pollId}/send`, {});
-  }
-
-  // Users API
-  async getUsers(tenantId: string): Promise<ApiResponse<User[]>> {
-    return apiClient.get(`/api/${tenantId}/users`);
-  }
-
-  async getCourses(tenantId: string): Promise<ApiResponse<any[]>> {
-    return apiClient.get(`/api/${tenantId}/courses`);
-  }
-
-  // Authentication
-  async login(credentials: any): Promise<ApiResponse<any>> {
-    const response = await apiClient.post('/api/auth/login', credentials);
-    if (response.success && response.data?.token) {
-      apiClient.setAuthToken(response.data.token);
-    }
-    return response;
-  }
-
-  async logout(): Promise<ApiResponse<void>> {
-    const response = await apiClient.post('/api/auth/logout', {});
-    apiClient.setAuthToken(null);
-    return response;
-  }
-
-  async register(userData: any): Promise<ApiResponse<any>> {
-    const response = await apiClient.post('/api/auth/register', userData);
-    if (response.success && response.data?.token) {
-      apiClient.setAuthToken(response.data.token);
-    }
-    return response;
-  }
-
-  async getCurrentUser(): Promise<ApiResponse<User>> {
-    return apiClient.get('/api/auth/me');
+    return apiClient.post(`/polls/${tenantId}/${pollId}/send`, {});
   }
 
   // Utility methods
@@ -260,25 +328,25 @@ class ApiServices {
 
   // Analytics and Reporting
   async getPollAnalytics(tenantId: string, pollId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/api/polls/${tenantId}/${pollId}/analytics`);
+    return apiClient.get(`/polls/${tenantId}/${pollId}/analytics`);
   }
 
   async getTenantAnalytics(tenantId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/api/${tenantId}/analytics`);
+    return apiClient.get(`/analytics/${tenantId}`);
   }
 
   // Export functionality
   async exportPollData(tenantId: string, pollId: string, format: 'csv' | 'json' = 'csv'): Promise<ApiResponse<string>> {
-    return apiClient.get(`/api/polls/${tenantId}/${pollId}/export?format=${format}`);
+    return apiClient.get(`/polls/${tenantId}/${pollId}/export?format=${format}`);
   }
 
   // Bulk operations
   async bulkDeletePolls(tenantId: string, pollIds: string[]): Promise<ApiResponse<{ deleted: number; failed: number }>> {
-    return apiClient.post(`/api/polls/${tenantId}/bulk-delete`, { pollIds });
+    return apiClient.post(`/polls/${tenantId}/bulk-delete`, { pollIds });
   }
 
   async bulkUpdatePolls(tenantId: string, pollIds: string[], updates: Partial<Poll>): Promise<ApiResponse<{ updated: number; failed: number }>> {
-    return apiClient.put(`/api/polls/${tenantId}/bulk-update`, { pollIds, updates });
+    return apiClient.put(`/polls/${tenantId}/bulk-update`, { pollIds, updates });
   }
 }
 

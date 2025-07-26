@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, LogIn, Building2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, LogIn, Building2, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoginForm as LoginFormType } from '../../types';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useNotifications } from '../common/NotificationSystem';
+import { useErrorHandler } from '../../utils/errorHandler';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -9,6 +12,11 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const { login, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { showSuccess, showError, showInfo } = useNotifications();
+  const { handleError, handleAuthError } = useErrorHandler();
+  
   const [formData, setFormData] = useState<LoginFormType>({
     email: '',
     password: '',
@@ -16,21 +24,47 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Handle email verification success message
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.message) {
+      setSuccessMessage(state.message);
+      if (state.email) {
+        setFormData(prev => ({ ...prev, email: state.email }));
+      }
+      // Clear the state to prevent showing the message again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("signning in.....")
     e.preventDefault();
     setError('');
 
     try {
+      showInfo('Signing In', 'Please wait while we authenticate your credentials...', { duration: 3000 });
+      
       const response = await login(formData.email, formData.password, formData.tenantDomain);
-      console.log("Response:", response);
+      
       if (response.success) {
+        showSuccess(
+          'Welcome Back!', 
+          `Successfully signed in as ${formData.email}`,
+          { duration: 4000 }
+        );
         onSuccess?.();
       } else {
         setError(response.message || 'Invalid email or password');
+        showError(
+          'Login Failed',
+          response.message || 'Please check your credentials and try again.',
+          { duration: 6000 }
+        );
       }
-    } catch (err) {
+    } catch (err: any) {
+      handleError(err, 'login-form');
       setError('Invalid email or password');
     }
   };
@@ -50,7 +84,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             <Building2 className="h-8 w-8 text-white" />
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Trainer Platform
+            Welcome Back
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to your account to continue
@@ -58,18 +92,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </div>
 
         <div className="bg-white shadow-xl rounded-2xl p-8 space-y-6">
-          {/* Demo Credentials Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
-            <div className="text-xs text-blue-700 space-y-1">
-              <div><strong>Super Admin:</strong> superadmin@trainer.com / password123</div>
-              <div><strong>Admin:</strong> admin@trainer.com / password123</div>
-              <div><strong>Trainer:</strong> trainer@trainer.com / password123</div>
-              <div><strong>User:</strong> user@trainer.com / password123</div>
-            </div>
-          </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                  <p className="text-sm text-green-800">{successMessage}</p>
+                </div>
+              </div>
+            )}
+            
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-600">{error}</p>
@@ -95,9 +128,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <input
                   id="password"
@@ -162,7 +204,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
 
           <div className="text-center">
             <p className="text-xs text-gray-500">
-              Secure multi-tenant training platform
+              Secure sign-in platform
             </p>
           </div>
         </div>

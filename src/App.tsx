@@ -6,6 +6,7 @@ import { OnboardingProvider } from './contexts/OnboardingContext';
 import { AIChatbotProvider } from './contexts/AIChatbotContext';
 import { GroupManagementProvider } from './contexts/GroupManagementContext';
 import { MultiTenancyProvider } from './contexts/MultiTenancyContext';
+import { NotificationProvider } from './components/common/NotificationSystem';
 import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import EmailVerification from './components/auth/EmailVerification';
@@ -212,23 +213,25 @@ const AppRoutes: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <MultiTenancyProvider>
-        <AuthProvider>
-          <OnboardingProvider>
-            <AIChatbotProvider>
-              <GroupManagementProvider>
-                <Router>
-                  <div className="App">
-                    <AppRoutes />
-                    <OnboardingFlow />
-                    <OnboardingTrigger />
-                  </div>
-                </Router>
-              </GroupManagementProvider>
-            </AIChatbotProvider>
-          </OnboardingProvider>
-        </AuthProvider>
-      </MultiTenancyProvider>
+      <NotificationProvider>
+        <MultiTenancyProvider>
+          <AuthProvider>
+            <OnboardingProvider>
+              <AIChatbotProvider>
+                <GroupManagementProvider>
+                  <Router>
+                    <div className="App">
+                      <AppRoutes />
+                      <OnboardingFlow />
+                      <OnboardingTrigger />
+                    </div>
+                  </Router>
+                </GroupManagementProvider>
+              </AIChatbotProvider>
+            </OnboardingProvider>
+          </AuthProvider>
+        </MultiTenancyProvider>
+      </NotificationProvider>
     </ThemeProvider>
   );
 };

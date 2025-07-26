@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Mail, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import apiClient from '../../services/apiClient';
+import { Mail, CheckCircle, AlertCircle, RefreshCw, ArrowRight } from 'lucide-react';
+import apiServices from '../../services/apiServices';
 
 interface LocationState {
   email: string;
@@ -41,7 +41,8 @@ const EmailVerification: React.FC = () => {
     
     setIsResending(true);
     try {
-      const response = await apiClient.post('/api/user-registration/resend-verification', {
+      // Note: This endpoint might need to be added to your API
+      const response = await apiServices.resendVerificationEmail({
         email: email,
         registrationId: registrationId,
       });
@@ -54,7 +55,6 @@ const EmailVerification: React.FC = () => {
             color: '#fff',
           },
         });
-        setIsResending(false);
         setCountdown(60); // 60 second cooldown
       } else {
         toast(response.message || 'Failed to resend verification email', {
@@ -64,17 +64,16 @@ const EmailVerification: React.FC = () => {
             color: '#fff',
           },
         });
-        setIsResending(false);
       }
     } catch (error: any) {
       console.error('Resend error:', error);
-              toast('Failed to resend verification email. Please try again.', {
-          icon: '❌',
-          style: {
-            background: '#EF4444',
-            color: '#fff',
-          },
-        });
+      toast('Failed to resend verification email. Please try again.', {
+        icon: '❌',
+        style: {
+          background: '#EF4444',
+          color: '#fff',
+        },
+      });
     } finally {
       setIsResending(false);
     }
@@ -83,30 +82,42 @@ const EmailVerification: React.FC = () => {
   const handleCheckVerification = async () => {
     setIsLoading(true);
     try {
-      const response = await apiClient.get(`/api/user-registration/status/${registrationId}`);
+      // Note: This endpoint might need to be added to your API
+      const response = await apiServices.checkEmailVerification(registrationId);
 
       if (response.success && response.data?.isEmailVerified) {
-        toast('Email verified successfully!', {
+        toast('Email verified successfully! You can now sign in.', {
           icon: '✅',
           style: {
             background: '#10B981',
             color: '#fff',
           },
         });
-        navigate('/login');
+        navigate('/login', { 
+          state: { 
+            message: 'Email verified successfully! Please sign in with your credentials.',
+            email: email 
+          }
+        });
       } else {
         // Email not verified yet, continue showing verification page
-        console.log('Email not verified yet');
-      }
-    } catch (error: any) {
-      console.error('Verification check error:', error);
-              toast('Failed to check verification status. Please try again.', {
-          icon: '❌',
+        toast('Email not verified yet. Please check your email and click the verification link.', {
+          icon: '⚠️',
           style: {
-            background: '#EF4444',
+            background: '#F59E0B',
             color: '#fff',
           },
         });
+      }
+    } catch (error: any) {
+      console.error('Verification check error:', error);
+      toast('Failed to check verification status. Please try again.', {
+        icon: '❌',
+        style: {
+          background: '#EF4444',
+          color: '#fff',
+        },
+      });
     } finally {
       setIsLoading(false);
     }

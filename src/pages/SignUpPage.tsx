@@ -151,7 +151,7 @@ const SignUpPage: React.FC = () => {
       const response = await login(formData.email, formData.password, tenantSlug);
       
       if (response.success) {
-        toast('Account created successfully! Welcome to Trainer Platform.', {
+        toast('Account created successfully! Welcome to the platform.', {
           icon: '✅',
           style: {
             background: '#10B981',
@@ -252,7 +252,7 @@ const SignUpPage: React.FC = () => {
             Create your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Start your journey with Trainer Platform
+            Start your journey with our platform
           </p>
         </div>
 
