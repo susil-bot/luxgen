@@ -1,258 +1,455 @@
-# LuxGen - Trainer Platform Frontend
+# Trainer Platform - Robust Multi-Tenant Training Solution
 
-A modern React TypeScript frontend application for the Trainer Platform, featuring a beautiful UI, real-time interactions, and comprehensive user management.
+A comprehensive, enterprise-grade training platform built with modern technologies and robust architecture for scalability, security, and performance.
+
+## 🏗️ Architecture Overview
+
+### Multi-Database Architecture
+- **PostgreSQL**: Primary relational database for structured data
+- **MongoDB**: Document database for flexible data storage
+- **Redis**: Caching and session management
+- **Connection Pooling**: Optimized database connections with health monitoring
+
+### Backend Architecture
+- **Node.js/Express**: Robust API server with comprehensive middleware
+- **JWT Authentication**: Secure token-based authentication with refresh tokens
+- **Role-Based Access Control**: Granular permissions system
+- **Multi-Tenancy**: Isolated tenant data and configurations
+- **Validation**: Comprehensive input validation with Joi
+- **Logging**: Structured logging with Winston and multiple transports
+- **Monitoring**: Real-time metrics, health checks, and alerting
+- **Error Handling**: Graceful error handling with custom error classes
+
+### Frontend Architecture
+- **React 19**: Modern React with TypeScript
+- **Error Boundaries**: Comprehensive error handling and recovery
+- **API Client**: Robust HTTP client with retry logic and caching
+- **State Management**: Context-based state management
+- **Performance**: Optimized rendering and lazy loading
+- **Security**: XSS protection and secure data handling
 
 ## 🚀 Features
 
-- **Modern React 18**: Latest React features with hooks and concurrent rendering
-- **TypeScript**: Full type safety and better developer experience
-- **Tailwind CSS**: Utility-first CSS framework for rapid UI development
-- **Multi-Tenant UI**: Dynamic theming and branding per tenant
-- **Real-time Updates**: Live polling and notifications
-- **Responsive Design**: Mobile-first responsive design
-- **Dark/Light Mode**: Theme switching with system preference detection
-- **Accessibility**: WCAG compliant components
-- **Performance**: Optimized bundle size and lazy loading
-- **Testing**: Comprehensive test coverage
+### Core Features
+- **Multi-Tenant Support**: Isolated tenant environments
+- **User Management**: Role-based user management
+- **Polling System**: Real-time polling and voting
+- **Presentation Management**: Interactive presentations
+- **Analytics Dashboard**: Comprehensive reporting
+- **AI Integration**: AI-powered content generation
+- **Real-time Updates**: WebSocket-based real-time features
 
-## 🏗️ Architecture
+### Security Features
+- **Authentication**: JWT with refresh tokens
+- **Authorization**: Role-based and resource-based access control
+- **Input Validation**: Comprehensive validation and sanitization
+- **Rate Limiting**: Protection against abuse
+- **CORS**: Secure cross-origin resource sharing
+- **Helmet**: Security headers and protection
+- **Audit Logging**: Complete audit trail
 
-```
-├── src/
-│   ├── components/       # Reusable UI components
-│   │   ├── admin/       # Admin-specific components
-│   │   ├── auth/        # Authentication components
-│   │   ├── common/      # Shared components
-│   │   ├── dashboard/   # Dashboard components
-│   │   ├── modals/      # Modal components
-│   │   └── ...
-│   ├── contexts/        # React contexts for state management
-│   ├── hooks/           # Custom React hooks
-│   ├── pages/           # Page components
-│   ├── services/        # API services and utilities
-│   ├── types/           # TypeScript type definitions
-│   └── config/          # Configuration files
-├── public/              # Static assets
-└── package.json         # Dependencies and scripts
-```
+### Performance Features
+- **Caching**: Redis-based caching strategy
+- **Database Optimization**: Connection pooling and query optimization
+- **Compression**: Response compression
+- **CDN Ready**: Static asset optimization
+- **Monitoring**: Real-time performance monitoring
+- **Health Checks**: Comprehensive health monitoring
 
 ## 📋 Prerequisites
 
-- Node.js 18+
-- npm or yarn
-- Backend API running (luxgen-core)
+- **Node.js**: 18.x or higher
+- **Docker**: 20.x or higher
+- **Docker Compose**: 2.x or higher
+- **PostgreSQL**: 15.x (via Docker)
+- **MongoDB**: 7.x (via Docker)
+- **Redis**: 7.x (via Docker)
 
-## 🔧 Installation
+## 🛠️ Installation & Setup
 
-1. **Clone the repository**
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/susil-bot/luxgen.git
-cd luxgen
+git clone <repository-url>
+cd trainer-platform
 ```
 
-2. **Install dependencies**
+### 2. Environment Configuration
 ```bash
+# Copy environment template
+cp env.example .env
+
+# Edit environment variables
+nano .env
+```
+
+### 3. Docker Setup
+```bash
+# Start all services
+docker-compose up -d
+
+# Verify services are running
+docker-compose ps
+```
+
+### 4. Database Initialization
+```bash
+# The database will be automatically initialized on first startup
+# Check logs to verify initialization
+docker-compose logs backend
+```
+
+### 5. Frontend Setup
+```bash
+# Install dependencies
 npm install
-```
 
-3. **Set up environment variables**
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-4. **Configure API endpoint**
-```bash
-# Update REACT_APP_API_URL in .env
-REACT_APP_API_URL=http://localhost:3001
-```
-
-## 🚀 Quick Start
-
-### Development
-```bash
+# Start development server
 npm start
 ```
 
-### Production Build
+### 6. Backend Setup
 ```bash
-npm run build
+# Navigate to backend directory
+cd backend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-### Testing
-```bash
-npm test
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Database Configuration
+```env
+# PostgreSQL
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=trainer_platform
+POSTGRES_USER=trainer_user
+POSTGRES_PASSWORD=trainer_password_2024
+
+# MongoDB
+MONGODB_URL=mongodb://trainer_admin:mongo_password_2024@localhost:27017/trainer_platform?authSource=admin
+
+# Redis
+REDIS_URL=redis://:redis_password_2024@localhost:6379
 ```
 
-### Linting
-```bash
-npm run lint
+#### Security Configuration
+```env
+# JWT
+JWT_SECRET=your_jwt_secret_key_here_2024
+JWT_EXPIRES_IN=24h
+JWT_REFRESH_EXPIRES_IN=7d
+
+# CORS
+CORS_ORIGIN=http://localhost:3000
 ```
 
-## 🎨 UI Components
+#### Application Configuration
+```env
+# Server
+NODE_ENV=development
+PORT=3001
+LOG_LEVEL=info
 
-### Core Components
-- **Header**: Navigation and user menu
-- **Sidebar**: Main navigation sidebar
-- **Dashboard**: Main dashboard interface
-- **Modals**: Reusable modal components
-- **Forms**: Form components with validation
-- **Tables**: Data tables with sorting and filtering
+# Features
+ENABLE_AI_FEATURES=true
+ENABLE_REAL_TIME=true
+ENABLE_ANALYTICS=true
+```
 
-### Feature Components
-- **Poll Management**: Create and manage polls
-- **User Management**: User administration interface
-- **Tenant Management**: Multi-tenant configuration
-- **Analytics**: Charts and data visualization
-- **Notifications**: Real-time notification system
+## 🏃‍♂️ Running the Application
 
-## 🔌 API Integration
+### Development Mode
+```bash
+# Start all services
+docker-compose up -d
 
-The frontend communicates with the backend API through:
+# Start frontend (in one terminal)
+npm start
 
-- **REST API**: Standard HTTP requests
-- **WebSocket**: Real-time updates
-- **JWT Authentication**: Token-based auth
-- **Error Handling**: Comprehensive error management
+# Start backend (in another terminal)
+cd backend && npm run dev
+```
 
-### API Services
-- `apiClient.ts`: Base API client configuration
-- `authService.ts`: Authentication services
-- `userService.ts`: User management
-- `pollService.ts`: Poll management
-- `tenantService.ts`: Tenant management
+### Production Mode
+```bash
+# Build and start production services
+docker-compose -f docker-compose.prod.yml up -d
 
-## 🎨 Styling
+# Or use the deployment script
+./deploy.sh
+```
 
-### Tailwind CSS
-- Utility-first CSS framework
-- Custom design system
-- Responsive breakpoints
-- Dark mode support
+## 📊 Monitoring & Health Checks
 
-### Component Styling
-- CSS Modules for component-specific styles
-- Tailwind utilities for rapid development
-- Custom CSS variables for theming
+### Health Check Endpoints
+- **Basic Health**: `GET /health`
+- **Detailed Health**: `GET /health/detailed`
+- **Database Status**: `GET /api/database/status`
+- **Metrics**: `GET /api/metrics`
 
-## 🔒 Security
+### Monitoring Dashboard
+Access the monitoring dashboard at:
+- **pgAdmin**: http://localhost:5050 (PostgreSQL management)
+- **Redis Commander**: http://localhost:8081 (Redis management)
 
-- **JWT Token Management**: Secure token storage and refresh
-- **Input Validation**: Client-side validation
-- **XSS Protection**: Sanitized inputs
-- **CORS Configuration**: Proper CORS setup
+### Logs
+```bash
+# View application logs
+docker-compose logs -f backend
 
-## 📱 Responsive Design
+# View database logs
+docker-compose logs -f postgres
 
-- **Mobile First**: Mobile-optimized design
-- **Breakpoints**: Responsive breakpoints
-- **Touch Friendly**: Touch-optimized interactions
-- **Progressive Enhancement**: Graceful degradation
+# View all logs
+docker-compose logs -f
+```
+
+## 🔒 Security Features
+
+### Authentication Flow
+1. **Login**: User credentials validated against database
+2. **Token Generation**: JWT access and refresh tokens issued
+3. **Token Validation**: Middleware validates tokens on protected routes
+4. **Token Refresh**: Automatic token refresh using refresh tokens
+5. **Logout**: Tokens blacklisted in Redis
+
+### Authorization Levels
+- **Super Admin**: Full system access
+- **Admin**: Tenant-level administration
+- **Trainer**: Content creation and management
+- **User**: Basic platform access
+
+### Data Protection
+- **Encryption**: Passwords hashed with bcrypt
+- **Validation**: Input sanitization and validation
+- **Rate Limiting**: Protection against brute force attacks
+- **Audit Logging**: Complete audit trail for all actions
+
+## 🗄️ Database Schema
+
+### Core Tables
+- **users**: User accounts and profiles
+- **tenants**: Multi-tenant organizations
+- **polls**: Polling and voting system
+- **poll_responses**: User poll responses
+- **sessions**: User sessions and tokens
+- **audit_log**: Complete audit trail
+
+### Indexes and Optimization
+- **Primary Keys**: Auto-incrementing IDs
+- **Foreign Keys**: Referential integrity
+- **Indexes**: Optimized for common queries
+- **Partitioning**: Large table partitioning strategy
+
+## 🔧 API Documentation
+
+### Authentication Endpoints
+```http
+POST /api/auth/login
+POST /api/auth/refresh
+POST /api/auth/logout
+```
+
+### User Management
+```http
+GET /api/users
+POST /api/users
+PUT /api/users/:id
+DELETE /api/users/:id
+```
+
+### Poll Management
+```http
+GET /api/polls
+POST /api/polls
+PUT /api/polls/:id
+DELETE /api/polls/:id
+POST /api/polls/:id/responses
+```
+
+### Tenant Management
+```http
+GET /api/tenants
+POST /api/tenants
+PUT /api/tenants/:id
+DELETE /api/tenants/:id
+```
 
 ## 🧪 Testing
 
+### Running Tests
 ```bash
-# Run all tests
+# Backend tests
+cd backend && npm test
+
+# Frontend tests
 npm test
 
-# Run tests in watch mode
-npm test -- --watch
-
-# Run tests with coverage
-npm test -- --coverage
-
-# Run specific test file
-npm test -- --testPathPattern=LoginForm
+# E2E tests
+npm run test:e2e
 ```
 
-### Test Structure
-- **Unit Tests**: Component and utility tests
-- **Integration Tests**: API integration tests
-- **E2E Tests**: End-to-end user flows
-
-## 📦 Build & Deployment
-
-### Development Build
+### Test Coverage
 ```bash
-npm run build:dev
+# Generate coverage report
+npm run test:coverage
 ```
 
-### Production Build
-```bash
-npm run build
-```
+## 📈 Performance Optimization
+
+### Database Optimization
+- **Connection Pooling**: Optimized connection management
+- **Query Optimization**: Indexed queries and efficient joins
+- **Caching**: Redis-based query result caching
+- **Monitoring**: Slow query detection and alerting
+
+### Frontend Optimization
+- **Code Splitting**: Lazy loading of components
+- **Caching**: API response caching
+- **Compression**: Gzip compression for static assets
+- **CDN**: Content delivery network ready
+
+### Backend Optimization
+- **Compression**: Response compression middleware
+- **Rate Limiting**: API rate limiting
+- **Caching**: Redis-based caching strategy
+- **Monitoring**: Performance metrics and alerting
+
+## 🚀 Deployment
 
 ### Docker Deployment
 ```bash
-docker build -t trainer-frontend .
-docker run -p 3000:3000 trainer-frontend
+# Production build
+docker-compose -f docker-compose.prod.yml up -d
+
+# With custom configuration
+docker-compose -f docker-compose.prod.yml -f docker-compose.override.yml up -d
 ```
 
-## 📝 Environment Variables
-
+### Manual Deployment
 ```bash
-# API Configuration
-REACT_APP_API_URL=http://localhost:3001
-REACT_APP_ENV=development
+# Build frontend
+npm run build
 
-# Feature Flags
-REACT_APP_ENABLE_AI_CHATBOT=true
-REACT_APP_ENABLE_REAL_TIME=true
-REACT_APP_ENABLE_ANALYTICS=true
+# Start backend
+cd backend && npm start
 
-# External Services
-REACT_APP_MONGODB_ATLAS_URL=mongodb+srv://...
-
-# Development Settings
-REACT_APP_DEBUG_MODE=true
-REACT_APP_LOG_LEVEL=debug
-REACT_APP_ENABLE_MOCK_DATA=false
-
-# UI Configuration
-REACT_APP_DEFAULT_THEME=light
-REACT_APP_ENABLE_ANIMATIONS=true
-REACT_APP_ENABLE_NOTIFICATIONS=true
+# Configure reverse proxy (nginx)
+# Set up SSL certificates
+# Configure environment variables
 ```
 
-## 🚀 Performance Optimization
+### Environment-Specific Configurations
+- **Development**: Hot reloading, debug logging
+- **Staging**: Production-like environment
+- **Production**: Optimized for performance and security
 
-- **Code Splitting**: Lazy loading of components
-- **Bundle Optimization**: Optimized webpack configuration
-- **Image Optimization**: Compressed and optimized images
-- **Caching**: Browser caching strategies
-- **CDN**: Content delivery network integration
+## 🔍 Troubleshooting
 
-## 🔧 Development Tools
+### Common Issues
 
-- **ESLint**: Code linting and formatting
-- **Prettier**: Code formatting
-- **TypeScript**: Type checking
-- **React DevTools**: React debugging
-- **Redux DevTools**: State management debugging
+#### Database Connection Issues
+```bash
+# Check database status
+docker-compose ps
 
-## 📊 Analytics & Monitoring
+# View database logs
+docker-compose logs postgres
 
-- **Error Tracking**: Error boundary and logging
-- **Performance Monitoring**: Core Web Vitals
-- **User Analytics**: User behavior tracking
-- **A/B Testing**: Feature flag management
+# Restart database
+docker-compose restart postgres
+```
+
+#### Authentication Issues
+```bash
+# Check JWT configuration
+echo $JWT_SECRET
+
+# Verify database users
+docker-compose exec postgres psql -U trainer_user -d trainer_platform -c "SELECT * FROM users;"
+```
+
+#### Performance Issues
+```bash
+# Check system resources
+docker stats
+
+# View application metrics
+curl http://localhost:3001/api/metrics
+
+# Check slow queries
+docker-compose logs backend | grep "slow query"
+```
+
+### Log Analysis
+```bash
+# View error logs
+docker-compose logs backend | grep ERROR
+
+# View access logs
+docker-compose logs backend | grep "HTTP Request"
+
+# View performance logs
+docker-compose logs backend | grep "Slow"
+```
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+### Development Workflow
+1. **Fork** the repository
+2. **Create** a feature branch
+3. **Make** your changes
+4. **Test** thoroughly
+5. **Submit** a pull request
+
+### Code Standards
+- **ESLint**: JavaScript/TypeScript linting
+- **Prettier**: Code formatting
+- **TypeScript**: Strict type checking
+- **Testing**: Unit and integration tests
+
+### Commit Guidelines
+```
+feat: add new feature
+fix: bug fix
+docs: documentation update
+style: code formatting
+refactor: code refactoring
+test: add tests
+chore: maintenance tasks
+```
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For support, email support@trainerplatform.com or create an issue in the repository. 
+### Documentation
+- **API Documentation**: `/api/docs`
+- **Architecture Guide**: [ARCHITECTURE.md](ARCHITECTURE.md)
+- **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
 
-## 🆘 Support
+### Contact
+- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Email**: support@trainer.com
+- **Documentation**: [Wiki](https://github.com/your-repo/wiki)
 
-For support, email support@luxgen.com or create an issue in the repository.
+## 🔄 Changelog
+
+### Version 1.0.0
+- **Initial Release**: Complete multi-tenant training platform
+- **Robust Architecture**: Enterprise-grade security and performance
+- **Comprehensive Monitoring**: Real-time metrics and health checks
+- **Scalable Design**: Ready for production deployment
+
+---
+
+**Built with ❤️ for modern training platforms**

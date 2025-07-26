@@ -1,0 +1,159 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database - Primary choice for multi-tenancy
+  postgres:
+    image: postgres:15-alpine
+    container_name: trainer_postgres
+    environment:
+      POSTGRES_DB: trainer_platform
+      POSTGRES_USER: trainer_user
+      POSTGRES_PASSWORD: trainer_password_2024
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - trainer_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trainer_user -d trainer_platform"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: trainer_redis
+    command: redis-server --appendonly yes --requirepass redis_password_2024
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - trainer_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MongoDB (Alternative for document-based data)
+  mongodb:
+    image: mongo:7.0
+    container_name: trainer_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: trainer_admin
+      MONGO_INITDB_ROOT_PASSWORD: mongo_password_2024
+      MONGO_INITDB_DATABASE: trainer_platform
+    volumes:
+      - mongodb_data:/data/db
+      - ./database/mongo-init:/docker-entrypoint-initdb.d
+    ports:
+      - "27017:27017"
+    networks:
+      - trainer_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # pgAdmin for PostgreSQL management (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: trainer_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@trainer.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_password_2024
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - trainer_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  # Redis Commander for Redis management (optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: trainer_redis_commander
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:redis_password_2024
+    ports:
+      - "8081:8081"
+    networks:
+      - trainer_network
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  # Application Backend (Node.js/Express)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: trainer_backend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://trainer_user:trainer_password_2024@postgres:5432/trainer_platform
+      REDIS_URL: redis://:redis_password_2024@redis:6379
+      MONGODB_URL: mongodb://trainer_admin:mongo_password_2024@mongodb:27017/trainer_platform?authSource=admin
+      JWT_SECRET: your_jwt_secret_key_here_2024
+      TENANT_ISOLATION_STRATEGY: database_per_tenant
+    ports:
+      - "3001:3001"
+    networks:
+      - trainer_network
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+
+  # Nginx Reverse Proxy with Frontend
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: trainer_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - trainer_network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  trainer_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

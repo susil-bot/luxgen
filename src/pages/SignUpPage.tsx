@@ -138,22 +138,46 @@ const SignUpPage: React.FC = () => {
       if (createTenant && formData.tenantName) {
         // Here you would call the tenant creation API
         // For now, we'll simulate it
-        toast.success('Organization created successfully!');
+        toast('Organization created successfully!', {
+          icon: '✅',
+          style: {
+            background: '#10B981',
+            color: '#fff',
+          },
+        });
       }
 
       // Sign up the user
       const response = await login(formData.email, formData.password, tenantSlug);
       
       if (response.success) {
-        toast.success('Account created successfully! Welcome to Trainer Platform.');
+        toast('Account created successfully! Welcome to Trainer Platform.', {
+          icon: '✅',
+          style: {
+            background: '#10B981',
+            color: '#fff',
+          },
+        });
         const redirectTo = searchParams.get('redirect') || '/onboarding';
         navigate(redirectTo, { replace: true });
       } else {
-        toast.error(response.message || 'Sign up failed');
+        toast(response.message || 'Sign up failed', {
+          icon: '❌',
+          style: {
+            background: '#EF4444',
+            color: '#fff',
+          },
+        });
       }
     } catch (error) {
       console.error('Sign up error:', error);
-      toast.error('An unexpected error occurred');
+              toast('An unexpected error occurred', {
+          icon: '❌',
+          style: {
+            background: '#EF4444',
+            color: '#fff',
+          },
+        });
     } finally {
       setIsLoading(false);
     }
