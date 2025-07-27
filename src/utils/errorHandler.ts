@@ -1,13 +1,12 @@
-import React from 'react';
-import { useNotifications } from '../components/common/NotificationSystem';
+import { toast } from 'react-hot-toast';
 
 // Error Types
 export interface ApiError {
-  status: number;
   message: string;
   code?: string;
+  status?: number;
   details?: any;
-  timestamp: string;
+  timestamp?: string;
 }
 
 export interface ValidationError {
@@ -18,24 +17,36 @@ export interface ValidationError {
 
 export interface NetworkError {
   message: string;
-  code?: string;
-  retryable: boolean;
+  isOffline?: boolean;
+  retryAfter?: number;
 }
 
 // Error Categories
-export type ErrorCategory = 
-  | 'network'
-  | 'authentication'
-  | 'authorization'
-  | 'validation'
-  | 'server'
-  | 'client'
-  | 'unknown';
+export enum ErrorCategory {
+  NETWORK = 'network',
+  AUTHENTICATION = 'authentication',
+  AUTHORIZATION = 'authorization',
+  VALIDATION = 'validation',
+  NOT_FOUND = 'not_found',
+  SERVER_ERROR = 'server_error',
+  RATE_LIMIT = 'rate_limit',
+  TIMEOUT = 'timeout',
+  UNKNOWN = 'unknown'
+}
+
+// Error Severity Levels
+export enum ErrorSeverity {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
 
 // Error Handler Class
 export class ErrorHandler {
   private static instance: ErrorHandler;
-  private notifications: any;
+  private errorCount: Map<string, number> = new Map();
+  private lastErrorTime: Map<string, number> = new Map();
 
   private constructor() {}
 
@@ -46,402 +57,426 @@ export class ErrorHandler {
     return ErrorHandler.instance;
   }
 
-  setNotifications(notifications: any) {
-    this.notifications = notifications;
-  }
+  // Main error handling method
+  handleError(error: any, context?: string): ApiError {
+    const apiError = this.parseError(error);
+    const category = this.categorizeError(apiError);
+    const severity = this.determineSeverity(apiError, category);
 
-  // Handle API errors
-  handleApiError(error: any, context?: string): ApiError {
-    let apiError: ApiError = {
-      status: 500,
-      message: 'An unexpected error occurred',
-      timestamp: new Date().toISOString(),
-    };
+    // Log error
+    this.logError(apiError, category, severity, context);
 
-    if (error.response) {
-      // Server responded with error status
-      apiError = {
-        status: error.response.status,
-        message: error.response.data?.message || this.getDefaultErrorMessage(error.response.status),
-        code: error.response.data?.code,
-        details: error.response.data?.details,
-        timestamp: new Date().toISOString(),
-      };
-    } else if (error.request) {
-      // Network error
-      apiError = {
-        status: 0,
-        message: 'Network error - please check your connection',
-        code: 'NETWORK_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-    } else {
-      // Other error
-      apiError = {
-        status: 500,
-        message: error.message || 'An unexpected error occurred',
-        code: 'UNKNOWN_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-    }
+    // Show user-friendly message
+    this.showUserMessage(apiError, category, severity);
 
-    this.logError(apiError, context);
-    this.showErrorNotification(apiError, context);
-    
+    // Handle specific error types
+    this.handleSpecificError(apiError, category);
+
     return apiError;
   }
 
-  // Handle validation errors
-  handleValidationError(errors: ValidationError[], context?: string): void {
-    const errorMessages = errors.map(error => `${error.field}: ${error.message}`).join(', ');
-    
-    if (this.notifications) {
-      this.notifications.showError(
-        'Validation Error',
-        errorMessages,
-        { duration: 6000 }
-      );
+  // Parse different error types into standardized format
+  private parseError(error: any): ApiError {
+    if (error instanceof Error) {
+      return {
+        message: error.message,
+        code: (error as any).code,
+        status: (error as any).status,
+        timestamp: new Date().toISOString()
+      };
     }
 
-    console.error('Validation errors:', { errors, context });
+    if (typeof error === 'string') {
+      return {
+        message: error,
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    if (error && typeof error === 'object') {
+      return {
+        message: error.message || error.error || 'An unknown error occurred',
+        code: error.code,
+        status: error.status,
+        details: error.details,
+        timestamp: error.timestamp || new Date().toISOString()
+      };
+    }
+
+    return {
+      message: 'An unexpected error occurred',
+      timestamp: new Date().toISOString()
+    };
   }
 
-  // Handle network errors
-  handleNetworkError(error: NetworkError, context?: string): void {
-    if (this.notifications) {
-      this.notifications.showError(
-        'Connection Error',
-        error.message,
-        {
-          duration: 8000,
-          action: error.retryable ? {
-            label: 'Retry',
-            onClick: () => this.retryOperation(context)
-          } : undefined
-        }
-      );
+  // Categorize error based on status code and message
+  private categorizeError(error: ApiError): ErrorCategory {
+    if (!error.status) {
+      if (error.message.includes('network') || error.message.includes('fetch')) {
+        return ErrorCategory.NETWORK;
+      }
+      return ErrorCategory.UNKNOWN;
     }
 
-    console.error('Network error:', { error, context });
+    switch (error.status) {
+      case 400:
+        return ErrorCategory.VALIDATION;
+      case 401:
+        return ErrorCategory.AUTHENTICATION;
+      case 403:
+        return ErrorCategory.AUTHORIZATION;
+      case 404:
+        return ErrorCategory.NOT_FOUND;
+      case 408:
+      case 504:
+        return ErrorCategory.TIMEOUT;
+      case 429:
+        return ErrorCategory.RATE_LIMIT;
+      case 500:
+      case 502:
+      case 503:
+        return ErrorCategory.SERVER_ERROR;
+      default:
+        return ErrorCategory.UNKNOWN;
+    }
+  }
+
+  // Determine error severity
+  private determineSeverity(error: ApiError, category: ErrorCategory): ErrorSeverity {
+    // Critical errors
+    if (category === ErrorCategory.AUTHENTICATION || category === ErrorCategory.AUTHORIZATION) {
+      return ErrorSeverity.CRITICAL;
+    }
+
+    // High severity errors
+    if (category === ErrorCategory.SERVER_ERROR || category === ErrorCategory.NETWORK) {
+      return ErrorSeverity.HIGH;
+    }
+
+    // Medium severity errors
+    if (category === ErrorCategory.VALIDATION || category === ErrorCategory.RATE_LIMIT) {
+      return ErrorSeverity.MEDIUM;
+    }
+
+    // Low severity errors
+    if (category === ErrorCategory.NOT_FOUND || category === ErrorCategory.TIMEOUT) {
+      return ErrorSeverity.LOW;
+    }
+
+    return ErrorSeverity.MEDIUM;
+  }
+
+  // Log error for debugging
+  private logError(error: ApiError, category: ErrorCategory, severity: ErrorSeverity, context?: string) {
+    const logData = {
+      error,
+      category,
+      severity,
+      context,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    };
+
+    console.error('Error Handler:', logData);
+
+    // In production, send to error tracking service
+    if (process.env.NODE_ENV === 'production') {
+      // this.sendToErrorTracking(logData);
+    }
+  }
+
+  // Show user-friendly error message
+  private showUserMessage(error: ApiError, category: ErrorCategory, severity: ErrorSeverity) {
+    const message = this.getUserFriendlyMessage(error, category);
+    const icon = this.getErrorIcon(severity);
+    const duration = this.getToastDuration(severity);
+
+    toast.error(
+      `${icon} ${message}`,
+      {
+        duration,
+        position: 'top-right',
+        style: {
+          background: this.getErrorColor(severity),
+          color: 'white',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          fontSize: '14px',
+          fontWeight: '500'
+        }
+      }
+    );
+  }
+
+  // Get user-friendly error message
+  private getUserFriendlyMessage(error: ApiError, category: ErrorCategory): string {
+    switch (category) {
+      case ErrorCategory.NETWORK:
+        return 'Connection failed. Please check your internet connection and try again.';
+      
+      case ErrorCategory.AUTHENTICATION:
+        return 'Your session has expired. Please log in again.';
+      
+      case ErrorCategory.AUTHORIZATION:
+        return 'You don\'t have permission to perform this action.';
+      
+      case ErrorCategory.VALIDATION:
+        return error.message || 'Please check your input and try again.';
+      
+      case ErrorCategory.NOT_FOUND:
+        return 'The requested resource was not found.';
+      
+      case ErrorCategory.SERVER_ERROR:
+        return 'Something went wrong on our end. Please try again later.';
+      
+      case ErrorCategory.RATE_LIMIT:
+        return 'Too many requests. Please wait a moment and try again.';
+      
+      case ErrorCategory.TIMEOUT:
+        return 'Request timed out. Please try again.';
+      
+      default:
+        return error.message || 'An unexpected error occurred. Please try again.';
+    }
+  }
+
+  // Get error icon based on severity
+  private getErrorIcon(severity: ErrorSeverity): string {
+    switch (severity) {
+      case ErrorSeverity.CRITICAL:
+        return '🚨';
+      case ErrorSeverity.HIGH:
+        return '⚠️';
+      case ErrorSeverity.MEDIUM:
+        return '⚠️';
+      case ErrorSeverity.LOW:
+        return 'ℹ️';
+      default:
+        return '❌';
+    }
+  }
+
+  // Get toast duration based on severity
+  private getToastDuration(severity: ErrorSeverity): number {
+    switch (severity) {
+      case ErrorSeverity.CRITICAL:
+        return 8000; // 8 seconds
+      case ErrorSeverity.HIGH:
+        return 6000; // 6 seconds
+      case ErrorSeverity.MEDIUM:
+        return 4000; // 4 seconds
+      case ErrorSeverity.LOW:
+        return 3000; // 3 seconds
+      default:
+        return 4000;
+    }
+  }
+
+  // Get error color based on severity
+  private getErrorColor(severity: ErrorSeverity): string {
+    switch (severity) {
+      case ErrorSeverity.CRITICAL:
+        return '#dc2626'; // red-600
+      case ErrorSeverity.HIGH:
+        return '#ea580c'; // orange-600
+      case ErrorSeverity.MEDIUM:
+        return '#d97706'; // amber-600
+      case ErrorSeverity.LOW:
+        return '#059669'; // emerald-600
+      default:
+        return '#6b7280'; // gray-500
+    }
+  }
+
+  // Handle specific error types
+  private handleSpecificError(error: ApiError, category: ErrorCategory) {
+    switch (category) {
+      case ErrorCategory.AUTHENTICATION:
+        this.handleAuthenticationError();
+        break;
+      
+      case ErrorCategory.AUTHORIZATION:
+        this.handleAuthorizationError();
+        break;
+      
+      case ErrorCategory.NETWORK:
+        this.handleNetworkError();
+        break;
+      
+      case ErrorCategory.RATE_LIMIT:
+        this.handleRateLimitError(error);
+        break;
+    }
   }
 
   // Handle authentication errors
-  handleAuthError(error: ApiError, context?: string): void {
-    if (this.notifications) {
-      this.notifications.showError(
-        'Authentication Error',
-        error.message,
-        {
-          duration: 5000,
-          action: {
-            label: 'Sign In',
-            onClick: () => window.location.href = '/login'
-          }
-        }
-      );
-    }
-
-    // Clear authentication data
-    localStorage.removeItem('token');
+  private handleAuthenticationError() {
+    // Clear user data and redirect to login
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     
-    console.error('Authentication error:', { error, context });
+    // Redirect to login page
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 2000);
   }
 
   // Handle authorization errors
-  handleAuthzError(error: ApiError, context?: string): void {
-    if (this.notifications) {
-      this.notifications.showError(
-        'Access Denied',
-        'You do not have permission to perform this action',
-        {
-          duration: 5000,
-          action: {
-            label: 'Go to Dashboard',
-            onClick: () => window.location.href = '/dashboard'
-          }
-        }
-      );
-    }
-
-    console.error('Authorization error:', { error, context });
-  }
-
-  // Handle server errors
-  handleServerError(error: ApiError, context?: string): void {
-    if (this.notifications) {
-      this.notifications.showError(
-        'Server Error',
-        'Our servers are experiencing issues. Please try again later.',
-        {
-          duration: 10000,
-          action: {
-            label: 'Report Issue',
-            onClick: () => this.reportIssue(error, context)
-          }
-        }
-      );
-    }
-
-    console.error('Server error:', { error, context });
-  }
-
-  // Handle client errors
-  handleClientError(error: ApiError, context?: string): void {
-    if (this.notifications) {
-      this.notifications.showError(
-        'Error',
-        error.message,
-        { duration: 5000 }
-      );
-    }
-
-    console.error('Client error:', { error, context });
-  }
-
-  // Generic error handler
-  handleError(error: any, context?: string): void {
-    const category = this.categorizeError(error);
-    
-    switch (category) {
-      case 'authentication':
-        this.handleAuthError(this.handleApiError(error, context), context);
-        break;
-      case 'authorization':
-        this.handleAuthzError(this.handleApiError(error, context), context);
-        break;
-      case 'network':
-        this.handleNetworkError({
-          message: error.message || 'Network connection failed',
-          retryable: true
-        }, context);
-        break;
-      case 'server':
-        this.handleServerError(this.handleApiError(error, context), context);
-        break;
-      case 'validation':
-        if (Array.isArray(error)) {
-          this.handleValidationError(error, context);
-        } else {
-          this.handleClientError(this.handleApiError(error, context), context);
-        }
-        break;
-      default:
-        this.handleClientError(this.handleApiError(error, context), context);
-    }
-  }
-
-  // Categorize error based on status code and content
-  private categorizeError(error: any): ErrorCategory {
-    if (error.response) {
-      const status = error.response.status;
-      
-      if (status === 401) return 'authentication';
-      if (status === 403) return 'authorization';
-      if (status >= 500) return 'server';
-      if (status >= 400) return 'validation';
-    }
-    
-    if (error.request) return 'network';
-    if (error.name === 'ValidationError') return 'validation';
-    
-    return 'unknown';
-  }
-
-  // Get default error message based on status code
-  private getDefaultErrorMessage(status: number): string {
-    switch (status) {
-      case 400:
-        return 'Bad request - please check your input';
-      case 401:
-        return 'Authentication required - please sign in';
-      case 403:
-        return 'Access denied - insufficient permissions';
-      case 404:
-        return 'Resource not found';
-      case 409:
-        return 'Conflict - resource already exists';
-      case 422:
-        return 'Validation failed - please check your input';
-      case 429:
-        return 'Too many requests - please try again later';
-      case 500:
-        return 'Internal server error - please try again later';
-      case 502:
-        return 'Bad gateway - please try again later';
-      case 503:
-        return 'Service unavailable - please try again later';
-      case 504:
-        return 'Gateway timeout - please try again later';
-      default:
-        return 'An unexpected error occurred';
-    }
-  }
-
-  // Log error to console and potentially external service
-  private logError(error: ApiError, context?: string): void {
-    const logData = {
-      error,
-      context,
-      userAgent: navigator.userAgent,
-      url: window.location.href,
-      timestamp: new Date().toISOString(),
-    };
-
-    console.error('Application Error:', logData);
-
-    // TODO: Send to external logging service (Sentry, LogRocket, etc.)
-    // this.sendToLoggingService(logData);
-  }
-
-  // Show error notification
-  private showErrorNotification(error: ApiError, context?: string): void {
-    if (!this.notifications) return;
-
-    const title = this.getErrorTitle(error.status);
-    const message = error.message;
-
-    this.notifications.showError(title, message, {
-      duration: error.status >= 500 ? 10000 : 6000,
-      action: this.getErrorAction(error, context)
+  private handleAuthorizationError() {
+    // Show access denied message
+    toast.error('Access denied. Please contact your administrator.', {
+      duration: 5000,
+      position: 'top-center'
     });
   }
 
-  // Get error title based on status
-  private getErrorTitle(status: number): string {
-    if (status >= 500) return 'Server Error';
-    if (status === 401) return 'Authentication Required';
-    if (status === 403) return 'Access Denied';
-    if (status === 404) return 'Not Found';
-    if (status === 422) return 'Validation Error';
-    if (status === 429) return 'Rate Limited';
-    return 'Error';
+  // Handle network errors
+  private handleNetworkError() {
+    // Check if offline
+    if (!navigator.onLine) {
+      toast.error('You are currently offline. Please check your connection.', {
+        duration: 0, // Don't auto-dismiss
+        position: 'top-center'
+      });
+    }
   }
 
-  // Get error action based on error type
-  private getErrorAction(error: ApiError, context?: string): any {
-    if (error.status === 401) {
-      return {
-        label: 'Sign In',
-        onClick: () => window.location.href = '/login'
-      };
-    }
+  // Handle rate limit errors
+  private handleRateLimitError(error: ApiError) {
+    const retryAfter = error.details?.retryAfter || 60;
     
-    if (error.status === 403) {
-      return {
-        label: 'Go to Dashboard',
-        onClick: () => window.location.href = '/dashboard'
-      };
-    }
-    
-    if (error.status >= 500) {
-      return {
-        label: 'Report Issue',
-        onClick: () => this.reportIssue(error, context)
-      };
-    }
-    
-    return undefined;
+    toast.error(
+      `Rate limit exceeded. Please wait ${retryAfter} seconds before trying again.`,
+      {
+        duration: 5000,
+        position: 'top-center'
+      }
+    );
   }
 
-  // Retry operation
-  private retryOperation(context?: string): void {
-    if (this.notifications) {
-      this.notifications.showInfo(
-        'Retrying',
-        'Attempting to reconnect...',
-        { duration: 3000 }
-      );
+  // Retry mechanism for failed requests
+  async retryRequest<T>(
+    requestFn: () => Promise<T>,
+    maxRetries: number = 3,
+    delay: number = 1000
+  ): Promise<T> {
+    let lastError: any;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await requestFn();
+      } catch (error) {
+        lastError = error;
+        
+        if (attempt === maxRetries) {
+          break;
+        }
+
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, delay * attempt));
+        
+        // Show retry notification
+        toast.error(`Request failed. Retrying... (${attempt}/${maxRetries})`, {
+          duration: 2000,
+          position: 'top-right'
+        });
+      }
     }
-    
-    // TODO: Implement retry logic based on context
-    console.log('Retrying operation:', context);
+
+    throw lastError;
   }
 
-  // Report issue
-  private reportIssue(error: ApiError, context?: string): void {
-    const issueData = {
-      error: error.message,
-      status: error.status,
-      context,
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString(),
-    };
+  // Handle validation errors
+  handleValidationErrors(errors: ValidationError[]): void {
+    errors.forEach(error => {
+      toast.error(`${error.field}: ${error.message}`, {
+        duration: 4000,
+        position: 'top-right'
+      });
+    });
+  }
 
-    // TODO: Send to issue tracking system
-    console.log('Reporting issue:', issueData);
-    
-    if (this.notifications) {
-      this.notifications.showInfo(
-        'Issue Reported',
-        'Thank you for reporting this issue. We will investigate.',
-        { duration: 5000 }
-      );
+  // Handle API response errors
+  handleApiResponse(response: any): boolean {
+    if (!response.success) {
+      this.handleError(response.error || response.message || 'API request failed');
+      return false;
     }
+    return true;
+  }
+
+  // Clear error count for specific error type
+  clearErrorCount(errorType: string): void {
+    this.errorCount.delete(errorType);
+    this.lastErrorTime.delete(errorType);
+  }
+
+  // Get error count for specific error type
+  getErrorCount(errorType: string): number {
+    return this.errorCount.get(errorType) || 0;
+  }
+
+  // Check if error should be throttled
+  shouldThrottleError(errorType: string, maxErrors: number = 5, timeWindow: number = 60000): boolean {
+    const now = Date.now();
+    const lastTime = this.lastErrorTime.get(errorType) || 0;
+    const count = this.errorCount.get(errorType) || 0;
+
+    // Reset count if time window has passed
+    if (now - lastTime > timeWindow) {
+      this.errorCount.set(errorType, 1);
+      this.lastErrorTime.set(errorType, now);
+      return false;
+    }
+
+    // Increment count
+    this.errorCount.set(errorType, count + 1);
+    this.lastErrorTime.set(errorType, now);
+
+    return count >= maxErrors;
   }
 }
 
-// Hook for using error handler with notifications
-export const useErrorHandler = () => {
-  const notifications = useNotifications();
-  const errorHandler = ErrorHandler.getInstance();
-  
-  // Set notifications when hook is used
-  React.useEffect(() => {
-    errorHandler.setNotifications(notifications);
-  }, [notifications]);
+// Export singleton instance
+export const errorHandler = ErrorHandler.getInstance();
 
+// Export utility functions
+export const handleApiError = (error: any, context?: string) => {
+  return errorHandler.handleError(error, context);
+};
+
+export const retryRequest = <T>(
+  requestFn: () => Promise<T>,
+  maxRetries?: number,
+  delay?: number
+) => {
+  return errorHandler.retryRequest(requestFn, maxRetries, delay);
+};
+
+export const handleValidationErrors = (errors: ValidationError[]) => {
+  return errorHandler.handleValidationErrors(errors);
+};
+
+export const handleApiResponse = (response: any) => {
+  return errorHandler.handleApiResponse(response);
+};
+
+// React hook for using error handler
+export const useErrorHandler = () => {
   return {
     handleError: (error: any, context?: string) => errorHandler.handleError(error, context),
-    handleApiError: (error: any, context?: string) => errorHandler.handleApiError(error, context),
-    handleValidationError: (errors: ValidationError[], context?: string) => 
-      errorHandler.handleValidationError(errors, context),
-    handleNetworkError: (error: NetworkError, context?: string) => 
-      errorHandler.handleNetworkError(error, context),
-    handleAuthError: (error: ApiError, context?: string) => 
-      errorHandler.handleAuthError(error, context),
-    handleAuthzError: (error: ApiError, context?: string) => 
-      errorHandler.handleAuthzError(error, context),
-    handleServerError: (error: ApiError, context?: string) => 
-      errorHandler.handleServerError(error, context),
-    handleClientError: (error: ApiError, context?: string) => 
-      errorHandler.handleClientError(error, context),
+    handleValidationError: (errors: ValidationError[]) => errorHandler.handleValidationErrors(errors),
+    handleAuthError: (error: any) => {
+      const apiError = errorHandler.handleError(error, 'authentication');
+      if (apiError.status === 401) {
+        // Handle authentication errors specifically
+        toast.error('Authentication failed. Please check your credentials.');
+      }
+      return apiError;
+    },
+    retryRequest: <T>(requestFn: () => Promise<T>, maxRetries?: number, delay?: number) => 
+      errorHandler.retryRequest(requestFn, maxRetries, delay),
+    handleApiResponse: (response: any) => errorHandler.handleApiResponse(response)
   };
-};
-
-// Utility functions for common error patterns
-export const createValidationError = (field: string, message: string, value?: any): ValidationError => ({
-  field,
-  message,
-  value,
-});
-
-export const createNetworkError = (message: string, retryable: boolean = true): NetworkError => ({
-  message,
-  retryable,
-});
-
-export const isNetworkError = (error: any): boolean => {
-  return !error.response && error.request;
-};
-
-export const isAuthError = (error: any): boolean => {
-  return error.response?.status === 401;
-};
-
-export const isAuthzError = (error: any): boolean => {
-  return error.response?.status === 403;
-};
-
-export const isServerError = (error: any): boolean => {
-  return error.response?.status >= 500;
-};
-
-export const isClientError = (error: any): boolean => {
-  return error.response?.status >= 400 && error.response?.status < 500;
-};
-
-export const isValidationError = (error: any): boolean => {
-  return error.response?.status === 422 || Array.isArray(error);
 }; 

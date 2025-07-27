@@ -25,25 +25,94 @@ export interface AuthState {
 export interface Tenant {
   id: string;
   name: string;
-  domain: string;
-  settings: TenantSettings;
+  slug?: string;
+  domain?: string;
+  subdomain?: string;
+  status: 'active' | 'suspended' | 'pending' | 'inactive';
+  plan?: TenantPlan;
+  settings?: TenantSettings;
+  limits?: TenantLimits;
+  metadata?: TenantMetadata;
   createdAt: Date;
-  isActive: boolean;
-  plan: 'free' | 'basic' | 'premium' | 'enterprise';
+  updatedAt: Date;
+}
+
+export interface TenantPlan {
+  id: string;
+  name: string;
+  type: 'free' | 'basic' | 'professional' | 'enterprise';
+  features: string[];
+  limits: {
+    users: number;
+    storage: number;
+    apiCalls: number;
+    customDomains: number;
+    integrations: number;
+  };
+  pricing: {
+    monthly: number;
+    yearly: number;
+    currency: string;
+  };
 }
 
 export interface TenantSettings {
   branding: {
-    logo?: string;
     primaryColor: string;
     secondaryColor: string;
+    companyName: string;
+    supportEmail: string;
   };
   features: {
-    allowCustomBranding: boolean;
-    maxTrainers: number;
-    maxUsers: number;
-    maxPrograms: number;
+    enableAI: boolean;
+    enableAnalytics: boolean;
+    enableIntegrations: boolean;
+    enableCustomDomain: boolean;
+    enableSSO: boolean;
+    enableAuditLogs: boolean;
   };
+  security: {
+    passwordPolicy: {
+      minLength: number;
+      requireUppercase: boolean;
+      requireLowercase: boolean;
+      requireNumbers: boolean;
+      requireSpecialChars: boolean;
+      preventCommonPasswords: boolean;
+      maxAge: number;
+    };
+    sessionTimeout: number;
+    mfaRequired: boolean;
+  };
+  notifications: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+}
+
+export interface TenantLimits {
+  current: {
+    users: number;
+    storage: number;
+    apiCalls: number;
+    customDomains: number;
+    integrations: number;
+  };
+  usage: {
+    storageUsed: number;
+    apiCallsUsed: number;
+    lastReset: Date;
+  };
+}
+
+export interface TenantMetadata {
+  industry?: string;
+  size?: string;
+  region?: string;
+  timezone?: string;
+  language?: string;
+  currency?: string;
 }
 
 // Training Program Types

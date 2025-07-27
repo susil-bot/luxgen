@@ -73,9 +73,40 @@ export class SuccessHandler {
           duration: 6000,
           action: {
             label: 'Resend Email',
-            onClick: () => {
-              // TODO: Implement resend verification email
-              this.notifications.showInfo('Email Sent', 'Verification email has been resent.');
+            onClick: async () => {
+              try {
+                // Import the API service dynamically to avoid circular dependencies
+                const apiServices = (await import('../services/apiServices')).default;
+                
+                // Get the email and registrationId from localStorage
+                const userEmail = localStorage.getItem('pendingVerificationEmail') || 
+                                 JSON.parse(localStorage.getItem('userDetails') || '{}').email;
+                const registrationId = localStorage.getItem('registrationId');
+                
+                if (!userEmail) {
+                  this.notifications.showError('Error', 'Email address not found. Please try registering again.');
+                  return;
+                }
+                
+                if (!registrationId) {
+                  this.notifications.showError('Error', 'Registration ID not found. Please try registering again.');
+                  return;
+                }
+                
+                const response = await apiServices.resendVerificationEmail({ 
+                  email: userEmail, 
+                  registrationId: registrationId 
+                });
+                
+                if (response.success) {
+                  this.notifications.showSuccess('Email Sent', 'Verification email has been resent successfully.');
+                } else {
+                  this.notifications.showError('Error', response.message || 'Failed to resend verification email.');
+                }
+              } catch (error) {
+                console.error('Error resending verification email:', error);
+                this.notifications.showError('Error', 'Failed to resend verification email. Please try again later.');
+              }
             }
           }
         }
@@ -224,8 +255,16 @@ export class SuccessHandler {
   }
 
   // Handle export success
-  handleExportSuccess(format: string, filename?: string): void {
+  handleExportSuccess(format: string, filename?: string, downloadUrl?: string): void {
     if (!this.notifications) return;
+
+    // Store export data for download functionality
+    if (downloadUrl) {
+      localStorage.setItem('lastExportUrl', downloadUrl);
+    }
+    if (filename) {
+      localStorage.setItem('lastExportFilename', filename);
+    }
 
     const message = filename 
       ? `Your ${format.toUpperCase()} file "${filename}" has been exported successfully.`
@@ -239,8 +278,43 @@ export class SuccessHandler {
         action: {
           label: 'Download',
           onClick: () => {
-            // TODO: Implement download functionality
-            console.log('Download file');
+            try {
+              // Get the download URL from localStorage or create a blob URL
+              const downloadUrl = localStorage.getItem('lastExportUrl');
+              const downloadFilename = localStorage.getItem('lastExportFilename') || 'exported-data';
+              
+              if (downloadUrl) {
+                // Create a temporary link element to trigger download
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = downloadFilename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                this.notifications.showSuccess('Download Started', 'Your file download has begun.');
+              } else {
+                // Fallback: create a sample download (for demo purposes)
+                const sampleData = 'Sample exported data\nThis is a placeholder for actual exported content.';
+                const blob = new Blob([sampleData], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${downloadFilename}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Clean up the blob URL
+                URL.revokeObjectURL(url);
+                
+                this.notifications.showSuccess('Download Started', 'Sample file download has begun.');
+              }
+            } catch (error) {
+              console.error('Error downloading file:', error);
+              this.notifications.showError('Download Error', 'Failed to download the file. Please try again.');
+            }
           }
         }
       }
@@ -282,6 +356,14 @@ export class SuccessHandler {
       message,
       { duration: 4000 }
     );
+  }
+
+  // Clear stored data (call this when user logs out or session ends)
+  clearStoredData(): void {
+    localStorage.removeItem('pendingVerificationEmail');
+    localStorage.removeItem('registrationId');
+    localStorage.removeItem('lastExportUrl');
+    localStorage.removeItem('lastExportFilename');
   }
 
   // Generic success handler

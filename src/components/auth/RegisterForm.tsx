@@ -4,7 +4,6 @@ import { Eye, EyeOff, Mail, Lock, User, Phone, Building, CheckCircle, AlertCircl
 import { useNotifications } from '../common/NotificationSystem';
 import { useErrorHandler } from '../../utils/errorHandler';
 import ErrorDisplay from '../common/ErrorDisplay';
-import { formatFormError } from '../../utils/authErrorHandler';
 import apiServices from '../../services/apiServices';
 
 interface RegisterFormData {
@@ -27,8 +26,8 @@ interface RegisterFormProps {
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin }) => {
   const navigate = useNavigate();
-  const { showSuccess, showError, showInfo, showWarning } = useNotifications();
-  const { handleError, handleValidationError } = useErrorHandler();
+  const { showSuccess, showError } = useNotifications();
+  const { handleError } = useErrorHandler();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -162,13 +161,44 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
               duration: 6000,
               action: {
                 label: 'Resend Email',
-                onClick: () => {
-                  // TODO: Implement resend verification email
-                  showInfo('Email Sent', 'Verification email has been resent.');
+                onClick: async () => {
+                  try {
+                    // Import the API service
+                    const apiServices = (await import('../../services/apiServices')).default;
+                    
+                    // Get the registrationId from the current state or localStorage
+                    const registrationId = localStorage.getItem('registrationId') || 
+                                          (window.history.state?.usr?.registrationId);
+                    
+                    if (!registrationId) {
+                      showError('Error', 'Registration ID not found. Please try registering again.');
+                      return;
+                    }
+                    
+                    const response = await apiServices.resendVerificationEmail({
+                      email: formData.email,
+                      registrationId: registrationId
+                    });
+                    
+                    if (response.success) {
+                      showSuccess('Email Sent', 'Verification email has been resent successfully.');
+                    } else {
+                      showError('Error', response.message || 'Failed to resend verification email.');
+                    }
+                  } catch (error) {
+                    console.error('Error resending verification email:', error);
+                    showError('Error', 'Failed to resend verification email. Please try again later.');
+                  }
                 }
               }
             }
           );
+          // Store email and registrationId in localStorage for resend functionality
+          localStorage.setItem('pendingVerificationEmail', formData.email);
+          if (response.data?.registrationId) {
+            localStorage.setItem('registrationId', response.data.registrationId);
+          }
+          
           onSuccess?.();
           navigate('/verify-email', { 
             state: { email: formData.email, registrationId: response.data?.registrationId }

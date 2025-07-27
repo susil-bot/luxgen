@@ -24,9 +24,10 @@ import {
 } from 'lucide-react';
 import { User as UserType } from '../../types';
 import { 
-  userManagementService, 
+  mongoDBUserService, 
   UserHealth 
-} from '../../services/UserManagementService';
+} from '../../services/MongoDBUserService';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface UserDetailsModalProps {
   user: UserType | null;
@@ -43,6 +44,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   onEdit,
   onDelete
 }) => {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState<'overview' | 'activity' | 'security' | 'settings'>('overview');
   const [userHealth, setUserHealth] = useState<UserHealth | null>(null);
   const [loadingHealth, setLoadingHealth] = useState(false);
@@ -58,7 +60,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     
     try {
       setLoadingHealth(true);
-      const health = await userManagementService.getUserHealth(user.id);
+      const health = await mongoDBUserService.getUserHealth(user.id);
       setUserHealth(health);
     } catch (error) {
       console.error('Failed to load user health:', error);
@@ -76,7 +78,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     }
 
     try {
-      await userManagementService.resetUserPassword(user.id);
+      await mongoDBUserService.resetUserPassword(user.id);
       alert('Password reset email has been sent to the user.');
     } catch (error) {
       console.error('Failed to reset password:', error);
@@ -91,7 +93,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     if (reason === null) return;
 
     try {
-      await userManagementService.suspendUser(user.id, reason);
+      await mongoDBUserService.suspendUser(user.id, reason);
       alert('User has been suspended successfully.');
       onClose();
     } catch (error) {
@@ -104,7 +106,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     if (!user) return;
     
     try {
-      await userManagementService.activateUser(user.id);
+      await mongoDBUserService.activateUser(user.id);
       alert('User has been activated successfully.');
       onClose();
     } catch (error) {
@@ -144,40 +146,60 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className={`rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto ${
+        theme.colors.background.modal ? `bg-[${theme.colors.background.modal}]` : 'bg-white'
+      }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className={`flex items-center justify-between p-6 border-b ${
+          theme.colors.border.primary ? `border-[${theme.colors.border.primary}]` : 'border-gray-200'
+        }`}>
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
-              <span className="text-lg font-medium text-gray-700">
+            <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
+              theme.colors.gray[300] ? `bg-[${theme.colors.gray[300]}]` : 'bg-gray-300'
+            }`}>
+              <span className={`text-lg font-medium ${
+                theme.colors.gray[700] ? `text-[${theme.colors.gray[700]}]` : 'text-gray-700'
+              }`}>
                 {user.firstName.charAt(0)}{user.lastName.charAt(0)}
               </span>
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className={`text-xl font-semibold ${
+                theme.colors.text.primary ? `text-[${theme.colors.text.primary}]` : 'text-gray-900'
+              }`}>
                 {user.firstName} {user.lastName}
               </h2>
-              <p className="text-gray-500">{user.email}</p>
+              <p className={`${
+                theme.colors.text.tertiary ? `text-[${theme.colors.text.tertiary}]` : 'text-gray-500'
+              }`}>{user.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => onEdit(user)}
-              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+              className={`p-2 rounded-lg transition-colors ${
+                theme.colors.primary[600] ? `text-[${theme.colors.primary[600]}]` : 'text-blue-600'
+              } ${
+                theme.colors.primary[50] ? `hover:bg-[${theme.colors.primary[50]}]` : 'hover:bg-blue-50'
+              }`}
               title="Edit User"
             >
               <Edit className="w-5 h-5" />
             </button>
             <button
               onClick={() => onDelete(user)}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+              className={`p-2 rounded-lg transition-colors ${
+                theme.colors.error[600] ? `text-[${theme.colors.error[600]}]` : 'text-red-600'
+              } ${
+                theme.colors.error[50] ? `hover:bg-[${theme.colors.error[50]}]` : 'hover:bg-red-50'
+              }`}
               title="Delete User"
             >
               <Trash2 className="w-5 h-5" />
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg"
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -185,7 +207,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200">
+        <div className={`border-b ${
+          theme.colors.border.primary ? `border-[${theme.colors.border.primary}]` : 'border-gray-200'
+        }`}>
           <nav className="flex space-x-8 px-6">
             {[
               { id: 'overview', label: 'Overview', icon: User },
@@ -196,10 +220,18 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? `${theme.colors.primary[500] ? `border-[${theme.colors.primary[500]}]` : 'border-primary-500'} ${
+                        theme.colors.primary[600] ? `text-[${theme.colors.primary[600]}]` : 'text-primary-600'
+                      }`
+                    : `border-transparent ${
+                        theme.colors.text.tertiary ? `text-[${theme.colors.text.tertiary}]` : 'text-gray-500'
+                      } hover:${
+                        theme.colors.text.secondary ? `text-[${theme.colors.text.secondary}]` : 'text-gray-700'
+                      } hover:${
+                        theme.colors.border.primary ? `border-[${theme.colors.border.primary}]` : 'border-gray-300'
+                      }`
                 }`}
               >
                 <tab.icon className="w-4 h-4" />

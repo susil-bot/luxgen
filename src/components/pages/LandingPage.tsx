@@ -42,6 +42,7 @@ import {
   Minus
 } from 'lucide-react';
 import Header from '../header/Header';
+import DemoRequestForm from './DemoRequestForm';
 
 const LandingPage: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -608,64 +609,21 @@ const LandingPage: React.FC = () => {
               Experience the Platform
             </h2>
             <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
-              Try our platform with demo credentials and see how LuxGen.AI can transform your training programs.
+              Schedule a personalized demo with our team and see how LuxGen.AI can transform your training programs.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { 
-                role: 'Super Admin', 
-                email: 'superadmin@trainer.com', 
-                description: 'Full system access, tenant management, and AI configuration',
-                color: 'from-purple-500 to-pink-500',
-                icon: Shield
-              },
-              { 
-                role: 'Admin', 
-                email: 'admin@trainer.com', 
-                description: 'Organization management, user oversight, and reporting',
-                color: 'from-blue-500 to-indigo-500',
-                icon: Users
-              },
-              { 
-                role: 'Trainer', 
-                email: 'trainer@trainer.com', 
-                description: 'AI-powered content creation and session management',
-                color: 'from-green-500 to-teal-500',
-                icon: Brain
-              },
-              { 
-                role: 'User', 
-                email: 'user@trainer.com', 
-                description: 'Learning consumption and progress tracking',
-                color: 'from-orange-500 to-red-500',
-                icon: BookOpen
-              },
-            ].map((demo, index) => (
-              <div key={index} className="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${demo.color} mb-4`}>
-                  <demo.icon className="h-6 w-6 text-white" />
-                </div>
-                <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 bg-gradient-to-r ${demo.color} text-white`}>
-                  {demo.role}
-                </div>
-                <p className="font-mono text-sm text-gray-900 mb-2">{demo.email}</p>
-                <p className="font-mono text-sm text-gray-600 mb-4">password123</p>
-                <p className="text-xs text-gray-500">{demo.description}</p>
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowUpRight className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <DemoRequestForm />
 
           <div className="mt-12 text-center">
+            <p className="text-gray-600 mb-4">
+              Can't wait? Try our platform now with a free account.
+            </p>
             <Link
-              to="/login"
+              to="/register"
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
-              Start Testing Now
+              Start Free Trial
               <ArrowRight className="h-5 w-5" />
             </Link>
           </div>

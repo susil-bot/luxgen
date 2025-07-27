@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiServices.login({ email, password });
       
-      if (response.success && response.data) {
+      if (response && response.success && response.data) {
         const user = response.data.user;
         const token = response.data.token;
         
@@ -116,20 +116,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         dispatch({ type: 'LOGIN_FAILURE' });
         
         // Provide more specific error messages based on response
-        let errorMessage = response.message || 'Invalid email or password';
+        let errorMessage = response?.message || 'Invalid email or password';
         
         // Check for specific error patterns in the message
-        if (response.message?.toLowerCase().includes('not found')) {
+        if (response?.message?.toLowerCase().includes('not found')) {
           errorMessage = 'No account found with this email address';
-        } else if (response.message?.toLowerCase().includes('password') || response.message?.toLowerCase().includes('invalid')) {
+        } else if (response?.message?.toLowerCase().includes('password') || response?.message?.toLowerCase().includes('invalid')) {
           errorMessage = 'Invalid email or password';
-        } else if (response.message?.toLowerCase().includes('verify') || response.message?.toLowerCase().includes('email')) {
+        } else if (response?.message?.toLowerCase().includes('verify') || response?.message?.toLowerCase().includes('email')) {
           errorMessage = 'Please verify your email address before signing in';
-        } else if (response.message?.toLowerCase().includes('lock')) {
+        } else if (response?.message?.toLowerCase().includes('lock')) {
           errorMessage = 'Account is temporarily locked due to multiple failed attempts';
-        } else if (response.message?.toLowerCase().includes('disable')) {
+        } else if (response?.message?.toLowerCase().includes('disable')) {
           errorMessage = 'Account has been disabled. Please contact support';
-        } else if (response.message?.toLowerCase().includes('tenant') || response.message?.toLowerCase().includes('organization')) {
+        } else if (response?.message?.toLowerCase().includes('tenant') || response?.message?.toLowerCase().includes('organization')) {
           errorMessage = 'Organization not found. Please check the domain';
         }
         
@@ -163,6 +163,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    
     try {
       await apiServices.logout();
       showInfo('Logged Out', 'You have been successfully logged out.', { duration: 3000 });
@@ -173,6 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       dispatch({ type: 'LOGOUT' });
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
