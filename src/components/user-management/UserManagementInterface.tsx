@@ -28,12 +28,12 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { User } from '../../types';
 import { 
-  userManagementService, 
+  mongoDBUserService, 
   UserStats, 
   UserAnalytics, 
   UserFilter,
   UserBulkAction 
-} from '../../services/UserManagementService';
+} from '../../services/MongoDBUserService';
 import CreateUserModal from './CreateUserModal';
 import UserDetailsModal from './UserDetailsModal';
 import UserAnalyticsPanel from './UserAnalyticsPanel';
@@ -63,6 +63,8 @@ const UserManagementInterface: React.FC = () => {
     topActiveUsers: []
   });
   const [analytics, setAnalytics] = useState<UserAnalytics | null>(null);
+  const [mongoDBStatus, setMongoDBStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   // Check if current user has admin privileges
   const isAdmin = currentUser?.role === 'super_admin' || currentUser?.role === 'admin';
@@ -70,16 +72,29 @@ const UserManagementInterface: React.FC = () => {
   useEffect(() => {
     loadUsers();
     loadStats();
+    checkMongoDBConnection();
   }, []);
 
   useEffect(() => {
     applyFilters();
   }, [users, searchTerm, roleFilter, statusFilter]);
 
+  const checkMongoDBConnection = async () => {
+    try {
+      setMongoDBStatus('checking');
+      // Test connection by trying to fetch users
+      await mongoDBUserService.getAllUsers();
+      setMongoDBStatus('connected');
+    } catch (error) {
+      console.error('MongoDB connection failed:', error);
+      setMongoDBStatus('disconnected');
+    }
+  };
+
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const allUsers = await userManagementService.getAllUsers();
+      const allUsers = await mongoDBUserService.getAllUsers();
       setUsers(allUsers);
     } catch (error) {
       console.error('Failed to load users:', error);
@@ -90,7 +105,7 @@ const UserManagementInterface: React.FC = () => {
 
   const loadStats = async () => {
     try {
-      const userStats = await userManagementService.getUserStats();
+      const userStats = await mongoDBUserService.getUserStats();
       setStats(userStats);
     } catch (error) {
       console.error('Failed to load user stats:', error);
@@ -99,7 +114,7 @@ const UserManagementInterface: React.FC = () => {
 
   const loadAnalytics = async () => {
     try {
-      const userAnalytics = await userManagementService.getUserAnalytics('monthly');
+      const userAnalytics = await mongoDBUserService.getUserAnalytics('monthly');
       setAnalytics(userAnalytics);
     } catch (error) {
       console.error('Failed to load user analytics:', error);
@@ -137,7 +152,7 @@ const UserManagementInterface: React.FC = () => {
 
   const handleSaveUser = async (userData: Omit<User, 'id' | 'createdAt' | 'lastLogin'>) => {
     try {
-      await userManagementService.createUser(userData);
+      await mongoDBUserService.createUser(userData);
       setShowCreateModal(false);
       loadUsers();
       loadStats();
@@ -164,7 +179,7 @@ const UserManagementInterface: React.FC = () => {
     }
 
     try {
-      await userManagementService.deleteUser(user.id);
+      await mongoDBUserService.deleteUser(user.id);
       loadUsers();
       loadStats();
     } catch (error) {
@@ -190,7 +205,7 @@ const UserManagementInterface: React.FC = () => {
         action,
       };
 
-      await userManagementService.bulkAction(bulkAction);
+      await mongoDBUserService.bulkAction(bulkAction);
       setSelectedUsers([]);
       loadUsers();
       loadStats();
@@ -266,8 +281,40 @@ const UserManagementInterface: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600">Manage all users and their permissions</p>
+          <div className="flex items-center gap-4 mt-2">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${
+                mongoDBStatus === 'connected' ? 'bg-green-500' : 
+                mongoDBStatus === 'disconnected' ? 'bg-red-500' : 'bg-yellow-500'
+              }`}></div>
+              <span className="text-sm text-gray-600">
+                MongoDB: {mongoDBStatus === 'connected' ? 'Connected' : 
+                         mongoDBStatus === 'disconnected' ? 'Disconnected' : 'Checking...'}
+              </span>
+            </div>
+            <span className="text-sm text-gray-500">
+              Last refresh: {lastRefresh.toLocaleTimeString()}
+            </span>
+          </div>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              try {
+                setLastRefresh(new Date());
+                await loadUsers();
+                await loadStats();
+                await checkMongoDBConnection();
+              } catch (error) {
+                console.error('Failed to refresh data:', error);
+              }
+            }}
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center gap-2"
+            title="Refresh data from MongoDB"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
           <button
             onClick={() => setShowAnalytics(!showAnalytics)}
             className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2"
@@ -301,6 +348,7 @@ const UserManagementInterface: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Total Users</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
+              <p className="text-xs text-green-600">Live from MongoDB</p>
             </div>
             <Users className="w-8 h-8 text-blue-600" />
           </div>
@@ -311,6 +359,7 @@ const UserManagementInterface: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Active Users</p>
               <p className="text-2xl font-bold text-green-600">{stats.activeUsers}</p>
+              <p className="text-xs text-green-600">Live from MongoDB</p>
             </div>
             <UserCheck className="w-8 h-8 text-green-600" />
           </div>
@@ -321,6 +370,7 @@ const UserManagementInterface: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Inactive Users</p>
               <p className="text-2xl font-bold text-red-600">{stats.inactiveUsers}</p>
+              <p className="text-xs text-green-600">Live from MongoDB</p>
             </div>
             <UserX className="w-8 h-8 text-red-600" />
           </div>
@@ -331,6 +381,7 @@ const UserManagementInterface: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">New This Month</p>
               <p className="text-2xl font-bold text-purple-600">{stats.newUsersThisMonth}</p>
+              <p className="text-xs text-green-600">Live from MongoDB</p>
             </div>
             <Activity className="w-8 h-8 text-purple-600" />
           </div>
@@ -340,7 +391,8 @@ const UserManagementInterface: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Avg per Tenant</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.averageUsersPerTenant}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.averageUsersPerTenant.toFixed(1)}</p>
+              <p className="text-xs text-green-600">Live from MongoDB</p>
             </div>
             <Shield className="w-8 h-8 text-orange-600" />
           </div>
@@ -416,6 +468,17 @@ const UserManagementInterface: React.FC = () => {
 
       {/* Users Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-900">Users ({filteredUsers.length})</h3>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className="text-sm text-green-600">Live MongoDB Data</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

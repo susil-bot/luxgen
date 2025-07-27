@@ -33,7 +33,6 @@ import UserManagementInterface from './components/user-management/UserManagement
 import TrainerDashboard from './components/trainer/TrainerDashboard';
 import ParticipantDashboard from './components/participant/ParticipantDashboard';
 import NichePollsPage from './pages/NichePollsPage';
-import ErrorDemo from './components/auth/ErrorDemo';
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -68,7 +67,15 @@ const LoginRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+  // Check if login is in progress to prevent automatic redirects
+  const isLoginInProgress = localStorage.getItem('loginInProgress') === 'true';
+
+  // Only redirect if user is already authenticated and not in the middle of a login process
+  if (isAuthenticated && !isLoginInProgress) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 // Placeholder components for different routes
@@ -118,7 +125,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
-      <Route path="/error-demo" element={<ErrorDemo />} />
+
       <Route 
         path="/login" 
         element={

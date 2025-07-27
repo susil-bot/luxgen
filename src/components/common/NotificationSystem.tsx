@@ -115,6 +115,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const playNotificationSound = (type: NotificationType) => {
     if (!state.soundEnabled) return;
     
+    // Skip audio in test environment
+    if (typeof window === 'undefined' || !window.Audio) {
+      return;
+    }
+    
     try {
       const audio = new Audio();
       switch (type) {
@@ -131,11 +136,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           audio.src = '/sounds/notification-info.mp3';
           break;
       }
-      audio.play().catch(() => {
-        // Fallback to system beep if custom sound fails
-        console.log('\u0007');
-      });
+      
+      // Check if audio.play() is supported
+      if (audio.play && typeof audio.play === 'function') {
+        audio.play().catch((error) => {
+          // Silently handle audio errors
+          console.log('Audio playback failed:', error);
+        });
+      }
     } catch (error) {
+      // Silently handle audio errors
       console.log('Notification sound failed:', error);
     }
   };
