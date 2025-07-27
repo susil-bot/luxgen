@@ -488,14 +488,14 @@ const TenantDetailsModal: React.FC<TenantDetailsModalProps> = ({
                     <Shield className="w-5 h-5 text-green-600" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">Successful login</p>
-                      <p className="text-xs text-gray-500">IP: 192.168.1.100 • 2 hours ago</p>
+                      <p className="text-xs text-gray-500">IP: unknown • 2 hours ago</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <Shield className="w-5 h-5 text-yellow-600" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">Failed login attempt</p>
-                      <p className="text-xs text-gray-500">IP: 192.168.1.101 • 1 day ago</p>
+                      <p className="text-xs text-gray-500">IP: unknown • 1 day ago</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">

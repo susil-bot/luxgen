@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'react-hot-toast';
-import apiClient, { ApiResponse } from '../services/apiClient';
+import apiClient from '../services/apiClient';
 import apiServices from '../services/apiServices';
+import { ApiResponse } from '../types/api';
+import { DatabaseMonitorData, HealthCheck } from '../services/apiServices';
 
 // API State Interface
 export interface ApiState<T> {
@@ -31,10 +33,10 @@ interface CacheEntry<T> {
 }
 
 // Cache Store
-const cacheStore = new Map<string, CacheEntry<any>>();
+const cacheStore = new Map<string, CacheEntry<unknown>>();
 
 // Custom Hook for API State Management
-export function useApi<T = any>(
+export function useApi<T = unknown>(
   endpoint: string,
   options: ApiOptions = {}
 ) {
@@ -65,7 +67,7 @@ export function useApi<T = any>(
     
     const cached = cacheStore.get(cacheKey);
     if (cached && Date.now() < cached.expiresAt) {
-      return cached.data;
+      return cached.data as T;
     }
     
     if (cached) {
@@ -148,8 +150,8 @@ export function useApi<T = any>(
       });
 
       return response;
-    } catch (error: any) {
-      const errorMessage = error.message || 'An error occurred while fetching data';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred while fetching data';
       
       setState({
         data: null,
@@ -179,7 +181,7 @@ export function useApi<T = any>(
   }, [cacheKey]);
 
   // Refresh data (ignore cache)
-  const refresh = useCallback(async (config?: any) => {
+  const refresh = useCallback(async (config?: Record<string, unknown>) => {
     clearCache();
     return fetchData(config);
   }, [fetchData, clearCache]);
@@ -297,7 +299,7 @@ export function useApiConnection() {
 
 // Hook for Database Status
 export function useDatabaseStatus() {
-  const [dbStatus, setDbStatus] = useState<any>(null);
+  const [dbStatus, setDbStatus] = useState<DatabaseMonitorData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -307,13 +309,13 @@ export function useDatabaseStatus() {
     
     try {
       const response = await apiServices.getDatabaseStatus();
-      if (response.success) {
+      if (response.success && response.data) {
         setDbStatus(response.data);
       } else {
         setError(response.error || 'Failed to fetch database status');
       }
-    } catch (err: any) {
-      setError(err.message || 'Database status check failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Database status check failed');
     } finally {
       setLoading(false);
     }
@@ -338,7 +340,7 @@ export function useDatabaseStatus() {
 
 // Hook for Health Check
 export function useHealthCheck() {
-  const [health, setHealth] = useState<any>(null);
+  const [health, setHealth] = useState<HealthCheck | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -348,13 +350,13 @@ export function useHealthCheck() {
     
     try {
       const response = await apiServices.getDetailedHealth();
-      if (response.success) {
+      if (response.success && response.data) {
         setHealth(response.data);
       } else {
         setError(response.error || 'Health check failed');
       }
-    } catch (err: any) {
-      setError(err.message || 'Health check failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Health check failed');
     } finally {
       setLoading(false);
     }

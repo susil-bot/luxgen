@@ -1,4 +1,5 @@
-import apiClient, { ApiResponse } from './apiClient';
+import apiClient from './apiClient';
+import { ApiResponse } from '../types/api';
 
 // Tenant Types
 export interface Tenant {

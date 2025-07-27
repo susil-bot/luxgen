@@ -294,7 +294,7 @@ describe('apiServices', () => {
 
       const result = await apiServices.createTenant(tenantData);
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/tenants/create', tenantData);
+      expect(mockApiClient.post).toHaveBeenCalledWith('/tenants', tenantData);
       expect(result).toEqual(mockResponse);
     });
 

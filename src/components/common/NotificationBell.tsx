@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, BellOff, CheckCircle, MessageSquare, Clock, AlertCircle, X } from 'lucide-react';
 
 interface Notification {
@@ -12,6 +12,9 @@ interface Notification {
 }
 
 const NotificationBell: React.FC = () => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
@@ -77,11 +80,40 @@ const NotificationBell: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  // Keyboard navigation
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsOpen(false);
+      buttonRef.current?.focus();
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
+
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={handleKeyDown}
         className="relative p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        aria-label={`${unreadCount} unread notifications`}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        aria-controls="notifications-dropdown"
       >
         {unreadCount > 0 ? (
           <Bell className="h-6 w-6" />
@@ -89,14 +121,25 @@ const NotificationBell: React.FC = () => {
           <BellOff className="h-6 w-6" />
         )}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+          <span 
+            className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+            aria-label={`${unreadCount} unread notifications`}
+          >
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+        <div 
+          ref={dropdownRef}
+          id="notifications-dropdown"
+          className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+          role="dialog"
+          aria-label="Notifications"
+          aria-modal="true"
+          onKeyDown={handleKeyDown}
+        >
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -106,6 +149,7 @@ const NotificationBell: React.FC = () => {
                 <button
                   onClick={markAllAsRead}
                   className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                  aria-label="Mark all notifications as read"
                 >
                   Mark all as read
                 </button>
@@ -113,7 +157,7 @@ const NotificationBell: React.FC = () => {
             </div>
           </div>
 
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto" role="listbox" aria-label="Notification list">
             {displayedNotifications.length === 0 ? (
               <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                 <BellOff className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -127,6 +171,8 @@ const NotificationBell: React.FC = () => {
                     className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
                       !notification.read ? 'bg-blue-50 dark:bg-blue-900/10' : ''
                     }`}
+                    role="option"
+                    aria-selected={!notification.read}
                   >
                     <div className="flex items-start space-x-3">
                       {getNotificationIcon(notification.type)}
@@ -139,6 +185,7 @@ const NotificationBell: React.FC = () => {
                             <button
                               onClick={() => markAsRead(notification.id)}
                               className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                              aria-label={`Mark notification "${notification.title}" as read`}
                             >
                               <X className="h-3 w-3" />
                             </button>

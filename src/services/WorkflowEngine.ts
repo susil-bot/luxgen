@@ -932,13 +932,27 @@ export class WorkflowEngine {
     execution.logs.push(log);
   }
 
+  private executionProcessorInterval: NodeJS.Timeout | null = null;
+
   // Execution Processor
   private startExecutionProcessor(): void {
-    setInterval(() => {
+    if (this.executionProcessorInterval) {
+      clearInterval(this.executionProcessorInterval);
+    }
+    
+    this.executionProcessorInterval = setInterval(() => {
       if (!this.isProcessing && this.executionQueue.length > 0) {
         this.processExecutionQueue();
       }
     }, 1000);
+  }
+
+  // Cleanup method to stop the execution processor
+  public stopExecutionProcessor(): void {
+    if (this.executionProcessorInterval) {
+      clearInterval(this.executionProcessorInterval);
+      this.executionProcessorInterval = null;
+    }
   }
 
   private async processExecutionQueue(): Promise<void> {

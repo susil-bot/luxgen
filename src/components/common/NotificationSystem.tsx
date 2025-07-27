@@ -116,7 +116,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     if (!state.soundEnabled) return;
     
     // Skip audio in test environment
-    if (typeof window === 'undefined' || !window.Audio) {
+    if (process.env.NODE_ENV === 'test' || typeof window === 'undefined' || !window.Audio) {
       return;
     }
     
