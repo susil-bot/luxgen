@@ -1,4 +1,6 @@
 import apiClient from './apiClient';
+import { securityConfig } from '../config/security';
+import { apiLogger } from '../utils/logger';
 
 interface ContentGenerationOptions {
   maxTokens?: number;
@@ -36,7 +38,7 @@ class ContentCreatorAPI {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api/v1/ai';
+    this.baseURL = `${securityConfig.apiBaseUrl}/ai`;
   }
 
   private async getHeaders(): Promise<HeadersInit> {
@@ -61,7 +63,7 @@ class ContentCreatorAPI {
 
       return await response.json();
     } catch (error) {
-      console.error('ContentCreatorAPI request failed:', error);
+      apiLogger.apiError(endpoint, error);
       return {
         success: false,
         error: {
@@ -328,7 +330,7 @@ class ContentCreatorAPI {
       const result = await response.json();
       return { success: true, id: result.id };
     } catch (error) {
-      console.error('Save content failed:', error);
+      apiLogger.error('Save content failed', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -363,7 +365,7 @@ class ContentCreatorAPI {
       const result = await response.json();
       return { success: true, data: result.data };
     } catch (error) {
-      console.error('Get content library failed:', error);
+      apiLogger.error('Get content library failed', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',

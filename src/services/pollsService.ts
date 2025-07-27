@@ -1,6 +1,8 @@
 import { Poll, PollResponse, PollFeedback, Notification, PollQuestion } from '../types/polls';
+import { securityConfig } from '../config/security';
+import { apiLogger } from '../utils/logger';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = securityConfig.apiBaseUrl;
 
 class PollsService {
   private tenantId: string = 'tenant1'; // Default tenant, should come from auth context
@@ -34,7 +36,7 @@ class PollsService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
+      apiLogger.apiError(endpoint, error);
       throw error;
     }
   }

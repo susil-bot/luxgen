@@ -7,6 +7,7 @@ import {
   Permission,
   TenantFilter
 } from '../types/multiTenancy';
+import { securityUtils } from '../config/security';
 
 // Security Service for Multi-Tenancy
 export class SecurityService {
@@ -349,10 +350,10 @@ export class SecurityService {
     return true;
   }
 
+
   // Utility Methods
   private getClientIP(): string {
-    // This would typically get the real IP from request headers
-    return '127.0.0.1';
+    return securityUtils.getClientIP();
   }
 
   private getClientUserAgent(): string {

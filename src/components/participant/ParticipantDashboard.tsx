@@ -3,55 +3,29 @@ import {
   BookOpen, 
   Clock, 
   CheckCircle, 
-  Target, 
   Star, 
   Calendar, 
-  Users, 
   TrendingUp, 
-  Award, 
-  Trophy,
   Play,
-  Pause,
   Video,
   FileText,
   CheckSquare,
-  Target as TargetIcon,
   Eye,
   Download,
-  Share2,
   Edit,
   Plus,
-  Filter,
   Search,
   RefreshCw,
-  MoreVertical,
-  ChevronRight,
-  ChevronLeft,
   Activity,
-  Zap,
-  Lightbulb,
   Bookmark,
   MessageSquare,
-  Bell,
-  Settings,
-  User,
-  UserCheck,
-  UserX,
-  GraduationCap,
-  Medal,
-  Crown,
-  Flame,
-  Rocket,
-  ChartLine,
-  PieChart,
-  BarChart,
-  LineChart,
   BarChart3,
-  Clock as ClockIcon,
   AlertCircle,
-  CheckCircle as CheckCircleIcon,
-  Lock,
-  Unlock
+  Target,
+  Zap,
+  Flame,
+  Trophy,
+  Lock
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import apiServices from '../../services/apiServices';
@@ -106,23 +80,19 @@ interface ParticipantStats {
 
 const ParticipantDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'progress' | 'achievements' | 'calendar'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'content' | 'progress' | 'achievements' | 'calendar'>('overview');
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [currentCourse, setCurrentCourse] = useState<EnrolledCourse | null>(null);
   const [modules, setModules] = useState<LearningModule[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [stats, setStats] = useState<ParticipantStats>({
-    totalCourses: 0,
-    completedCourses: 0,
-    totalModules: 0,
-    completedModules: 0,
-    averageScore: 0,
-    learningStreak: 0,
-    totalTimeSpent: 0,
-    certificates: 0
-  });
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, any>>({});
+  const [learningContent, setLearningContent] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [stats, setStats] = useState<ParticipantStats | null>(null);
 
   // Load participant data from API
   const loadParticipantData = async () => {
@@ -156,7 +126,9 @@ const ParticipantDashboard: React.FC = () => {
       // Load participant stats
       const statsResponse = await apiServices.getParticipantStats(user.id);
       if (handleApiResponse(statsResponse)) {
-        setStats(statsResponse.data || {
+        setStats(statsResponse.data);
+      } else {
+        setStats({
           totalCourses: 0,
           completedCourses: 0,
           totalModules: 0,
@@ -268,24 +240,12 @@ const ParticipantDashboard: React.FC = () => {
     }
   };
 
-  // Submit assessment
-  const submitAssessment = async (assessmentId: string, submission: any) => {
-    try {
-      const response = await apiServices.submitAssessment(assessmentId, submission);
-      
-      if (handleApiResponse(response)) {
-        toast.success('Assessment submitted successfully!');
-        loadParticipantData(); // Reload data
-      }
-    } catch (error) {
-      handleApiError(error, 'Submitting assessment');
-    }
-  };
+
 
   // Load data on component mount
   useEffect(() => {
     loadParticipantData();
-  }, [user?.id]);
+  }, [loadParticipantData]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -298,12 +258,12 @@ const ParticipantDashboard: React.FC = () => {
 
   const getModuleIcon = (type: string) => {
     switch (type) {
-      case 'video': return <Video className="w-4 h-4" />;
-      case 'document': return <FileText className="w-4 h-4" />;
-      case 'quiz': return <CheckSquare className="w-4 h-4" />;
-      case 'assignment': return <Target className="w-4 h-4" />;
-      case 'interactive': return <Zap className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+      case 'video': return Video;
+      case 'document': return FileText;
+      case 'quiz': return CheckSquare;
+      case 'assignment': return Target;
+      case 'interactive': return Zap;
+      default: return FileText;
     }
   };
 
@@ -335,13 +295,13 @@ const ParticipantDashboard: React.FC = () => {
               </h1>
               <div className="flex items-center space-x-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                  {stats.totalCourses} Courses
+                  {stats?.totalCourses || 0} Courses
                 </span>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  {stats.completedCourses} Completed
+                    {stats?.completedCourses || 0} Completed
                 </span>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                  {stats.learningStreak} Day Streak
+                    {stats?.learningStreak || 0} Day Streak
                 </span>
               </div>
             </div>
@@ -380,7 +340,7 @@ const ParticipantDashboard: React.FC = () => {
                       Total Courses
                     </dt>
                     <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                      {stats.totalCourses}
+                      {stats?.totalCourses || 0}
                     </dd>
                   </dl>
                 </div>
@@ -400,7 +360,7 @@ const ParticipantDashboard: React.FC = () => {
                       Completed Courses
                     </dt>
                     <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                      {stats.completedCourses}
+                      {stats?.completedCourses || 0}
                     </dd>
                   </dl>
                 </div>
@@ -420,7 +380,7 @@ const ParticipantDashboard: React.FC = () => {
                       Average Score
                     </dt>
                     <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                      {stats.averageScore.toFixed(1)}%
+                      {(stats?.averageScore || 0).toFixed(1)}%
                     </dd>
                   </dl>
                 </div>
@@ -440,7 +400,7 @@ const ParticipantDashboard: React.FC = () => {
                       Learning Streak
                     </dt>
                     <dd className="text-lg font-medium text-gray-900 dark:text-white">
-                      {stats.learningStreak} days
+                      {stats?.learningStreak || 0} days
                     </dd>
                   </dl>
                 </div>
@@ -456,6 +416,7 @@ const ParticipantDashboard: React.FC = () => {
               {[
                 { id: 'overview', label: 'Overview', icon: BarChart3 },
                 { id: 'courses', label: 'My Courses', icon: BookOpen },
+                { id: 'content', label: 'Learning Content', icon: FileText },
                 { id: 'progress', label: 'Progress', icon: TrendingUp },
                 { id: 'achievements', label: 'Achievements', icon: Trophy },
                 { id: 'calendar', label: 'Calendar', icon: Calendar }
@@ -484,44 +445,231 @@ const ParticipantDashboard: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
           {activeTab === 'overview' && (
             <div className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Activity</h3>
-              <div className="space-y-4">
-                {enrolledCourses.slice(0, 5).map((course) => (
-                  <div key={course.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <BookOpen className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+              {/* Learning Progress Overview */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div className="lg:col-span-2">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold">Learning Progress</h3>
+                        <p className="text-blue-100">Keep up the great work!</p>
+                      </div>
+                      <TrendingUp className="h-12 w-12 text-blue-200" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-blue-100 text-sm">Overall Progress</p>
+                        <p className="text-2xl font-bold">{Math.round((stats?.completedModules || 0) / (stats?.totalModules || 1) * 100)}%</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">{course.title}</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{course.description}</p>
-                        <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                          <span className="flex items-center">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {course.duration} min
-                          </span>
-                          <span className="flex items-center">
-                            <User className="w-3 h-3 mr-1" />
-                            {course.instructor}
-                          </span>
-                          <span className="flex items-center">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            {course.completedModules}/{course.totalModules} modules
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(course.status)}`}>
-                        {course.status}
-                      </span>
-                      <div className="text-right">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{course.progress}%</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Progress</div>
+                        <p className="text-blue-100 text-sm">Learning Streak</p>
+                        <p className="text-2xl font-bold">{stats?.learningStreak || 0} days</p>
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
+
+                <div>
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h3>
+                    <div className="space-y-3">
+                      <button className="w-full flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+                        <Play className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Continue Learning</span>
+                      </button>
+                      <button className="w-full flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
+                        <BookOpen className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <span className="text-sm font-medium text-green-900 dark:text-green-100">Browse Courses</span>
+                      </button>
+                      <button className="w-full flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors">
+                        <Trophy className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <span className="text-sm font-medium text-purple-900 dark:text-purple-100">View Achievements</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Activity & Upcoming Sessions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Activity</h3>
+                  <div className="space-y-4">
+                    {enrolledCourses.slice(0, 3).map((course) => (
+                      <div key={course.id} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
+                          <BookOpen className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{course.title}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Last accessed: {course.lastAccessed.toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{course.progress}%</span>
+                          <div className="w-16 bg-gray-200 dark:bg-gray-600 rounded-full h-1 mt-1">
+                            <div 
+                              className="bg-primary-600 h-1 rounded-full" 
+                              style={{ width: `${course.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Upcoming Sessions</h3>
+                  <div className="space-y-4">
+                    {enrolledCourses.filter(c => c.nextSession).slice(0, 3).map((course) => (
+                      <div key={course.id} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                          <Calendar className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{course.title}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {course.nextSession?.toLocaleDateString()} at {course.nextSession?.toLocaleTimeString()}
+                          </p>
+                        </div>
+                        <button className="px-3 py-1 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                          Join
+                        </button>
+                      </div>
+                    ))}
+                    {enrolledCourses.filter(c => c.nextSession).length === 0 && (
+                      <div className="text-center py-8">
+                        <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600 dark:text-gray-400">No upcoming sessions</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'content' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Learning Content</h3>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setSelectedFilters({ type: 'all' })}
+                      className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
+                    >
+                      All
+                    </button>
+                    <button
+                      onClick={() => setSelectedFilters({ type: 'video' })}
+                      className="px-3 py-1 text-sm bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/30"
+                    >
+                      Videos
+                    </button>
+                    <button
+                      onClick={() => setSelectedFilters({ type: 'document' })}
+                      className="px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/30"
+                    >
+                      Documents
+                    </button>
+                    <button
+                      onClick={() => setSelectedFilters({ type: 'quiz' })}
+                      className="px-3 py-1 text-sm bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/30"
+                    >
+                      Quizzes
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="text"
+                      placeholder="Search content..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {learningContent.length > 0 ? (
+                  learningContent.map((item) => (
+                    <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-center space-x-3 mb-4">
+                        {(() => {
+                          const IconComponent = getModuleIcon(item.type);
+                          return <IconComponent className="h-8 w-8 text-gray-600 dark:text-gray-400" />;
+                        })()}
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100">{item.title}</h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{item.type}</p>
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">{item.description}</p>
+                      
+                      <div className="space-y-3 mb-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500 dark:text-gray-400">Duration:</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{item.duration} min</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500 dark:text-gray-400">Status:</span>
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            item.isCompleted 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                              : item.isLocked
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                          }`}>
+                            {item.isCompleted ? 'Completed' : item.isLocked ? 'Locked' : 'Available'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500 dark:text-gray-400">Course:</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{item.courseTitle}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center space-x-2">
+                          <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                            <Download className="h-4 w-4" />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                            <Bookmark className="h-4 w-4" />
+                          </button>
+                        </div>
+                        {!item.isLocked && !item.isCompleted && (
+                          <button className="px-3 py-1 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                            Start
+                          </button>
+                        )}
+                        {item.isCompleted && (
+                          <div className="flex items-center space-x-1 text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-4 w-4" />
+                            <span className="text-sm font-medium">Completed</span>
+                    </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No content available</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">Enroll in courses to access learning content.</p>
+                    <button className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Browse Courses
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -616,7 +764,10 @@ const ParticipantDashboard: React.FC = () => {
                         ) : module.isLocked ? (
                           <Lock className="h-6 w-6 text-gray-400" />
                         ) : (
-                          getModuleIcon(module.type)
+                          (() => {
+                            const IconComponent = getModuleIcon(module.type);
+                            return <IconComponent className="h-6 w-6 text-gray-400" />;
+                          })()
                         )}
                       </div>
                       <div>
@@ -628,7 +779,10 @@ const ParticipantDashboard: React.FC = () => {
                             {module.duration} min
                           </span>
                           <span className="flex items-center">
-                            {getModuleIcon(module.type)}
+                            {(() => {
+                              const IconComponent = getModuleIcon(module.type);
+                              return <IconComponent className="w-3 h-3 mr-1" />;
+                            })()}
                             {module.type}
                           </span>
                         </div>

@@ -32,7 +32,9 @@ import TenantManagementInterface from './components/tenant-management/TenantMana
 import UserManagementInterface from './components/user-management/UserManagementInterface';
 import TrainerDashboard from './components/trainer/TrainerDashboard';
 import ParticipantDashboard from './components/participant/ParticipantDashboard';
+import MyTrainingInterface from './components/training/MyTrainingInterface';
 import NichePollsPage from './pages/NichePollsPage';
+import ProfilePage from './components/profile/ProfilePage';
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -94,12 +96,7 @@ const ReportsPage: React.FC = () => (
   </div>
 );
 
-const ProfilePage: React.FC = () => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Profile</h1>
-    <p className="text-gray-600">User profile functionality will be implemented here.</p>
-  </div>
-);
+
 
 const SettingsPage: React.FC = () => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -113,12 +110,7 @@ const UsersPage: React.FC = () => <UserManagementInterface />;
 const TrainerPage: React.FC = () => <TrainerDashboard />;
 const ParticipantPage: React.FC = () => <ParticipantDashboard />;
 
-const MyTrainingPage: React.FC = () => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">My Training</h1>
-    <p className="text-gray-600">Personal training progress and enrolled programs will be displayed here.</p>
-  </div>
-);
+const MyTrainingPage: React.FC = () => <MyTrainingInterface />;
 
 const AppRoutes: React.FC = () => {
   return (

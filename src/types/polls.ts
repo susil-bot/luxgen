@@ -130,10 +130,4 @@ export interface PaginationInfo {
   pages: number;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-  pagination?: PaginationInfo;
-} 
+export type { ApiResponse } from './api'; 

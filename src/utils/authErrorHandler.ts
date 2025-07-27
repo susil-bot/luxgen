@@ -1,4 +1,4 @@
-import { ApiError } from './errorHandler';
+// Authentication-specific error codes and messages
 
 // Authentication-specific error codes and messages
 export interface AuthErrorDetails {

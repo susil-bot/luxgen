@@ -1,5 +1,7 @@
-import apiClient, { ApiResponse } from './apiClient';
+import apiClient from './apiClient';
+import { ApiResponse } from '../types/api';
 import { Poll, PollResponse, PollFeedback, Notification } from '../types/polls';
+import { AuthResponse } from '../types/api';
 
 // Database Status Types
 export interface DatabaseStatus {
@@ -296,14 +298,17 @@ class ApiServices {
     company?: string;
     role?: string;
     marketingConsent?: boolean;
-  }): Promise<ApiResponse<any>> {
+  }): Promise<ApiResponse<AuthResponse>> {
     const response = await apiClient.post('/auth/register', userData);
-    if (response.success && response.data?.token) {
-      apiClient.setAuthToken(response.data.token);
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+    if (response.success && response.data) {
+      const authData = response.data as AuthResponse;
+      if (authData.token) {
+        apiClient.setAuthToken(authData.token);
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(authData.user));
+      }
     }
-    return response;
+    return response as ApiResponse<AuthResponse>;
   }
 
   // Email Verification API
@@ -332,20 +337,23 @@ class ApiServices {
   }
 
   // Authentication
-  async login(credentials: { email: string; password: string }): Promise<ApiResponse<any>> {
+  async login(credentials: { email: string; password: string }): Promise<ApiResponse<AuthResponse>> {
     const response = await apiClient.post('/auth/login', credentials);
-    if (response.success && response.data?.token) {
-      apiClient.setAuthToken(response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+    if (response.success && response.data) {
+      const authData = response.data as AuthResponse;
+      if (authData.token) {
+        apiClient.setAuthToken(authData.token);
+        localStorage.setItem('user', JSON.stringify(authData.user));
+      }
     }
-    return response;
+    return response as ApiResponse<AuthResponse>;
   }
 
   async logout(): Promise<ApiResponse<void>> {
     const response = await apiClient.post('/auth/logout', {});
     apiClient.setAuthToken(null);
     localStorage.removeItem('user');
-    return response;
+    return response as ApiResponse<void>;
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
@@ -395,23 +403,23 @@ class ApiServices {
 
   // Tenant Management API
   async createTenant(tenantData: any): Promise<ApiResponse<any>> {
-    return apiClient.post('/tenants', tenantData);
+    return apiClient.post('/v1/tenants/create', tenantData);
   }
 
   async getTenants(): Promise<ApiResponse<any[]>> {
-    return apiClient.get('/tenants');
+    return apiClient.get('/v1/tenants');
   }
 
   async getTenant(tenantId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/tenants/${tenantId}`);
+    return apiClient.get(`/v1/tenants/${tenantId}`);
   }
 
   async updateTenant(tenantId: string, tenantData: any): Promise<ApiResponse<any>> {
-    return apiClient.put(`/tenants/${tenantId}`, tenantData);
+    return apiClient.put(`/v1/tenants/${tenantId}`, tenantData);
   }
 
   async deleteTenant(tenantId: string): Promise<ApiResponse<void>> {
-    return apiClient.delete(`/tenants/${tenantId}`);
+    return apiClient.delete(`/v1/tenants/${tenantId}`);
   }
 
 
@@ -571,6 +579,28 @@ class ApiServices {
 
   async getParticipantStats(participantId: string): Promise<ApiResponse<any>> {
     return apiClient.get(`/training/participants/${participantId}/stats`);
+  }
+
+  async getLearningPaths(): Promise<ApiResponse<any>> {
+    return apiClient.get('/training/learning-paths');
+  }
+
+  async getAssessments(): Promise<ApiResponse<any>> {
+    return apiClient.get('/training/assessments');
+  }
+
+  async startModule(programId: string, moduleId: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/training/programs/${programId}/modules/${moduleId}/start`);
+  }
+
+
+
+  async startAssessment(assessmentId: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/training/assessments/${assessmentId}/start`);
+  }
+
+  async downloadCertificate(programId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/training/programs/${programId}/certificate`);
   }
 
   // AI Content Creation API

@@ -1,7 +1,8 @@
 import apiServices from '../services/apiServices';
+import { securityConfig } from '../config/security';
 
 export const testApiConnection = async () => {
-  console.log('🧪 Testing API Connection to:', process.env.REACT_APP_API_BASE_URL || 'http://192.168.1.9:3001/api/v1');
+  console.log('🧪 Testing API Connection to:', securityConfig.apiBaseUrl);
   
   try {
     // Test health endpoint

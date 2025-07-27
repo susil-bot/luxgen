@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { User, AuthState, LoginForm } from '../types';
+import { User, AuthState, LoginForm, UserRole } from '../types';
 import apiServices from '../services/apiServices';
 import { useNotifications } from '../components/common/NotificationSystem';
 import { useErrorHandler } from '../utils/errorHandler';
@@ -96,8 +96,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await apiServices.login({ email, password });
       
       if (response && response.success && response.data) {
-        const user = response.data.user;
+        const apiUser = response.data.user;
         const token = response.data.token;
+        
+        // Transform API user to match User interface
+        const user: User = {
+          id: apiUser.id,
+          email: apiUser.email,
+          firstName: apiUser.firstName,
+          lastName: apiUser.lastName,
+          role: apiUser.role as UserRole,
+          tenantId: apiUser.tenantId || '',
+          isActive: true, // Default to true for logged-in users
+          createdAt: new Date(), // Default to current date
+          lastLogin: new Date()
+        };
         
         // Store in localStorage
         localStorage.setItem('token', token);

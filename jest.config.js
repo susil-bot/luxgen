@@ -1,5 +1,4 @@
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapping: {
@@ -9,15 +8,19 @@ module.exports = {
       '<rootDir>/__mocks__/fileMock.js',
   },
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: 'tsconfig.json',
+    }],
+    '^.+\\.(js|jsx)$': ['babel-jest', {
+      presets: ['@babel/preset-env', '@babel/preset-react'],
+    }],
   },
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.{ts,tsx}',
-    '<rootDir>/src/**/*.{test,spec}.{ts,tsx}',
+    '<rootDir>/src/**/__tests__/**/*.{ts,tsx,js,jsx}',
+    '<rootDir>/src/**/*.{test,spec}.{ts,tsx,js,jsx}',
   ],
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
+    'src/**/*.{ts,tsx,js,jsx}',
     '!src/**/*.d.ts',
     '!src/index.tsx',
     '!src/reportWebVitals.ts',
@@ -37,4 +40,6 @@ module.exports = {
     },
   },
   testTimeout: 10000,
+  moduleDirectories: ['node_modules', 'src'],
+  roots: ['<rootDir>/src'],
 }; 

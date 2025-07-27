@@ -12,6 +12,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useApiConnection, useHealthCheck, useDatabaseStatus } from '../../hooks/useApi';
+import { DatabaseMonitorData, HealthCheck } from '../../services/apiServices';
 
 interface ApiConnectionStatusProps {
   showDetails?: boolean;
@@ -83,7 +84,7 @@ const ApiConnectionStatus: React.FC<ApiConnectionStatusProps> = ({
     };
   };
 
-  const formatTimestamp = (timestamp: string | null) => {
+  const formatTimestamp = (timestamp: string | null | undefined) => {
     if (!timestamp) return 'Never';
     return new Date(timestamp).toLocaleTimeString();
   };

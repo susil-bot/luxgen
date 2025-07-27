@@ -211,13 +211,8 @@ export interface MenuItem {
   isActive?: boolean;
 }
 
-// API Response Types
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  errors?: string[];
-}
+// API Response Types - Imported from api.ts
+export type { ApiResponse } from './api';
 
 // Dashboard Types
 export interface DashboardStats {

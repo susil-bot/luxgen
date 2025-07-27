@@ -47,6 +47,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [apiError, setApiError] = useState<any>(null);
+  const [stepErrors, setStepErrors] = useState<Record<number, string>>({});
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -98,7 +99,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
 
   const handleInputChange = (field: keyof RegisterFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
+    
+    // Clear field-specific error when user starts typing
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -106,7 +108,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
         return newErrors;
       });
     }
-    // Clear API error when user starts typing
+    
+    // Clear step error when user makes changes
+    if (stepErrors[currentStep]) {
+      setStepErrors(prev => {
+        const newStepErrors = { ...prev };
+        delete newStepErrors[currentStep];
+        return newStepErrors;
+      });
+    }
+    
+    // Clear API error when user makes changes
     if (apiError) {
       setApiError(null);
     }
@@ -115,11 +127,93 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
   const handleNextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => prev + 1);
+      // Clear any step-specific errors when moving forward
+      setStepErrors(prev => {
+        const newStepErrors = { ...prev };
+        delete newStepErrors[currentStep];
+        return newStepErrors;
+      });
     }
   };
 
   const handlePrevStep = () => {
     setCurrentStep(prev => prev - 1);
+  };
+
+  // Function to map API errors to specific steps
+  const mapApiErrorToStep = (error: any): number => {
+    const errorMessage = error?.response?.data?.message?.toLowerCase() || '';
+    const errorCode = error?.response?.data?.code?.toLowerCase() || '';
+    
+    // Email-related errors -> Step 1
+    if (errorMessage.includes('email') || 
+        errorMessage.includes('already exists') || 
+        errorCode.includes('email') ||
+        errorMessage.includes('invalid email')) {
+      return 1;
+    }
+    
+    // Password-related errors -> Step 1
+    if (errorMessage.includes('password') || 
+        errorMessage.includes('weak') ||
+        errorCode.includes('password')) {
+      return 1;
+    }
+    
+    // Personal info errors -> Step 2
+    if (errorMessage.includes('name') || 
+        errorMessage.includes('phone') || 
+        errorMessage.includes('company') ||
+        errorMessage.includes('first') ||
+        errorMessage.includes('last')) {
+      return 2;
+    }
+    
+    // Terms-related errors -> Step 3
+    if (errorMessage.includes('terms') || 
+        errorMessage.includes('agreement') ||
+        errorCode.includes('terms')) {
+      return 3;
+    }
+    
+    // Default to current step if can't determine
+    return currentStep;
+  };
+
+  // Function to extract field-specific error from API error
+  const extractFieldError = (error: any): Record<string, string> => {
+    const errorMessage = error?.response?.data?.message?.toLowerCase() || '';
+    const fieldErrors: Record<string, string> = {};
+    
+    if (errorMessage.includes('email') || errorMessage.includes('already exists')) {
+      fieldErrors.email = 'This email is already registered. Please use a different email or sign in.';
+    }
+    
+    if (errorMessage.includes('password') || errorMessage.includes('weak')) {
+      fieldErrors.password = 'Password is too weak. Please choose a stronger password.';
+    }
+    
+    if (errorMessage.includes('first name')) {
+      fieldErrors.firstName = 'First name is required.';
+    }
+    
+    if (errorMessage.includes('last name')) {
+      fieldErrors.lastName = 'Last name is required.';
+    }
+    
+    if (errorMessage.includes('phone')) {
+      fieldErrors.phone = 'Phone number is required.';
+    }
+    
+    if (errorMessage.includes('company')) {
+      fieldErrors.company = 'Company name is required.';
+    }
+    
+    if (errorMessage.includes('terms') || errorMessage.includes('agreement')) {
+      fieldErrors.agreeToTerms = 'You must agree to the terms and conditions.';
+    }
+    
+    return fieldErrors;
   };
 
   const handleSubmit = async () => {
@@ -128,6 +222,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
 
     setIsLoading(true);
     setApiError(null);
+    setStepErrors({});
     
     try {
       const response = await apiServices.register({
@@ -205,8 +300,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           });
         }
       } else {
-        // Create error object for consistent handling
-        const errorObj = {
+        // Handle API errors by mapping them to the appropriate step
+        const errorStep = mapApiErrorToStep({
           response: {
             status: 400,
             data: {
@@ -214,18 +309,66 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
               code: 'REGISTRATION_FAILED'
             }
           }
-        };
-        setApiError(errorObj);
+        });
+        
+        // Navigate to the step where the error occurred
+        setCurrentStep(errorStep);
+        
+        // Set field-specific errors
+        const fieldErrors = extractFieldError({
+          response: {
+            status: 400,
+            data: {
+              message: response.message || 'Unable to create your account. Please try again.',
+              code: 'REGISTRATION_FAILED'
+            }
+          }
+        });
+        
+        setErrors(fieldErrors);
+        
+        // Set step-specific error message
+        setStepErrors(prev => ({
+          ...prev,
+          [errorStep]: response.message || 'Please fix the errors above and try again.'
+        }));
+        
+        // Show error notification
         showError(
           'Registration Failed',
-          response.message || 'Unable to create your account. Please try again.',
+          response.message || 'Unable to create your account. Please fix the errors and try again.',
           { duration: 6000 }
         );
       }
     } catch (error: any) {
       console.error('Registration error:', error);
+      
+      // Handle network/API errors by mapping them to the appropriate step
+      const errorStep = mapApiErrorToStep(error);
+      setCurrentStep(errorStep);
+      
+      // Set field-specific errors
+      const fieldErrors = extractFieldError(error);
+      setErrors(fieldErrors);
+      
+      // Set step-specific error message
+      const errorMessage = error?.response?.data?.message || 
+                          error?.message || 
+                          'An unexpected error occurred. Please try again.';
+      
+      setStepErrors(prev => ({
+        ...prev,
+        [errorStep]: errorMessage
+      }));
+      
+      // Show error notification
+      showError(
+        'Registration Failed',
+        errorMessage,
+        { duration: 6000 }
+      );
+      
       handleError(error, 'registration-form');
-      setApiError(error);
     } finally {
       setIsLoading(false);
     }
@@ -255,6 +398,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
   const renderStep1 = () => (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign Up</h2>
+      
+      {/* Step-specific error message */}
+      {stepErrors[1] && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+            <p className="text-red-700 text-sm">{stepErrors[1]}</p>
+          </div>
+        </div>
+      )}
       
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -351,6 +504,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Personal Information</h2>
       
+      {/* Step-specific error message */}
+      {stepErrors[2] && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+            <p className="text-red-700 text-sm">{stepErrors[2]}</p>
+          </div>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -427,7 +590,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Company/Organization
+          Company Name
         </label>
         <div className="relative">
           <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -460,7 +623,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
         >
           <option value="user">User</option>
           <option value="trainer">Trainer</option>
-          <option value="admin">Administrator</option>
+          <option value="admin">Admin</option>
         </select>
       </div>
     </div>
@@ -470,6 +633,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Terms & Preferences</h2>
       
+      {/* Step-specific error message */}
+      {stepErrors[3] && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+            <p className="text-red-700 text-sm">{stepErrors[3]}</p>
+          </div>
+        </div>
+      )}
+      
       <div className="space-y-4">
         <div className="flex items-start">
           <input
@@ -477,12 +650,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
             id="agreeToTerms"
             checked={formData.agreeToTerms}
             onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
-            className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            className={`mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ${
+              errors.agreeToTerms ? 'border-red-500' : ''
+            }`}
           />
-          <label htmlFor="agreeToTerms" className="ml-3 text-sm text-gray-700">
+          <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-700">
             I agree to the{' '}
             <a href="/terms" className="text-blue-600 hover:text-blue-500 underline">
-              Terms of Service
+              Terms and Conditions
             </a>{' '}
             and{' '}
             <a href="/privacy" className="text-blue-600 hover:text-blue-500 underline">
@@ -491,7 +666,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           </label>
         </div>
         {errors.agreeToTerms && (
-          <p className="text-sm text-red-600 flex items-center">
+          <p className="mt-1 text-sm text-red-600 flex items-center">
             <AlertCircle className="w-4 h-4 mr-1" />
             {errors.agreeToTerms}
           </p>
@@ -505,20 +680,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
             onChange={(e) => handleInputChange('marketingConsent', e.target.checked)}
             className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
-          <label htmlFor="marketingConsent" className="ml-3 text-sm text-gray-700">
-            I would like to receive updates about new features and training opportunities
+          <label htmlFor="marketingConsent" className="ml-2 block text-sm text-gray-700">
+            I would like to receive marketing communications about new features and updates
           </label>
         </div>
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">What happens next?</h3>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• You'll receive a verification email</li>
-          <li>• Click the link in the email to verify your account</li>
-          <li>• Complete your profile setup</li>
-          <li>• Start using the platform!</li>
-        </ul>
       </div>
     </div>
   );
@@ -532,22 +697,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
       case 3:
         return renderStep3();
       default:
-        return null;
+        return renderStep1();
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="text-center text-3xl font-extrabold text-gray-900 mb-2">
-          Create Account
-        </h1>
-        <p className="text-center text-sm text-gray-600">
-          Join our training platform and start your journey
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {renderStepIndicator()}
           

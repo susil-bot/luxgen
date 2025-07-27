@@ -1,13 +1,7 @@
-const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://192.168.1.9:3001/api/v1';
+import { securityConfig } from '../config/security';
+import { ApiResponse } from '../types/api';
 
-interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-  status?: number;
-  timestamp?: string;
-}
+const baseURL = securityConfig.apiBaseUrl;
 
 // JWT Token management
 let authToken: string | null = null;
@@ -47,7 +41,7 @@ const apiClient = {
   setAuthToken,
   getAuthToken,
 
-  async get<T = any>(endpoint: string, config: RequestInit = {}): Promise<ApiResponse<T>> {
+  async get<T = unknown>(endpoint: string, config: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${baseURL}${endpoint}`, { 
         ...config, 
@@ -73,7 +67,7 @@ const apiClient = {
     }
   },
 
-  async post<T = any>(endpoint: string, data?: any, config: RequestInit = {}): Promise<ApiResponse<T>> {
+  async post<T = unknown>(endpoint: string, data?: unknown, config: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${baseURL}${endpoint}`, {
         ...config,
@@ -100,7 +94,7 @@ const apiClient = {
     }
   },
 
-  async put<T = any>(endpoint: string, data?: any, config: RequestInit = {}): Promise<ApiResponse<T>> {
+  async put<T = unknown>(endpoint: string, data?: unknown, config: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${baseURL}${endpoint}`, {
         ...config,
@@ -127,7 +121,7 @@ const apiClient = {
     }
   },
 
-  async delete<T = any>(endpoint: string, config: RequestInit = {}): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(endpoint: string, config: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${baseURL}${endpoint}`, { 
         ...config, 
@@ -154,5 +148,4 @@ const apiClient = {
   },
 };
 
-export default apiClient;
-export type { ApiResponse }; 
+export default apiClient; 
