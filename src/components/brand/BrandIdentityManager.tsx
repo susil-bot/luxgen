@@ -255,7 +255,7 @@ const BrandIdentityManager: React.FC = () => {
                         <div key={styleName} className="typography-style">
                           <span className="style-name">{styleName}</span>
                           <span className="style-details">
-                            {style.family} {style.weight} {style['mobile-size']}px
+                            {(style as any).family} {(style as any).weight} {(style as any)['mobile-size']}px
                           </span>
                         </div>
                       ))}

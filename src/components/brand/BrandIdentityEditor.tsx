@@ -45,7 +45,7 @@ const BrandIdentityEditor: React.FC<BrandIdentityEditorProps> = ({
     const keys = path.split('.');
     setEditedBrand(prev => {
       const newBrand = { ...prev };
-      let current = newBrand;
+      let current: any = newBrand;
       
       for (let i = 0; i < keys.length - 1; i++) {
         if (!current[keys[i]]) {
@@ -78,16 +78,14 @@ const BrandIdentityEditor: React.FC<BrandIdentityEditorProps> = ({
   };
 
   const removeColorToken = (tokenName: string) => {
-    setEditedBrand(prev => ({
-      ...prev,
-      colors: {
-        ...prev.colors,
-        palette: {
-          ...prev.colors?.palette,
-          [tokenName]: undefined
-        }
+    setEditedBrand(prev => {
+      const newBrand = { ...prev };
+      if (newBrand.colors?.palette) {
+        const { [tokenName]: removed, ...rest } = newBrand.colors.palette;
+        newBrand.colors.palette = rest;
       }
-    }));
+      return newBrand;
+    });
   };
 
   const addSpacingToken = () => {
