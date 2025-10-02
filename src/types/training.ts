@@ -53,6 +53,13 @@ export interface TrainingProgram {
     timeLimit?: number;
     retakePolicy?: string;
   };
+  // User-specific properties
+  progress?: number;
+  enrolledAt?: string;
+  lastAccessed?: string;
+  estimatedCompletion?: string;
+  certificate?: string;
+  rating?: number;
   analytics: {
     views: number;
     enrollments: number;

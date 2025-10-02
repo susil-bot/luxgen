@@ -54,19 +54,29 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
         name: state.currentTenant.name || '',
         domain: state.currentTenant.domain || '',
         features: state.currentTenant.features || [],
-        branding: state.currentTenant.branding || {
-          theme: '',
-          colors: { primary: '', secondary: '', accent: '', background: '', text: '' },
-          fonts: { primary: '', secondary: '', sizes: {} },
-          logo: '',
-          favicon: ''
+        branding: {
+          theme: state.currentTenant.branding?.theme || '',
+          colors: { 
+            primary: state.currentTenant.branding?.colors?.primary || '', 
+            secondary: state.currentTenant.branding?.colors?.secondary || '', 
+            accent: state.currentTenant.branding?.colors?.accent || '', 
+            background: state.currentTenant.branding?.colors?.background || '', 
+            text: state.currentTenant.branding?.colors?.text || '' 
+          },
+          fonts: { 
+            primary: state.currentTenant.branding?.fonts?.primary || '', 
+            secondary: state.currentTenant.branding?.fonts?.secondary || '', 
+            sizes: state.currentTenant.branding?.fonts?.sizes || {} 
+          },
+          logo: state.currentTenant.branding?.logo || '',
+          favicon: state.currentTenant.branding?.favicon || ''
         },
-        security: state.currentTenant.security || {
-          permissions: [],
-          sso: false,
-          mfa: false,
-          sessionTimeout: 3600,
-          ipWhitelist: []
+        security: {
+          permissions: state.currentTenant.security?.permissions || [],
+          sso: state.currentTenant.security?.sso || false,
+          mfa: state.currentTenant.security?.mfa || false,
+          sessionTimeout: state.currentTenant.security?.sessionTimeout || 3600,
+          ipWhitelist: state.currentTenant.security?.ipWhitelist || []
         },
         settings: state.currentTenant.settings || {}
       });
@@ -81,13 +91,16 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
   };
 
   const handleNestedInputChange = (parent: string, field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [parent]: {
-        ...prev[parent as keyof typeof prev],
-        [field]: value
-      }
-    }));
+    setFormData(prev => {
+      const parentData = prev[parent as keyof typeof prev] as any;
+      return {
+        ...prev,
+        [parent]: {
+          ...(parentData || {}),
+          [field]: value
+        }
+      };
+    });
   };
 
   const handleFeatureToggle = (feature: string) => {

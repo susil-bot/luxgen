@@ -1,62 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
 import { TenantConfiguration, TenantFeatures, TenantBranding, TenantLimits, TenantSecurity } from '../types/tenant';
 
-// Enhanced Tenant Types
-interface TenantConfiguration {
-  id: string;
-  slug: string;
-  name: string;
-  domain: string;
-  settings: Record<string, any>;
-  features: string[];
-  limits: TenantLimits;
-  branding: TenantBranding;
-  security: TenantSecurity;
-  integrations: Record<string, any>;
-  customFields: Record<string, any>;
-  lastUpdated: Date;
-}
+// Enhanced Tenant Types - using imported types from ../types/tenant
 
-interface TenantLimits {
-  users?: number;
-  storage?: number;
-  apiCalls?: number;
-  customFields?: number;
-  [key: string]: number | undefined;
-}
 
-interface TenantBranding {
-  theme?: string;
-  colors?: {
-    primary?: string;
-    secondary?: string;
-    accent?: string;
-    background?: string;
-    text?: string;
-  };
-  fonts?: {
-    primary?: string;
-    secondary?: string;
-    sizes?: Record<string, string>;
-  };
-  logo?: string;
-  favicon?: string;
-}
 
-interface TenantSecurity {
-  permissions?: string[];
-  sso?: boolean;
-  mfa?: boolean;
-  sessionTimeout?: number;
-  ipWhitelist?: string[];
-  [key: string]: any;
-}
-
-interface TenantFeatures {
-  enabled: string[];
-  disabled: string[];
-  available: string[];
-}
 
 // Context State
 interface RobustTenantState {

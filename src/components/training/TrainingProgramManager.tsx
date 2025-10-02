@@ -373,7 +373,7 @@ const TrainingProgramManager: React.FC<TrainingProgramManagerProps> = ({
   };
 
   const handleDeleteProgram = async (programId: string) => {
-    if (!confirm('Are you sure you want to delete this training program? This action cannot be undone.')) {
+    if (!window.confirm('Are you sure you want to delete this training program? This action cannot be undone.')) {
       return;
     }
 
