@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { getMenuForRole } from '../../config/menuConfig';
 import { MenuItem } from '../../types';
+import LuxgenLogo from '../LuxgenLogo';
 
 // Icon mapping for dynamic icon rendering
 const iconMap: Record<string, React.ComponentType<any>> = {
@@ -101,10 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
-          <div className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-white" />
-          </div>
-          <span className="ml-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Platform</span>
+          <LuxgenLogo size="small" variant="full" className="mr-2" />
         </div>
         <button
           onClick={() => setIsMobileOpen(false)}
