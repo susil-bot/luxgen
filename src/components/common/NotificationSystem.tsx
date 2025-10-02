@@ -121,29 +121,46 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }
     
     try {
-      const audio = new Audio();
+      // Use Web Audio API to generate simple notification sounds
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Set frequency and duration based on notification type
+      let frequency = 800;
+      let duration = 0.1;
+      
       switch (type) {
         case 'success':
-          audio.src = '/sounds/notification-success.mp3';
+          frequency = 1000;
+          duration = 0.2;
           break;
         case 'error':
-          audio.src = '/sounds/notification-error.mp3';
+          frequency = 400;
+          duration = 0.3;
           break;
         case 'warning':
-          audio.src = '/sounds/notification-warning.mp3';
+          frequency = 600;
+          duration = 0.15;
           break;
         case 'info':
-          audio.src = '/sounds/notification-info.mp3';
+          frequency = 800;
+          duration = 0.1;
           break;
       }
       
-      // Check if audio.play() is supported
-      if (audio.play && typeof audio.play === 'function') {
-        audio.play().catch((error) => {
-          // Silently handle audio errors
-          console.log('Audio playback failed:', error);
-        });
-      }
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + duration);
+      
     } catch (error) {
       // Silently handle audio errors
       console.log('Notification sound failed:', error);

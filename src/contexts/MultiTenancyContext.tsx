@@ -188,11 +188,14 @@ export const MultiTenancyProvider: React.FC<{ children: React.ReactNode }> = ({ 
       dispatch({ type: 'SET_LOADING', payload: true });
       
       // Get tenant from URL or localStorage
-      const tenantId = getTenantFromURL() || getTenantFromStorage();
+      let tenantId = getTenantFromURL() || getTenantFromStorage();
       
-      if (tenantId) {
-        await loadTenant(tenantId);
+      // If no tenant found, use default tenant
+      if (!tenantId) {
+        tenantId = 'default';
       }
+      
+      await loadTenant(tenantId);
       
       dispatch({ type: 'SET_LOADING', payload: false });
       dispatch({ type: 'SET_ERROR', payload: null });
@@ -207,7 +210,7 @@ export const MultiTenancyProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const subdomain = hostname.split('.')[0];
     
     // Check if it's a valid tenant subdomain
-    if (subdomain && subdomain !== 'www' && subdomain !== 'app') {
+    if (subdomain && subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'localhost') {
       return subdomain;
     }
     
