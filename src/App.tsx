@@ -33,6 +33,14 @@ import UserManagementInterface from './components/user-management/UserManagement
 import TrainerDashboard from './components/trainer/TrainerDashboard';
 import ParticipantDashboard from './components/participant/ParticipantDashboard';
 import MyTrainingInterface from './components/training/MyTrainingInterface';
+import MyTrainingPrograms from './components/training/MyTrainingPrograms';
+import JobBoard from './components/job-board/JobBoard';
+import ATSDashboard from './components/ats/ATSDashboard';
+import MyApplications from './components/career/MyApplications';
+import CandidateProfile from './components/career/CandidateProfile';
+import ResumeUpload from './components/career/ResumeUpload';
+import JobPostingAdmin from './components/admin/JobPostingAdmin';
+import FeedPage from './components/feed/FeedPage';
 import NichePollsPage from './pages/NichePollsPage';
 import ProfilePage from './components/profile/ProfilePage';
 
@@ -165,7 +173,14 @@ const AppRoutes: React.FC = () => {
         
         {/* Training routes */}
         <Route path="training/*" element={<TrainingPage />} />
-        <Route path="my-training/*" element={<MyTrainingPage />} />
+                <Route path="my-training" element={<MyTrainingPage />} />
+                <Route path="my-training/programs" element={<MyTrainingPrograms />} />
+                <Route path="jobs" element={<JobBoard />} />
+                <Route path="ats" element={<ATSDashboard />} />
+                <Route path="my-applications" element={<MyApplications />} />
+                <Route path="candidate-profile" element={<CandidateProfile />} />
+                <Route path="resume-upload" element={<ResumeUpload />} />
+                <Route path="admin/job-posting" element={<JobPostingAdmin />} />
         <Route path="trainer" element={<TrainerPage />} />
         <Route path="participant" element={<ParticipantPage />} />
         
@@ -204,6 +219,16 @@ const AppRoutes: React.FC = () => {
         </Route>
         <Route path="system-settings" element={<SettingsPage />} />
       </Route>
+
+      {/* Standalone Feed Route - Independent from MainLayout */}
+      <Route 
+        path="/feed" 
+        element={
+          <ProtectedRoute>
+            <FeedPage />
+          </ProtectedRoute>
+        } 
+      />
 
       {/* Redirect legacy dashboard route */}
       <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />

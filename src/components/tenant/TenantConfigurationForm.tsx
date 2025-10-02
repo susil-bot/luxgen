@@ -91,13 +91,16 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
   };
 
   const handleNestedInputChange = (parent: string, field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [parent]: {
-        ...prev[parent as keyof typeof prev],
-        [field]: value
-      }
-    }));
+    setFormData(prev => {
+      const parentData = prev[parent as keyof typeof prev] as any;
+      return {
+        ...prev,
+        [parent]: {
+          ...(parentData || {}),
+          [field]: value
+        }
+      };
+    });
   };
 
   const handleFeatureToggle = (feature: string) => {

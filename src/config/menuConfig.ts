@@ -8,6 +8,13 @@ export const menuConfig: MenuItem[] = [
     path: '/app/dashboard',
     roles: ['super_admin', 'admin', 'trainer', 'user'],
   },
+  {
+    id: 'feed',
+    label: 'Feed',
+    icon: 'Rss',
+    path: '/feed',
+    roles: ['super_admin', 'admin', 'trainer', 'user'],
+  },
   
   // Super Admin Menu Items
   {
@@ -22,6 +29,13 @@ export const menuConfig: MenuItem[] = [
     label: 'System Settings',
     icon: 'Settings2',
     path: '/app/system-settings',
+    roles: ['super_admin'],
+  },
+  {
+    id: 'job-posting-admin',
+    label: 'Job Posting Admin',
+    icon: 'Briefcase',
+    path: '/app/admin/job-posting',
     roles: ['super_admin'],
   },
   
@@ -307,6 +321,52 @@ export const menuConfig: MenuItem[] = [
     ],
   },
   
+  // Job Board & Career Menu Items
+  {
+    id: 'career',
+    label: 'Career',
+    icon: 'Briefcase',
+    path: '/app/jobs',
+    roles: ['super_admin', 'admin', 'trainer', 'user'],
+    children: [
+      {
+        id: 'job-board',
+        label: 'Job Board',
+        icon: 'Search',
+        path: '/app/jobs',
+        roles: ['super_admin', 'admin', 'trainer', 'user'],
+      },
+      {
+        id: 'ats-dashboard',
+        label: 'ATS Dashboard',
+        icon: 'Users',
+        path: '/app/ats',
+        roles: ['super_admin', 'admin', 'trainer'],
+      },
+      {
+        id: 'my-applications',
+        label: 'My Applications',
+        icon: 'FileText',
+        path: '/app/my-applications',
+        roles: ['super_admin', 'admin', 'trainer', 'user'],
+      },
+      {
+        id: 'candidate-profiles',
+        label: 'My Profile',
+        icon: 'User',
+        path: '/app/candidate-profile',
+        roles: ['super_admin', 'admin', 'trainer', 'user'],
+      },
+      {
+        id: 'resume-upload',
+        label: 'Resume Upload',
+        icon: 'FileText',
+        path: '/app/resume-upload',
+        roles: ['super_admin', 'admin', 'trainer', 'user'],
+      },
+    ],
+  },
+  
   // AI Assistant
   {
     id: 'ai-assistant',
@@ -339,6 +399,45 @@ export const menuConfig: MenuItem[] = [
     icon: 'Settings',
     path: '/app/settings/account',
     roles: ['super_admin', 'admin', 'trainer', 'user'],
+  },
+  
+  // Job Board & Career Management
+  {
+    id: 'career',
+    label: 'Career',
+    icon: 'Briefcase',
+    path: '/app/jobs',
+    roles: ['super_admin', 'admin', 'trainer', 'user'],
+    children: [
+      {
+        id: 'job-board',
+        label: 'Job Board',
+        icon: 'Search',
+        path: '/app/jobs',
+        roles: ['super_admin', 'admin', 'trainer', 'user'],
+      },
+      {
+        id: 'ats-dashboard',
+        label: 'ATS Dashboard',
+        icon: 'Users',
+        path: '/app/ats',
+        roles: ['super_admin', 'admin', 'trainer'],
+      },
+      {
+        id: 'my-applications',
+        label: 'My Applications',
+        icon: 'FileText',
+        path: '/app/my-applications',
+        roles: ['super_admin', 'admin', 'trainer', 'user'],
+      },
+      {
+        id: 'candidate-profiles',
+        label: 'My Profile',
+        icon: 'User',
+        path: '/app/candidate-profile',
+        roles: ['super_admin', 'admin', 'trainer', 'user'],
+      },
+    ],
   },
 ];
 
