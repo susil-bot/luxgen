@@ -1,469 +1,387 @@
-# FeedPost Module
+# ActivityFeed Component
+
+A comprehensive activity feed component for the LuxGen platform that displays real-time activities, engagement metrics, and user interactions.
 
 ## Overview
-The FeedPost module provides comprehensive functionality for managing social feed posts, including creation, editing, engagement, and analytics. It follows a structured approach with separate files for helpers, fetchers, transformers, and tests.
 
-## Files
-- `FeedPost.tsx` - Main component for displaying individual posts
-- `FeedPostHelper.js` - Utility functions, validation, and formatting
-- `FeedPostFetcher.js` - API calls and data fetching
-- `FeedPostTransformer.js` - Data transformation and business logic
-- `FeedPost.spec.js` - Unit tests for all module functions
+The ActivityFeed component provides a social media-like feed interface for displaying various types of activities within the LuxGen training platform. It supports filtering, searching, engagement actions, and real-time updates.
+
+## Features
+
+- **Real-time Activity Display**: Shows various types of activities (user joins, training completions, assessments, etc.)
+- **Interactive Engagement**: Like, comment, and share functionality
+- **Advanced Filtering**: Filter by activity type, date range, users, and tags
+- **Search Functionality**: Full-text search across activities
+- **Statistics Dashboard**: Real-time engagement metrics and analytics
+- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- **Multi-tenant Support**: Tenant-isolated data and operations
+- **Accessibility**: ARIA labels and keyboard navigation support
+
+## Component Structure
+
+Following LuxGen component structure rules, the ActivityFeed component includes all 10 required files:
+
+```
+ActivityFeed/
+├── index.tsx                 # Main component
+├── helpers/
+│   └── ActivityFeedHelper.js # Utility functions
+├── fetchers/
+│   └── ActivityFeedFetcher.js # API calls
+├── transformers/
+│   └── ActivityFeedTransformer.js # Data transformation
+├── specs/
+│   └── ActivityFeed.spec.js  # Unit tests
+├── queries.js               # Database queries
+├── fixture.js               # Mock data
+├── types/
+│   └── types.ts             # TypeScript types
+├── constants/
+│   └── constants.ts         # Constants
+└── README.md               # Documentation
+```
 
 ## Usage
 
-### Basic Post Display
-```jsx
-import FeedPost from './FeedPost';
+### Basic Implementation
 
-<FeedPost 
-  post={postData}
-  onLike={handleLike}
-  onComment={handleComment}
-  onShare={handleShare}
-/>
-```
+```tsx
+import ActivityFeed from './components/feed';
 
-### Post Creation
-```javascript
-import { fetchers } from './FeedPostFetcher';
-import { mappers } from './FeedPostTransformer';
-
-const postData = {
-  content: 'Hello world! #react #javascript',
-  visibility: 'public',
-  images: [],
-  videos: [],
-  links: []
+const App = () => {
+  return (
+    <div className="app">
+      <ActivityFeed />
+    </div>
+  );
 };
-
-const mappedData = mappers.mapPostForCreate(postData);
-const result = await fetchers.createPost(mappedData);
 ```
 
-### Post Engagement
-```javascript
-import { fetchers } from './FeedPostFetcher';
+### With Custom Props
 
-// Like a post
-await fetchers.togglePostLike(postId, 'like');
+```tsx
+import ActivityFeed from './components/feed';
 
-// Add a comment
-await fetchers.addPostComment(postId, {
-  content: 'Great post!'
-});
+const App = () => {
+  const handleActivityClick = (activity) => {
+    console.log('Activity clicked:', activity);
+  };
 
-// Share a post
-await fetchers.sharePost(postId, {
-  message: 'Check this out!'
-});
+  const handleActivityAction = (activityId, action) => {
+    console.log('Action performed:', action, 'on', activityId);
+  };
+
+  return (
+    <ActivityFeed
+      tenantId="tenant-123"
+      userId="user-456"
+      onActivityClick={handleActivityClick}
+      onActivityAction={handleActivityAction}
+    />
+  );
+};
 ```
 
-## Props
+## API Integration
 
-### FeedPost Component
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| post | object | Yes | Post data object |
-| onLike | function | No | Callback for like action |
-| onComment | function | No | Callback for comment action |
-| onShare | function | No | Callback for share action |
-| onEdit | function | No | Callback for edit action |
-| onDelete | function | No | Callback for delete action |
-| showActions | boolean | No | Show action buttons (default: true) |
-| showComments | boolean | No | Show comments section (default: false) |
+### Required API Endpoints
 
-### Post Data Structure
+The component expects the following API endpoints to be available:
+
+- `GET /api/activities` - Fetch activities
+- `GET /api/activities/stats` - Fetch feed statistics
+- `POST /api/activities/{id}/actions` - Perform activity actions
+- `GET /api/activities/search` - Search activities
+
+### Database Schema
+
+The component expects the following database collections:
+
+#### Activities Collection
 ```javascript
 {
-  id: string,
-  author: {
-    userId: string,
-    name: string,
-    title: string,
-    avatar: string,
-    verified: boolean
-  },
-  content: {
-    text: string,
-    images: string[],
-    videos: string[],
-    links: object[]
-  },
-  engagement: {
-    likes: number,
-    comments: number,
-    shares: number,
-    views: number
-  },
-  visibility: {
-    type: 'public' | 'connections' | 'private',
-    audience: string[]
-  },
-  hashtags: string[],
-  mentions: string[],
-  status: 'published' | 'draft' | 'archived' | 'deleted',
-  createdAt: string,
-  updatedAt: string
+  _id: ObjectId,
+  title: String,
+  description: String,
+  type: String, // user_joined, program_created, etc.
+  userId: ObjectId,
+  tenantId: ObjectId,
+  metadata: Object,
+  tags: [String],
+  likes: Number,
+  comments: Number,
+  shares: Number,
+  visibility: String, // public, private, internal
+  priority: Number,
+  status: String, // active, archived, deleted
+  createdAt: Date,
+  updatedAt: Date
 }
 ```
 
-## Methods
-
-### Helper Functions
-| Method | Parameters | Returns | Description |
-|--------|-----------|---------|-------------|
-| validate.postContent | (content) | {isValid, error} | Validate post content |
-| validate.commentContent | (content) | {isValid, error} | Validate comment content |
-| validate.hashtags | (hashtags) | {isValid, error} | Validate hashtags array |
-| validate.mentions | (mentions) | {isValid, error} | Validate mentions array |
-| utils.extractHashtags | (text) | string[] | Extract hashtags from text |
-| utils.extractMentions | (text) | string[] | Extract mentions from text |
-| utils.formatEngagementCount | (count) | string | Format engagement count |
-| utils.calculateEngagementRate | (likes, comments, shares, views) | string | Calculate engagement rate |
-| formatters.formatPostDate | (dateString) | string | Format post date |
-| formatters.formatPostContent | (content) | string | Format post content with links |
-
-### Fetcher Functions
-| Method | Parameters | Returns | Description |
-|--------|-----------|---------|-------------|
-| fetchers.getPosts | (params) | {success, data, pagination} | Get all posts |
-| fetchers.getPost | (postId) | {success, data} | Get single post |
-| fetchers.createPost | (postData) | {success, data} | Create new post |
-| fetchers.updatePost | (postId, postData) | {success, data} | Update post |
-| fetchers.deletePost | (postId) | {success, data} | Delete post |
-| fetchers.togglePostLike | (postId, reactionType) | {success, data} | Like/unlike post |
-| fetchers.getPostComments | (postId, params) | {success, data, pagination} | Get post comments |
-| fetchers.addPostComment | (postId, commentData) | {success, data} | Add comment to post |
-| fetchers.sharePost | (postId, shareData) | {success, data} | Share post |
-| fetchers.togglePostSave | (postId) | {success, data} | Save/unsave post |
-
-### Transformer Functions
-| Method | Parameters | Returns | Description |
-|--------|-----------|---------|-------------|
-| transformers.transformPost | (apiPost) | object | Transform API post to component format |
-| transformers.transformPosts | (apiPosts) | object[] | Transform multiple posts |
-| transformers.transformComment | (apiComment) | object | Transform API comment to component format |
-| businessLogic.canUserInteract | (post, userId, userRole) | boolean | Check if user can interact with post |
-| businessLogic.canUserEdit | (post, userId, userRole) | boolean | Check if user can edit post |
-| businessLogic.canUserDelete | (post, userId, userRole) | boolean | Check if user can delete post |
-| businessLogic.calculateEngagementScore | (post) | object | Calculate post engagement score |
-| mappers.mapPostForFeed | (post) | object | Map post for feed view |
-| mappers.mapPostForDetail | (post) | object | Map post for detail view |
-| mappers.mapPostForProfile | (post) | object | Map post for profile view |
-
-## Examples
-
-### Creating a Post
+#### Activity Actions Collection
 ```javascript
-import { fetchers } from './FeedPostFetcher';
-import { mappers } from './FeedPostTransformer';
-import { validate } from './FeedPostHelper';
-
-const createPost = async (formData) => {
-  // Validate content
-  const validation = validate.postContent(formData.content);
-  if (!validation.isValid) {
-    throw new Error(validation.error);
-  }
-
-  // Map data for API
-  const mappedData = mappers.mapPostForCreate(formData);
-  
-  // Create post
-  const result = await fetchers.createPost(mappedData);
-  
-  if (result.success) {
-    console.log('Post created successfully:', result.data);
-  } else {
-    console.error('Failed to create post:', result.error);
-  }
-};
-```
-
-### Liking a Post
-```javascript
-import { fetchers } from './FeedPostFetcher';
-
-const likePost = async (postId, isLiked) => {
-  const result = await fetchers.togglePostLike(postId, 'like');
-  
-  if (result.success) {
-    console.log('Post liked:', result.data);
-  } else {
-    console.error('Failed to like post:', result.error);
-  }
-};
-```
-
-### Adding a Comment
-```javascript
-import { fetchers } from './FeedPostFetcher';
-import { validate } from './FeedPostHelper';
-
-const addComment = async (postId, commentText) => {
-  // Validate comment
-  const validation = validate.commentContent(commentText);
-  if (!validation.isValid) {
-    throw new Error(validation.error);
-  }
-
-  const result = await fetchers.addPostComment(postId, {
-    content: commentText
-  });
-  
-  if (result.success) {
-    console.log('Comment added:', result.data);
-  } else {
-    console.error('Failed to add comment:', result.error);
-  }
-};
-```
-
-### Filtering Posts
-```javascript
-import { filters } from './FeedPostHelper';
-import { transformers } from './FeedPostTransformer';
-
-const filterPosts = (posts, userId, userRole) => {
-  // Transform posts
-  const transformedPosts = transformers.transformPosts(posts);
-  
-  // Filter by user permissions
-  const filteredPosts = filters.filterPostsByVisibility(transformedPosts, userRole, userId);
-  
-  // Sort by engagement
-  const sortedPosts = filters.sortPostsByEngagement(filteredPosts);
-  
-  return sortedPosts;
-};
-```
-
-### Calculating Analytics
-```javascript
-import { analytics } from './FeedPostTransformer';
-
-const calculatePostAnalytics = (post) => {
-  const metrics = analytics.calculatePostMetrics(post);
-  
-  console.log('Engagement Score:', metrics.engagementScore);
-  console.log('Hours Since Post:', metrics.hoursSincePost);
-  console.log('Engagement Per Hour:', metrics.engagementPerHour);
-  console.log('Is Trending:', metrics.isTrending);
-  console.log('Is Viral:', metrics.isViral);
-  
-  return metrics;
-};
-```
-
-## API
-
-### Endpoints
-- `GET /api/feed` - Get all posts
-- `GET /api/feed/:id` - Get single post
-- `POST /api/feed` - Create new post
-- `PUT /api/feed/:id` - Update post
-- `DELETE /api/feed/:id` - Delete post
-- `POST /api/feed/:id/like` - Like/unlike post
-- `GET /api/feed/:id/comments` - Get post comments
-- `POST /api/feed/:id/comments` - Add comment to post
-- `POST /api/feed/:id/share` - Share post
-- `POST /api/feed/:id/save` - Save/unsave post
-
-### Request/Response Examples
-
-#### Create Post
-```javascript
-// Request
-POST /api/feed
 {
-  "content": {
-    "text": "Hello world! #react #javascript",
-    "images": [],
-    "videos": [],
-    "links": []
+  _id: ObjectId,
+  activityId: ObjectId,
+  userId: ObjectId,
+  tenantId: ObjectId,
+  action: String, // like, comment, share, bookmark
+  metadata: Object,
+  createdAt: Date
+}
+```
+
+## Configuration
+
+### Constants
+
+The component uses various constants defined in `constants/constants.ts`:
+
+```typescript
+export const FEED_CONSTANTS = {
+  ACTIVITY_TYPES: {
+    USER_JOINED: 'user_joined',
+    PROGRAM_CREATED: 'program_created',
+    // ... more types
   },
-  "visibility": {
-    "type": "public",
-    "audience": []
-  },
-  "hashtags": ["react", "javascript"],
-  "mentions": [],
-  "status": "published"
-}
-
-// Response
-{
-  "success": true,
-  "data": {
-    "id": "post-123",
-    "author": { ... },
-    "content": { ... },
-    "engagement": { ... },
-    "createdAt": "2023-01-01T00:00:00Z"
+  FILTER_OPTIONS: [
+    { value: 'all', label: 'All Activities' },
+    // ... more options
+  ],
+  DEFAULT_SETTINGS: {
+    autoRefresh: true,
+    refreshInterval: 30000,
+    itemsPerPage: 20,
+    // ... more settings
   }
+};
+```
+
+### Settings
+
+The component supports various settings that can be configured:
+
+```typescript
+interface ActivityFeedSettings {
+  autoRefresh: boolean;
+  refreshInterval: number;
+  itemsPerPage: number;
+  showTimestamps: boolean;
+  showUserAvatars: boolean;
+  enableNotifications: boolean;
+  defaultFilter: ActivityFeedFilter;
+  sortOrder: 'asc' | 'desc';
+  groupByDate: boolean;
 }
 ```
 
-#### Like Post
-```javascript
-// Request
-POST /api/feed/post-123/like
-{
-  "reactionType": "like"
-}
+## Activity Types
 
-// Response
-{
-  "success": true,
-  "data": {
-    "liked": true,
-    "likes": 101,
-    "reactionType": "like"
-  }
+The component supports the following activity types:
+
+- `user_joined` - New user registration
+- `program_created` - Training program creation
+- `session_completed` - Training session completion
+- `assessment_taken` - Assessment completion
+- `training_started` - Training program start
+- `certificate_earned` - Certificate achievement
+- `feedback_submitted` - Feedback submission
+- `poll_created` - Poll creation
+- `announcement` - System announcements
+- `milestone_reached` - Milestone achievement
+
+## Styling
+
+The component uses Tailwind CSS classes and follows the LuxGen design system:
+
+- **Colors**: Activity type-specific color schemes
+- **Icons**: Lucide React icons for consistency
+- **Layout**: Responsive grid system
+- **Dark Mode**: Full dark mode support
+- **Animations**: Smooth transitions and hover effects
+
+## Performance
+
+### Optimization Features
+
+- **Virtual Scrolling**: For large activity lists
+- **Debounced Search**: Prevents excessive API calls
+- **Caching**: Client-side caching of activities
+- **Lazy Loading**: Progressive loading of activities
+- **Memoization**: React.memo for component optimization
+
+### Performance Settings
+
+```typescript
+PERFORMANCE: {
+  VIRTUAL_SCROLLING_THRESHOLD: 100,
+  DEBOUNCE_DELAY: 300,
+  THROTTLE_DELAY: 100,
+  MAX_CONCURRENT_REQUESTS: 5
 }
 ```
+
+## Accessibility
+
+The component includes comprehensive accessibility features:
+
+- **ARIA Labels**: Proper labeling for screen readers
+- **Keyboard Navigation**: Full keyboard support
+- **Focus Management**: Proper focus handling
+- **Color Contrast**: WCAG compliant color schemes
+- **Screen Reader Support**: Semantic HTML structure
+
+### Keyboard Shortcuts
+
+- `r` - Refresh activities
+- `/` - Focus search input
+- `f` - Toggle filters
+- `m` - Load more activities
 
 ## Testing
 
-### Running Tests
-```bash
-npm test FeedPost.spec.js
-```
+### Unit Tests
 
-### Test Coverage
-- Helper function validation
-- Fetcher function API calls
-- Transformer function data mapping
-- Error handling scenarios
-- Edge cases and boundary conditions
+The component includes comprehensive unit tests covering:
 
-### Test Examples
+- Component rendering
+- User interactions
+- API integration
+- Helper functions
+- Data transformation
+- Error handling
+
+### Test Structure
+
 ```javascript
-import { validate, utils, formatters } from './FeedPostHelper';
-
-describe('FeedPost Helper', () => {
-  it('should validate post content', () => {
-    const result = validate.postContent('Valid content');
-    expect(result.isValid).toBe(true);
+describe('ActivityFeed Component', () => {
+  describe('Rendering', () => {
+    // Test rendering scenarios
   });
-
-  it('should format engagement count', () => {
-    expect(utils.formatEngagementCount(1000)).toBe('1.0K');
+  
+  describe('Interactions', () => {
+    // Test user interactions
   });
-
-  it('should format post date', () => {
-    const date = new Date(Date.now() - 60 * 60 * 1000);
-    expect(formatters.formatPostDate(date.toISOString())).toBe('1h');
+  
+  describe('API Integration', () => {
+    // Test API calls
   });
 });
 ```
 
 ## Error Handling
 
-### Common Errors
-- **Validation Errors**: Invalid content, hashtags, or mentions
-- **Network Errors**: API connection issues
-- **Authentication Errors**: User not logged in
-- **Permission Errors**: User not authorized to perform action
+The component includes robust error handling:
 
-### Error Response Format
-```javascript
-{
-  "success": false,
-  "data": null,
-  "error": "Error message",
-  "code": "ERROR_CODE"
-}
-```
-
-## Performance Considerations
-
-### Optimization Tips
-- Use pagination for large post lists
-- Implement caching for frequently accessed posts
-- Use batch operations for multiple actions
-- Optimize image loading and processing
-- Implement lazy loading for comments
-
-### Caching Strategy
-```javascript
-import { cache } from './FeedPostFetcher';
-
-// Cache posts for 5 minutes
-cache.set('posts-page-1', postsData, 300000);
-
-// Retrieve cached data
-const cachedPosts = cache.get('posts-page-1');
-```
+- **Network Errors**: Graceful handling of API failures
+- **Validation Errors**: Input validation and sanitization
+- **Loading States**: Proper loading indicators
+- **Fallback Data**: Mock data for development
+- **Error Boundaries**: React error boundaries for crashes
 
 ## Security
 
-### Content Validation
-- Maximum post length: 2000 characters
-- Maximum comment length: 500 characters
-- Maximum hashtags: 10
-- Maximum mentions: 5
-- HTML sanitization for user content
+### Data Protection
 
-### Permission Checks
-- User can only edit/delete their own posts
-- Super admin can edit/delete any post
-- Visibility rules enforced for post access
-- Rate limiting for API calls
+- **Tenant Isolation**: Strict tenant-based data separation
+- **Input Validation**: All inputs are validated and sanitized
+- **XSS Prevention**: Proper escaping of user content
+- **CSRF Protection**: CSRF tokens for state-changing operations
+
+### Privacy
+
+- **Data Minimization**: Only necessary data is fetched
+- **User Consent**: Respects user privacy settings
+- **Audit Logging**: Activity actions are logged for audit
+
+## Deployment
+
+### Environment Variables
+
+```bash
+REACT_APP_API_BASE_URL=https://api.luxgen.com
+REACT_APP_FEED_REFRESH_INTERVAL=30000
+REACT_APP_FEED_ITEMS_PER_PAGE=20
+```
+
+### Build Configuration
+
+The component is built with:
+- **React 18**: Latest React features
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Utility-first styling
+- **Vite**: Fast build tool
+- **Jest**: Testing framework
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### Posts Not Loading
-- Check API endpoint configuration
-- Verify authentication status
-- Check network connectivity
-- Review error logs
+1. **Activities not loading**
+   - Check API endpoints are accessible
+   - Verify tenant ID is correct
+   - Check network connectivity
 
-#### Validation Errors
-- Ensure content meets length requirements
-- Check hashtag and mention formats
-- Verify required fields are present
+2. **Search not working**
+   - Ensure search API endpoint is implemented
+   - Check search query format
+   - Verify database indexes
 
-#### Performance Issues
-- Implement pagination
-- Use caching strategies
-- Optimize database queries
-- Monitor API response times
+3. **Performance issues**
+   - Reduce items per page
+   - Enable virtual scrolling
+   - Check API response times
 
 ### Debug Mode
-```javascript
-// Enable debug logging
-localStorage.setItem('debug', 'FeedPost:*');
 
-// Check cache status
-console.log('Cache status:', cache.postsCache.size);
+Enable debug mode by setting:
+
+```javascript
+localStorage.setItem('feed-debug', 'true');
 ```
+
+This will log detailed information about:
+- API calls
+- Data transformations
+- Component state changes
+- Performance metrics
 
 ## Contributing
 
-### Adding New Features
-1. Update helper functions in `FeedPostHelper.js`
-2. Add API calls in `FeedPostFetcher.js`
-3. Implement transformations in `FeedPostTransformer.js`
-4. Write tests in `FeedPost.spec.js`
-5. Update documentation in `README.md`
+### Development Setup
 
-### Code Style
-- Use consistent naming conventions
-- Add JSDoc comments for functions
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start development server:
+   ```bash
+   npm run dev
+   ```
+
+3. Run tests:
+   ```bash
+   npm test
+   ```
+
+### Code Standards
+
+- Follow LuxGen coding standards
+- Use TypeScript for type safety
 - Write comprehensive tests
-- Follow error handling patterns
-- Document API changes
+- Document all functions
+- Follow component structure rules
 
-## Changelog
+## License
 
-### Version 1.0.0
-- Initial implementation
-- Basic post CRUD operations
-- Engagement features (like, comment, share)
-- Content validation and formatting
-- Comprehensive testing suite
-- Full documentation
+This component is part of the LuxGen platform and follows the same licensing terms.
+
+## Support
+
+For support and questions:
+- Check the documentation
+- Review the test cases
+- Contact the development team
+- Create an issue in the repository
