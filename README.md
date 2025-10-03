@@ -1,4 +1,8 @@
-# Trainer Platform - Robust Multi-Tenant Training Solution
+# LuxGen Trainer Platform
+
+<div align="center">
+  <img src="src/assets/logo/luxgen-logo.svg" alt="LuxGen Logo" width="200" height="60" />
+</div>
 
 A comprehensive, enterprise-grade training platform built with modern technologies and robust architecture for scalability, security, and performance.
 

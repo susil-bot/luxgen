@@ -9,6 +9,7 @@ import NotificationBell from '../common/NotificationBell';
 import useModal from '../../hooks/useModal';
 import OnboardingFlow from '../onboarding/OnboardingFlow';
 import OnboardingTrigger from '../onboarding/OnboardingTrigger';
+import LuxgenLogo from '../LuxgenLogo';
 
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -33,6 +34,11 @@ const MainLayout: React.FC = () => {
               >
                 <Menu className="h-5 w-5" />
               </button>
+
+              {/* Logo for mobile */}
+              <div className="lg:hidden ml-2">
+                <LuxgenLogo size="small" variant="icon" />
+              </div>
 
               {/* Page title - will be dynamic based on route */}
               <h1 className="ml-2 lg:ml-0 text-xl font-semibold text-gray-900 dark:text-gray-100">

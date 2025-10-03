@@ -11,6 +11,16 @@ export interface ApiResponse<T = unknown> {
   error?: string;
   status?: number;
   timestamp?: string;
+  pagination?: PaginationInfo;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+  hasNext?: boolean;
+  hasPrev?: boolean;
 }
 
 export interface ApiError {

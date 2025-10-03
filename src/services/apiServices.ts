@@ -275,6 +275,23 @@ export interface DashboardAnalytics {
 
 // API Service Class
 class ApiServices {
+  // Generic HTTP Methods
+  async get(url: string, config?: any): Promise<ApiResponse<any>> {
+    return apiClient.get(url, config);
+  }
+
+  async post(url: string, data?: any, config?: any): Promise<ApiResponse<any>> {
+    return apiClient.post(url, data, config);
+  }
+
+  async put(url: string, data?: any, config?: any): Promise<ApiResponse<any>> {
+    return apiClient.put(url, data, config);
+  }
+
+  async delete(url: string, config?: any): Promise<ApiResponse<any>> {
+    return apiClient.delete(url, config);
+  }
+
   // Health and Status Endpoints
   async getHealth(): Promise<ApiResponse<HealthCheck>> {
     return apiClient.get('/health');
@@ -924,6 +941,181 @@ class ApiServices {
 
   async bulkUpdatePolls(tenantId: string, pollIds: string[], updates: Partial<Poll>): Promise<ApiResponse<{ updated: number; failed: number }>> {
     return apiClient.put(`/polls/${tenantId}/bulk-update`, { pollIds, updates });
+  }
+
+  // Additional training methods for MyTrainingPrograms
+  async enrollInTraining(courseId: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/training/courses/${courseId}/enroll`);
+  }
+
+  async startTraining(courseId: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/training/courses/${courseId}/start`);
+  }
+
+  async bookmarkTraining(courseId: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/training/courses/${courseId}/bookmark`);
+  }
+
+  // Job Board API Methods
+  async getJobs(params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/jobs${queryString}`);
+  }
+
+  async getJob(jobId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/jobs/${jobId}`);
+  }
+
+  async createJob(jobData: any): Promise<ApiResponse<any>> {
+    return apiClient.post('/jobs', jobData);
+  }
+
+  async updateJob(jobId: string, jobData: any): Promise<ApiResponse<any>> {
+    return apiClient.put(`/jobs/${jobId}`, jobData);
+  }
+
+  async deleteJob(jobId: string): Promise<ApiResponse<any>> {
+    return apiClient.delete(`/jobs/${jobId}`);
+  }
+
+  async applyForJob(jobId: string, applicationData: any): Promise<ApiResponse<any>> {
+    return apiClient.post(`/jobs/${jobId}/apply`, applicationData);
+  }
+
+  async getJobApplications(jobId: string, params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/jobs/${jobId}/applications${queryString}`);
+  }
+
+  // ATS API Methods
+  async getATSDashboard(): Promise<ApiResponse<any>> {
+    return apiClient.get('/ats/dashboard');
+  }
+
+  async getCandidates(params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/ats/candidates${queryString}`);
+  }
+
+  async getCandidate(candidateId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/ats/candidates/${candidateId}`);
+  }
+
+  async requestCandidateAccess(candidateId: string, reason: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/ats/candidates/${candidateId}/request-access`, { reason });
+  }
+
+  async grantCandidateAccess(candidateId: string, requestId: string, approved: boolean): Promise<ApiResponse<any>> {
+    return apiClient.post(`/ats/candidates/${candidateId}/grant-access`, { requestId, approved });
+  }
+
+  async getApplications(params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/ats/applications${queryString}`);
+  }
+
+  async updateApplicationStatus(applicationId: string, status: string, notes?: string): Promise<ApiResponse<any>> {
+    return apiClient.put(`/ats/applications/${applicationId}/status`, { status, notes });
+  }
+
+  // Feed API Methods
+  async getFeedPosts(params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/feed${queryString}`);
+  }
+
+  async getFeedPost(postId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/feed/${postId}`);
+  }
+
+  async createFeedPost(postData: any): Promise<ApiResponse<any>> {
+    return apiClient.post('/feed', postData);
+  }
+
+  async updateFeedPost(postId: string, postData: any): Promise<ApiResponse<any>> {
+    return apiClient.put(`/feed/${postId}`, postData);
+  }
+
+  async deleteFeedPost(postId: string): Promise<ApiResponse<any>> {
+    return apiClient.delete(`/feed/${postId}`);
+  }
+
+  async likeFeedPost(postId: string, reactionType?: string): Promise<ApiResponse<any>> {
+    return apiClient.post(`/feed/${postId}/like`, { reactionType });
+  }
+
+  async getFeedPostComments(postId: string, params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/feed/${postId}/comments${queryString}`);
+  }
+
+  async addFeedPostComment(postId: string, commentData: any): Promise<ApiResponse<any>> {
+    return apiClient.post(`/feed/${postId}/comments`, commentData);
+  }
+
+  // Messaging API Methods
+  async getConversations(params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/messaging/conversations${queryString}`);
+  }
+
+  async getConversation(conversationId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/messaging/conversations/${conversationId}`);
+  }
+
+  async createConversation(conversationData: any): Promise<ApiResponse<any>> {
+    return apiClient.post('/messaging/conversations', conversationData);
+  }
+
+  async getConversationMessages(conversationId: string, params?: any): Promise<ApiResponse<any>> {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiClient.get(`/messaging/conversations/${conversationId}/messages${queryString}`);
+  }
+
+  async sendMessage(conversationId: string, messageData: any): Promise<ApiResponse<any>> {
+    return apiClient.post(`/messaging/conversations/${conversationId}/messages`, messageData);
+  }
+
+  async markMessagesAsRead(conversationId: string): Promise<ApiResponse<any>> {
+    return apiClient.put(`/messaging/conversations/${conversationId}/read`);
+  }
+
+  async getUnreadMessageCount(): Promise<ApiResponse<any>> {
+    return apiClient.get('/messaging/unread-count');
+  }
+
+  // Resume Upload API Methods
+  async uploadResume(formData: FormData): Promise<ApiResponse<any>> {
+    return apiClient.post('/candidates/resume', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  }
+
+  async deleteResume(resumeId: string): Promise<ApiResponse<any>> {
+    return apiClient.delete(`/candidates/resume/${resumeId}`);
+  }
+
+  // Candidate Profile API Methods
+  async getCandidateProfile(userId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/candidates/profile/${userId}`);
+  }
+
+  async updateCandidateProfile(profileId: string, profileData: any): Promise<ApiResponse<any>> {
+    return apiClient.put(`/candidates/profile/${profileId}`, profileData);
+  }
+
+  async addSkill(profileId: string, skillData: any): Promise<ApiResponse<any>> {
+    return apiClient.post(`/candidates/profile/${profileId}/skills`, skillData);
+  }
+
+  async addExperience(profileId: string, experienceData: any): Promise<ApiResponse<any>> {
+    return apiClient.post(`/candidates/profile/${profileId}/experience`, experienceData);
+  }
+
+  async addEducation(profileId: string, educationData: any): Promise<ApiResponse<any>> {
+    return apiClient.post(`/candidates/profile/${profileId}/education`, educationData);
   }
 }
 
