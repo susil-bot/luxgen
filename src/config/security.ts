@@ -1,129 +1,114 @@
-/**
- * Security Configuration
- * Centralized security settings to prevent hardcoded values and ensure proper security practices
- */
-
-export interface SecurityConfig {
+// Security Configuration for LuxGen Frontend
+export const securityConfig = {
   // API Configuration
-  apiBaseUrl: string;
-  apiHealthUrl: string;
-  apiDocsUrl: string;
+  apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api/v1',
   
-  // Authentication
-  jwtSecret: string;
-  jwtExpiresIn: string;
-  jwtRefreshExpiresIn: string;
-  
-  // Session Management
-  sessionSecret: string;
-  sessionTtl: number;
-  
-  // Rate Limiting
-  rateLimitWindow: string;
-  rateLimitMaxRequests: number;
-  
-  // CORS
-  corsOrigins: string[];
-  corsCredentials: boolean;
-  
-  // File Upload
-  uploadMaxSize: string;
-  
+  // Authentication Configuration
+  auth: {
+    tokenKey: 'luxgen_auth_token',
+    refreshTokenKey: 'luxgen_refresh_token',
+    tokenExpiryBuffer: 5 * 60 * 1000, // 5 minutes before expiry
+    refreshThreshold: 10 * 60 * 1000, // 10 minutes
+  },
+
   // Security Headers
-  enableSecurityHeaders: boolean;
-  enableHsts: boolean;
-  enableCsp: boolean;
-}
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+  },
 
-// Validate required environment variables with fallbacks for development
-const validateEnvVar = (name: string, value: string | undefined, fallback?: string): string => {
-  if (!value) {
-    if (fallback && process.env.NODE_ENV === 'development') {
-      console.warn(`Environment variable ${name} not set, using fallback: ${fallback}`);
-      return fallback;
-    }
-    throw new Error(`Environment variable ${name} is required`);
-  }
-  return value;
-};
+  // CORS Configuration
+  cors: {
+    credentials: 'include',
+    mode: 'cors' as RequestMode,
+  },
 
-// Get API base URL with fallback logic
-const getApiBaseUrl = (): string => {
-  // Try REACT_APP_API_BASE_URL first
-  if (process.env.REACT_APP_API_BASE_URL) {
-    return process.env.REACT_APP_API_BASE_URL;
-  }
-  
-  // Try REACT_APP_API_URL and append /api/v1
-  if (process.env.REACT_APP_API_URL) {
-    return `${process.env.REACT_APP_API_URL}/api/v1`;
-  }
-  
-  // Development fallback
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3001/api/v1';
-  }
-  
-  throw new Error('API base URL not configured. Please set REACT_APP_API_BASE_URL or REACT_APP_API_URL');
-};
-
-// Security configuration with validation
-export const securityConfig: SecurityConfig = {
-  // API Configuration
-  apiBaseUrl: getApiBaseUrl(),
-  apiHealthUrl: validateEnvVar('REACT_APP_API_HEALTH_URL', process.env.REACT_APP_API_HEALTH_URL, 'http://localhost:3001/health'),
-  apiDocsUrl: validateEnvVar('REACT_APP_API_DOCS_URL', process.env.REACT_APP_API_DOCS_URL, 'http://localhost:3001/docs'),
-  
-  // Authentication
-  jwtSecret: validateEnvVar('JWT_SECRET', process.env.JWT_SECRET, 'dev-jwt-secret-key-2024-change-in-production'),
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
-  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-  
-  // Session Management
-  sessionSecret: validateEnvVar('SESSION_SECRET', process.env.SESSION_SECRET, 'dev-session-secret-2024-change-in-production'),
-  sessionTtl: parseInt(process.env.SESSION_TTL || '86400', 10),
-  
   // Rate Limiting
-  rateLimitWindow: process.env.RATE_LIMIT_WINDOW || '15m',
-  rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
-  
-  // CORS
-  corsOrigins: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
-  corsCredentials: process.env.CORS_CREDENTIALS === 'true',
-  
-  // File Upload
-  uploadMaxSize: process.env.UPLOAD_MAX_SIZE || '50MB',
-  
-  // Security Headers
-  enableSecurityHeaders: true,
-  enableHsts: process.env.NODE_ENV === 'production',
-  enableCsp: process.env.NODE_ENV === 'production',
+  rateLimit: {
+    maxRequests: 100,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+  },
+
+  // Security Policies
+  policies: {
+    passwordMinLength: 8,
+    passwordRequireUppercase: true,
+    passwordRequireLowercase: true,
+    passwordRequireNumbers: true,
+    passwordRequireSpecialChars: false,
+    sessionTimeout: 8 * 60 * 60 * 1000, // 8 hours
+    maxLoginAttempts: 5,
+    lockoutDuration: 15 * 60 * 1000, // 15 minutes
+  },
+
+  // Multi-Tenant Configuration
+  multiTenant: {
+    defaultTenantId: 'luxgen',
+    tenantHeader: 'X-Tenant-ID',
+    tenantCookie: 'luxgen_tenant_id',
+  },
+
+  // API Endpoints
+  endpoints: {
+    auth: {
+      login: '/auth/login',
+      logout: '/auth/logout',
+      refresh: '/auth/refresh',
+      register: '/auth/register',
+      forgotPassword: '/auth/forgot-password',
+      resetPassword: '/auth/reset-password',
+    },
+    users: {
+      profile: '/users/profile',
+      update: '/users/update',
+      changePassword: '/users/change-password',
+    },
+    jobs: {
+      list: '/jobs',
+      create: '/jobs',
+      update: '/jobs',
+      delete: '/jobs',
+      apply: '/jobs/apply',
+    },
+    feed: {
+      posts: '/feed/posts',
+      create: '/feed/posts',
+      like: '/feed/posts/like',
+      comment: '/feed/posts/comment',
+      share: '/feed/posts/share',
+    },
+    tenants: {
+      info: '/tenants/info',
+      settings: '/tenants/settings',
+      branding: '/tenants/branding',
+    },
+  },
+
+  // Development Configuration
+  development: {
+    enableLogging: process.env.NODE_ENV === 'development',
+    enableDebugMode: process.env.NODE_ENV === 'development',
+    mockApiResponses: false,
+  },
+
+  // Production Configuration
+  production: {
+    enableLogging: true,
+    enableDebugMode: false,
+    enableAnalytics: true,
+  },
 };
 
-// Security utilities
+// Utility functions for security
 export const securityUtils = {
-  /**
-   * Validate API URL format
-   */
-  validateApiUrl: (url: string): boolean => {
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === 'https:' || parsed.protocol === 'http:';
-    } catch {
-      return false;
-    }
+  // Get client IP (for server-side usage)
+  getClientIP: (): string => {
+    // This would typically be implemented on the server side
+    return '127.0.0.1';
   },
 
-  /**
-   * Sanitize user input
-   */
-  sanitizeInput: (input: string): string => {
-    return input.replace(/[<>]/g, '');
-  },
-
-  /**
-   * Generate secure random string
-   */
+  // Generate secure random string
   generateSecureToken: (length: number = 32): string => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -133,47 +118,71 @@ export const securityUtils = {
     return result;
   },
 
-  /**
-   * Validate password strength
-   */
-  validatePasswordStrength: (password: string): { valid: boolean; errors: string[] } => {
+  // Validate email format
+  isValidEmail: (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  },
+
+  // Validate password strength
+  validatePassword: (password: string): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
-    
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
+    const config = securityConfig.policies;
+
+    if (password.length < config.passwordMinLength) {
+      errors.push(`Password must be at least ${config.passwordMinLength} characters long`);
     }
-    
-    if (!/[A-Z]/.test(password)) {
+
+    if (config.passwordRequireUppercase && !/[A-Z]/.test(password)) {
       errors.push('Password must contain at least one uppercase letter');
     }
-    
-    if (!/[a-z]/.test(password)) {
+
+    if (config.passwordRequireLowercase && !/[a-z]/.test(password)) {
       errors.push('Password must contain at least one lowercase letter');
     }
-    
-    if (!/\d/.test(password)) {
+
+    if (config.passwordRequireNumbers && !/\d/.test(password)) {
       errors.push('Password must contain at least one number');
     }
-    
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+
+    if (config.passwordRequireSpecialChars && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       errors.push('Password must contain at least one special character');
     }
-    
+
     return {
       valid: errors.length === 0,
-      errors,
+      errors
     };
   },
 
-  /**
-   * Get client IP address (placeholder for production implementation)
-   */
-  getClientIP: (): string => {
-    // In production, this should extract the real IP from request headers
-    // For now, return a placeholder
-    return 'unknown';
+  // Sanitize input
+  sanitizeInput: (input: string): string => {
+    return input
+      .replace(/[<>]/g, '') // Remove potential HTML tags
+      .replace(/[&]/g, '&amp;') // Escape ampersands
+      .trim();
+  },
+
+  // Check if token is expired
+  isTokenExpired: (token: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const now = Date.now() / 1000;
+      return payload.exp < now;
+    } catch {
+      return true;
+    }
+  },
+
+  // Get token expiry time
+  getTokenExpiry: (token: string): Date | null => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return new Date(payload.exp * 1000);
+    } catch {
+      return null;
+    }
   },
 };
 
-// Export default configuration
-export default securityConfig; 
+export default securityConfig;
