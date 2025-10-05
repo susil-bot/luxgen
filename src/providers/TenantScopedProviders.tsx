@@ -25,9 +25,17 @@ export const TenantScopedProviders: React.FC<TenantScopedProvidersProps> = ({
     <MultiTenancyProvider>
       <AuthProvider>
         <OnboardingProvider>
-          {features?.chat && <AIChatbotProvider />}
-          {features?.reports && <GroupManagementProvider />}
-          {children}
+          {features?.chat && (
+            <AIChatbotProvider>
+              {children}
+            </AIChatbotProvider>
+          )}
+          {features?.reports && (
+            <GroupManagementProvider>
+              {children}
+            </GroupManagementProvider>
+          )}
+          {!features?.chat && !features?.reports && children}
         </OnboardingProvider>
       </AuthProvider>
     </MultiTenancyProvider>

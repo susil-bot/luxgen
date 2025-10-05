@@ -98,7 +98,9 @@ export const TenantRouter: React.FC<TenantRouterProps> = ({ children }) => {
           <TenantErrorBoundary 
             error={tenantState.error} 
             onRetry={initializeTenant}
-          />
+          >
+            <div>Error occurred</div>
+          </TenantErrorBoundary>
         );
       
       case 'identified':
