@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MultiTenancyProvider } from '../../contexts/MultiTenancyContext';
 import { TenantLoadingScreen } from './TenantLoadingScreen';
@@ -6,63 +6,53 @@ import { TenantErrorBoundary } from './TenantErrorBoundary';
 import { TenantNotFound } from './TenantNotFound';
 import { TenantSuspended } from './TenantSuspended';
 import { TenantExpired } from './TenantExpired';
-import { useTenant } from '../../workflow/hooks/useTenant';
-import { tenantService } from '../../services/TenantService';
+import { getCurrentTenant } from '../../config/subdomainMapping';
 
 interface TenantRouterProps {
   children: React.ReactNode;
 }
 
-/**
- * TenantRouter - Main entry point for tenant-aware routing
- * Handles tenant identification, validation, and routing
- */
+type TenantState = {
+  status: 'loading' | 'identified' | 'not_found' | 'suspended' | 'expired' | 'error';
+  tenant?: any;
+  error?: string;
+};
+
 export const TenantRouter: React.FC<TenantRouterProps> = ({ children }) => {
-  const [tenantState, setTenantState] = useState<{
-    status: 'loading' | 'identified' | 'not_found' | 'suspended' | 'expired' | 'error';
-    tenant?: any;
-    error?: string;
-  }>({ status: 'loading' });
-  
+  const [tenantState, setTenantState] = useState<TenantState>({ status: 'loading' });
   const location = useLocation();
 
   useEffect(() => {
     initializeTenant();
-  }, [location.pathname]);
+  }, [location]);
 
   const initializeTenant = async () => {
     try {
       setTenantState({ status: 'loading' });
 
-      // Extract tenant information from URL
-      const tenantInfo = extractTenantFromUrl();
+      // Get current tenant from subdomain/URL
+      const currentTenant = getCurrentTenant();
       
-      if (!tenantInfo) {
+      if (!currentTenant) {
         setTenantState({ status: 'not_found' });
         return;
       }
 
-      // Validate and load tenant
-      const tenant = await tenantService.getTenant(tenantInfo);
+      // Simulate tenant validation
+      const isValid = await validateTenant(currentTenant);
       
-      if (!tenant) {
-        setTenantState({ status: 'not_found' });
+      if (!isValid) {
+        setTenantState({ status: 'suspended' });
         return;
       }
 
-      // Check tenant status
-      if (tenant.status === 'suspended') {
-        setTenantState({ status: 'suspended', tenant });
-        return;
-      }
+      // Apply tenant theme
+      applyTenantTheme(currentTenant);
 
-      if (tenant.status === 'expired') {
-        setTenantState({ status: 'expired', tenant });
-        return;
-      }
-
-      // Tenant is valid and active
-      setTenantState({ status: 'identified', tenant });
+      setTenantState({ 
+        status: 'identified', 
+        tenant: currentTenant 
+      });
 
     } catch (error) {
       console.error('Tenant initialization error:', error);
@@ -73,74 +63,65 @@ export const TenantRouter: React.FC<TenantRouterProps> = ({ children }) => {
     }
   };
 
-  const extractTenantFromUrl = () => {
-    const hostname = window.location.hostname;
-    const pathname = window.location.pathname;
-
-    // 1. Check subdomain (tenant.luxgen.com)
-    if (hostname.includes('.')) {
-      const subdomain = hostname.split('.')[0];
-      if (subdomain && subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'localhost') {
-        return { type: 'subdomain', identifier: subdomain };
-      }
-    }
-
-    // 2. Check custom domain
-    if (hostname !== 'localhost' && !hostname.includes('luxgen.com')) {
-      return { type: 'domain', identifier: hostname };
-    }
-
-    // 3. Check URL path (/tenant/slug)
-    const pathMatch = pathname.match(/^\/tenant\/([^\/]+)/);
-    if (pathMatch) {
-      return { type: 'path', identifier: pathMatch[1] };
-    }
-
-    // 4. Check localStorage for development
-    const storedTenant = localStorage.getItem('currentTenant');
-    if (storedTenant) {
-      return { type: 'stored', identifier: storedTenant };
-    }
-
-    return null;
+  const validateTenant = async (tenant: any): Promise<boolean> => {
+    // Simulate API call to validate tenant
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const isValid = tenant.slug === 'luxgen' || tenant.slug === 'demo' || tenant.slug === 'test';
+        resolve(isValid);
+      }, 1000);
+    });
   };
 
-  // Render different states based on tenant status
-  switch (tenantState.status) {
-    case 'loading':
-      return <TenantLoadingScreen />;
+  const applyTenantTheme = (tenant: any) => {
+    document.documentElement.style.setProperty('--primary-color', tenant.theme.primaryColor);
+    document.documentElement.style.setProperty('--secondary-color', tenant.theme.secondaryColor);
+    document.title = `${tenant.name} - LuxGen Platform`;
+  };
 
-    case 'not_found':
-      return <TenantNotFound />;
+  const renderContent = () => {
+    switch (tenantState.status) {
+      case 'loading':
+        return <TenantLoadingScreen />;
+      
+      case 'not_found':
+        return <TenantNotFound />;
+      
+      case 'suspended':
+        return <TenantSuspended />;
+      
+      case 'expired':
+        return <TenantExpired />;
+      
+      case 'error':
+        return (
+          <TenantErrorBoundary 
+            error={tenantState.error} 
+            onRetry={initializeTenant}
+          />
+        );
+      
+      case 'identified':
+        return (
+          <MultiTenancyProvider>
+            <Suspense fallback={<TenantLoadingScreen />}>
+              <TenantErrorBoundary>
+                {children}
+              </TenantErrorBoundary>
+            </Suspense>
+          </MultiTenancyProvider>
+        );
+      
+      default:
+        return <TenantLoadingScreen />;
+    }
+  };
 
-    case 'suspended':
-      return <TenantSuspended tenant={tenantState.tenant} />;
-
-    case 'expired':
-      return <TenantExpired tenant={tenantState.tenant} />;
-
-    case 'error':
-      return (
-        <TenantErrorBoundary 
-          error={tenantState.error} 
-          onRetry={initializeTenant}
-        />
-      );
-
-    case 'identified':
-      return (
-        <MultiTenancyProvider tenant={tenantState.tenant}>
-          <Suspense fallback={<TenantLoadingScreen />}>
-            <TenantErrorBoundary>
-              {children}
-            </TenantErrorBoundary>
-          </Suspense>
-        </MultiTenancyProvider>
-      );
-
-    default:
-      return <TenantLoadingScreen />;
-  }
+  return (
+    <div className="tenant-router">
+      {renderContent()}
+    </div>
+  );
 };
 
 export default TenantRouter;
