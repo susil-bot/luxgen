@@ -45,7 +45,7 @@ const SignInPage: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const redirectTo = searchParams.get('redirect') || '/dashboard';
+      const redirectTo = searchParams.get('redirect') || '/feed';
       navigate(redirectTo, { replace: true });
     }
   }, [isAuthenticated, navigate, searchParams]);
@@ -91,7 +91,7 @@ const SignInPage: React.FC = () => {
             color: '#fff',
           },
         });
-        const redirectTo = searchParams.get('redirect') || '/dashboard';
+        const redirectTo = searchParams.get('redirect') || '/feed';
         navigate(redirectTo, { replace: true });
       } else {
         toast(response.message || 'Sign in failed', {

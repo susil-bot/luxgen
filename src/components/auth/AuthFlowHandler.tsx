@@ -34,7 +34,7 @@ const AuthFlowHandler: React.FC<AuthFlowHandlerProps> = ({ children }) => {
               },
             });
           } else {
-            navigate('/dashboard');
+            navigate('/feed');
             toast(`Welcome back, ${user.firstName}!`, {
               icon: '👋',
               style: {
@@ -110,7 +110,7 @@ const AuthFlowHandler: React.FC<AuthFlowHandlerProps> = ({ children }) => {
             color: '#fff',
           },
         });
-        navigate('/dashboard');
+        navigate('/feed');
       }
 
       // Trainer-only routes
@@ -125,7 +125,7 @@ const AuthFlowHandler: React.FC<AuthFlowHandlerProps> = ({ children }) => {
             color: '#fff',
           },
         });
-        navigate('/dashboard');
+        navigate('/feed');
       }
     }
   }, [isAuthenticated, user, location.pathname, navigate]);

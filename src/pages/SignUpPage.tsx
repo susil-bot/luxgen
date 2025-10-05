@@ -61,7 +61,7 @@ const SignUpPage: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const redirectTo = searchParams.get('redirect') || '/dashboard';
+      const redirectTo = searchParams.get('redirect') || '/feed';
       navigate(redirectTo, { replace: true });
     }
   }, [isAuthenticated, navigate, searchParams]);
