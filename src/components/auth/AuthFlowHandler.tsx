@@ -110,7 +110,7 @@ const AuthFlowHandler: React.FC<AuthFlowHandlerProps> = ({ children }) => {
             color: '#fff',
           },
         });
-        navigate('/feed');
+        navigate('/dashboard');
       }
 
       // Trainer-only routes
@@ -125,7 +125,7 @@ const AuthFlowHandler: React.FC<AuthFlowHandlerProps> = ({ children }) => {
             color: '#fff',
           },
         });
-        navigate('/feed');
+        navigate('/dashboard');
       }
     }
   }, [isAuthenticated, user, location.pathname, navigate]);

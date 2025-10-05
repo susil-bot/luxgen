@@ -1,7 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import { AppComposer } from './composers/AppComposer';
+import { GlobalProviders } from './providers/GlobalProviders';
+import { TenantScopedProviders } from './providers/TenantScopedProviders';
+import { LazyProviders } from './providers/LazyProviders';
+import { TenantRouter } from './components/tenant/TenantRouter';
 import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import EmailVerification from './components/auth/EmailVerification';
@@ -98,6 +101,8 @@ const ReportsPage: React.FC = () => (
     <p className="text-gray-600">Reports and analytics functionality will be implemented here.</p>
   </div>
 );
+
+
 
 const SettingsPage: React.FC = () => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -233,14 +238,18 @@ const AppRoutes: React.FC = () => {
 };
 
 /**
- * ULTRA-MODULAR APP STRUCTURE - RULE #1: NO NESTING
- * Single AppComposer handles everything with maximum modularity
+ * MODULAR APP STRUCTURE - RULE #1: NO NESTING
+ * Single level composition with maximum modularity
  */
 const App: React.FC = () => {
   return (
-    <AppComposer>
-      <AppRoutes />
-    </AppComposer>
+    <GlobalProviders>
+      <TenantRouter>
+        <TenantAppWrapper>
+          <AppRoutes />
+        </TenantAppWrapper>
+      </TenantRouter>
+    </GlobalProviders>
   );
 };
 
