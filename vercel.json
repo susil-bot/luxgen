@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "luxgen-frontend",
+  "name": "luxgen-multi-tenant",
   "builds": [
     {
       "src": "package.json",
@@ -46,6 +46,12 @@
           "value": "1; mode=block"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
