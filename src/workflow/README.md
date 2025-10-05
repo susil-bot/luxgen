@@ -238,6 +238,6 @@ The workflow system is designed to be easily testable:
 - Lazy loading support
 - Memory leak prevention
 
-## 📚 Examples
+## 📚 Integration
 
-See the `/examples` directory for complete usage examples and integration patterns.
+The workflow system is designed to be easily integrated into your LuxGen application. Follow the usage patterns above to implement the workflow system in your components.

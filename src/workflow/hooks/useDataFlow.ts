@@ -134,7 +134,7 @@ export function useDataFlow(): DataFlowHook {
       subscribeToData('global', {
         type: 'global-updates',
         callback: (data: any) => {
-          console.log('Received global update:', data);
+          // Handle global update
         }
       });
     }

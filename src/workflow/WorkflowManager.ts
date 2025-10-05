@@ -13,7 +13,7 @@ class WorkflowManagerImpl {
    */
   register(workflow: Workflow): void {
     this.workflows.set(workflow.id, workflow);
-    console.log(`✅ Workflow registered: ${workflow.id} - ${workflow.name}`);
+    // Workflow registered successfully
   }
 
   /**
@@ -35,9 +35,7 @@ class WorkflowManagerImpl {
     }
 
     try {
-      console.log(`🚀 Executing workflow: ${workflowId}`, context);
       const result = await workflow.execute(context);
-      console.log(`✅ Workflow completed: ${workflowId}`, result);
       return result;
     } catch (error) {
       console.error(`❌ Workflow failed: ${workflowId}`, error);
