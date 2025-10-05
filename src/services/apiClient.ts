@@ -1,151 +1,40 @@
-import { securityConfig } from '../config/security';
-import { ApiResponse } from '../types/api';
+import axios from 'axios';
 
-const baseURL = securityConfig.apiBaseUrl;
-
-// JWT Token management
-let authToken: string | null = null;
-
-const getAuthToken = (): string | null => {
-  if (!authToken) {
-    authToken = localStorage.getItem('authToken');
-  }
-  return authToken;
-};
-
-const setAuthToken = (token: string | null): void => {
-  authToken = token;
-  if (token) {
-    localStorage.setItem('authToken', token);
-  } else {
-    localStorage.removeItem('authToken');
-  }
-};
-
-const getHeaders = (customHeaders?: Record<string, string>): Record<string, string> => {
-  const headers: Record<string, string> = {
+const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  timeout: 10000,
+  headers: {
     'Content-Type': 'application/json',
-    ...customHeaders,
-  };
+  },
+});
 
-  const token = getAuthToken();
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+// Request interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  return headers;
-};
-
-const apiClient = {
-  // JWT Token management
-  setAuthToken,
-  getAuthToken,
-
-  async get<T = unknown>(endpoint: string, config: RequestInit = {}): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(`${baseURL}${endpoint}`, { 
-        ...config, 
-        method: 'GET',
-        headers: getHeaders(config.headers as Record<string, string>),
-      });
-      const data = await response.json();
-      return {
-        success: response.ok,
-        data: data.data || data,
-        message: data.message,
-        error: data.error,
-        status: response.status,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error',
-        status: 0,
-        timestamp: new Date().toISOString(),
-      };
-    }
+// Response interceptor
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
   },
-
-  async post<T = unknown>(endpoint: string, data?: unknown, config: RequestInit = {}): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(`${baseURL}${endpoint}`, {
-        ...config,
-        method: 'POST',
-        headers: getHeaders(config.headers as Record<string, string>),
-        body: data ? JSON.stringify(data) : undefined,
-      });
-      const responseData = await response.json();
-      return {
-        success: response.ok,
-        data: responseData.data || responseData,
-        message: responseData.message,
-        error: responseData.error,
-        status: response.status,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error',
-        status: 0,
-        timestamp: new Date().toISOString(),
-      };
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/signin';
     }
-  },
+    return Promise.reject(error);
+  }
+);
 
-  async put<T = unknown>(endpoint: string, data?: unknown, config: RequestInit = {}): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(`${baseURL}${endpoint}`, {
-        ...config,
-        method: 'PUT',
-        headers: getHeaders(config.headers as Record<string, string>),
-        body: data ? JSON.stringify(data) : undefined,
-      });
-      const responseData = await response.json();
-      return {
-        success: response.ok,
-        data: responseData.data || responseData,
-        message: responseData.message,
-        error: responseData.error,
-        status: response.status,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error',
-        status: 0,
-        timestamp: new Date().toISOString(),
-      };
-    }
-  },
-
-  async delete<T = unknown>(endpoint: string, config: RequestInit = {}): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(`${baseURL}${endpoint}`, { 
-        ...config, 
-        method: 'DELETE',
-        headers: getHeaders(config.headers as Record<string, string>),
-      });
-      const data = await response.json();
-      return {
-        success: response.ok,
-        data: data.data || data,
-        message: data.message,
-        error: data.error,
-        status: response.status,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error',
-        status: 0,
-        timestamp: new Date().toISOString(),
-      };
-    }
-  },
-};
-
-export default apiClient; 
+export default apiClient;
+export { apiClient };
