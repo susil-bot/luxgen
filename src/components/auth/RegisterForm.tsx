@@ -246,7 +246,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
           );
           onSuccess?.();
           // Navigate to dashboard or onboarding
-          navigate('/dashboard');
+          navigate('/feed');
         } else {
           // User needs email verification
           showSuccess(

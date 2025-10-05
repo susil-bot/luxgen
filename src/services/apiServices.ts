@@ -316,7 +316,7 @@ class ApiServices {
     role?: string;
     marketingConsent?: boolean;
   }): Promise<ApiResponse<AuthResponse>> {
-    const response = await apiClient.post('/auth/register', userData);
+    const response = await apiClient.post('/api/v1/auth/register', userData);
     if (response.success && response.data) {
       const authData = response.data as AuthResponse;
       if (authData.token) {
@@ -333,29 +333,29 @@ class ApiServices {
     email: string;
     registrationId: string;
   }): Promise<ApiResponse<any>> {
-    return apiClient.post('/auth/resend-verification', data);
+    return apiClient.post('/api/v1/auth/resend-verification', data);
   }
 
   async checkEmailVerification(registrationId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/auth/verification-status/${registrationId}`);
+    return apiClient.get(`/api/v1/auth/verification-status/${registrationId}`);
   }
 
   async verifyEmail(token: string): Promise<ApiResponse<any>> {
-    return apiClient.post('/auth/verify-email', { token });
+    return apiClient.post('/api/v1/auth/verify-email', { token });
   }
 
   // Password Reset API
   async forgotPassword(data: { email: string }): Promise<ApiResponse<any>> {
-    return apiClient.post('/auth/forgot-password', data);
+    return apiClient.post('/api/v1/auth/forgot-password', data);
   }
 
   async resetPassword(data: { token: string; password: string }): Promise<ApiResponse<any>> {
-    return apiClient.post('/auth/reset-password', data);
+    return apiClient.post('/api/v1/auth/reset-password', data);
   }
 
   // Authentication
   async login(credentials: { email: string; password: string }): Promise<ApiResponse<AuthResponse>> {
-    const response = await apiClient.post('/auth/login', credentials);
+    const response = await apiClient.post('/api/v1/auth/login', credentials);
     if (response.success && response.data) {
       const authData = response.data as AuthResponse;
       if (authData.token) {
@@ -367,14 +367,14 @@ class ApiServices {
   }
 
   async logout(): Promise<ApiResponse<void>> {
-    const response = await apiClient.post('/auth/logout', {});
+    const response = await apiClient.post('/api/v1/auth/logout', {});
     apiClient.setAuthToken(null);
     localStorage.removeItem('user');
     return response as ApiResponse<void>;
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
-    return apiClient.get('/auth/me');
+    return apiClient.get('/api/v1/auth/me');
   }
 
   // Users API
