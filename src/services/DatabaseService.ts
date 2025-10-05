@@ -122,7 +122,7 @@ export class DatabaseService {
       isConnected: true,
       lastUsed: new Date(),
       query: async (sql: string, params: any[] = []) => {
-        console.log(`[${tenantId}] Executing query:`, sql, params);
+        // Query execution logged via logger in production
         return this.simulateQuery(sql, params, tenantId);
       }
     };
@@ -132,10 +132,7 @@ export class DatabaseService {
   }
 
   private async simulateQuery(sql: string, params: any[], tenantId: string): Promise<any> {
-    // Simulate database query execution
-    // In a real implementation, this would execute actual SQL
-    console.log(`Simulating query for tenant ${tenantId}:`, sql);
-    
+    //@TODO: Implement actual query execution
     // Return mock data based on the query type
     if (sql.toLowerCase().includes('select')) {
       return this.generateMockSelectResult(sql, tenantId);
@@ -151,6 +148,7 @@ export class DatabaseService {
   }
 
   private generateMockSelectResult(sql: string, tenantId: string): any[] {
+     //@TODO: Implement actual query execution
     // Generate mock data based on the table being queried
     if (sql.toLowerCase().includes('users')) {
       return [

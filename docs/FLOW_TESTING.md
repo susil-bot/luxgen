@@ -312,7 +312,7 @@ npm run test:setup
 tail -f logs/backend.log
 
 # Database logs
-docker-compose logs -f postgres
+docker-compose logs -f mongodb
 docker-compose logs -f mongodb
 ```
 

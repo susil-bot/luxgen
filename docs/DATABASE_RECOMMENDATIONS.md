@@ -200,7 +200,7 @@ done
 ```sql
 -- Enable WAL archiving
 ALTER SYSTEM SET archive_mode = on;
-ALTER SYSTEM SET archive_command = 'cp %p /var/lib/postgresql/archive/%f';
+ALTER SYSTEM SET archive_command = 'cp %p /var/lib/mongodbql/archive/%f';
 
 -- Create base backup
 pg_basebackup -D /backup/base -Ft -z -P

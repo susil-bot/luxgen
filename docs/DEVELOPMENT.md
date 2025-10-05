@@ -137,7 +137,7 @@ npm test
 docker-compose logs -f
 
 # View specific service logs
-docker-compose logs -f postgres
+docker-compose logs -f mongodb
 docker-compose logs -f redis
 docker-compose logs -f mongodb
 
@@ -162,7 +162,7 @@ docker-compose down -v
 ### Direct Database Access
 ```bash
 # PostgreSQL
-docker-compose exec postgres psql -U trainer_user -d trainer_platform
+docker-compose exec mongodb psql -U trainer_user -d trainer_platform
 
 # Redis
 docker-compose exec redis redis-cli
@@ -192,10 +192,10 @@ kill -9 <PID>
 docker-compose ps
 
 # Restart database services
-docker-compose restart postgres redis mongodb
+docker-compose restart mongodb redis mongodb
 
 # Check database logs
-docker-compose logs postgres
+docker-compose logs mongodb
 ```
 
 #### 3. Node Modules Issues
