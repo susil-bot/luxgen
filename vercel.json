@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "luxgen-frontend",
+  "name": "luxgen-multi-tenant",
   "builds": [
     {
       "src": "package.json",
@@ -16,29 +16,42 @@
       "dest": "/static/$1"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/asset-manifest.json",
-      "dest": "/asset-manifest.json"
-    },
-    {
-      "src": "/manifest.json",
-      "dest": "/manifest.json"
-    },
-    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "@react_app_api_url",
+    "REACT_APP_API_URL": "https://luxgen-core-production.up.railway.app",
     "REACT_APP_ENVIRONMENT": "production"
   },
   "functions": {
-    "app/api/**/*.js": {
+    "src/pages/api/**/*.ts": {
       "runtime": "nodejs18.x"
     }
-  }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

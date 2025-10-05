@@ -1,0 +1,97 @@
+/* Subdomain Multi-Tenancy Theme Variables */
+
+:root {
+  /* Default LuxGen theme */
+  --primary-color: #2563eb;
+  --secondary-color: #1e40af;
+  --accent-color: #3b82f6;
+  --background-color: #ffffff;
+  --text-color: #1f2937;
+  --border-color: #e5e7eb;
+}
+
+/* LuxGen Theme */
+[data-tenant="luxgen"] {
+  --primary-color: #2563eb;
+  --secondary-color: #1e40af;
+  --accent-color: #3b82f6;
+  --background-color: #ffffff;
+  --text-color: #1f2937;
+  --border-color: #e5e7eb;
+}
+
+/* Demo Theme */
+[data-tenant="demo"] {
+  --primary-color: #059669;
+  --secondary-color: #047857;
+  --accent-color: #10b981;
+  --background-color: #f0fdf4;
+  --text-color: #064e3b;
+  --border-color: #bbf7d0;
+}
+
+/* Test Theme */
+[data-tenant="test"] {
+  --primary-color: #dc2626;
+  --secondary-color: #b91c1c;
+  --accent-color: #ef4444;
+  --background-color: #fef2f2;
+  --text-color: #7f1d1d;
+  --border-color: #fecaca;
+}
+
+/* Apply theme variables to components */
+.tenant-themed {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.tenant-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.tenant-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.tenant-accent {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.tenant-border {
+  border: 1px solid var(--border-color);
+}
+
+.tenant-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tenant-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.tenant-input {
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.tenant-card {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
