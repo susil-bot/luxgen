@@ -4,7 +4,9 @@
  */
 
 import React, { useState } from 'react';
-import { useAuth, useTenant, useDataFlow } from '../hooks';
+import { useAuth } from '../hooks/useAuth';
+import { useTenant } from '../hooks/useTenant';
+import { useDataFlow } from '../hooks/useDataFlow';
 
 export function WorkflowExample() {
   const [email, setEmail] = useState('');

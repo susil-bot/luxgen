@@ -39,7 +39,7 @@ type Action =
   | { type: 'AUTH_FAILURE'; payload: string }
   | { type: 'AUTH_LOGOUT' }
   | { type: 'TENANT_START' }
-  | { type: 'TENANT_SUCCESS'; payload: { currentTenant: TenantConfig; availableTenants: TenantConfig[] } }
+  | { type: 'TENANT_SUCCESS'; payload: { currentTenant: TenantConfig | null; availableTenants: TenantConfig[] } }
   | { type: 'TENANT_FAILURE'; payload: string }
   | { type: 'UI_TOGGLE_SIDEBAR' }
   | { type: 'UI_SET_THEME'; payload: 'light' | 'dark' }
@@ -253,13 +253,13 @@ export function WorkflowProvider({ children, initialContext }: WorkflowProviderP
 
       if (result.success) {
         // Store in localStorage
-        localStorage.setItem('auth_token', result.data.token);
-        localStorage.setItem('user_data', JSON.stringify(result.data.user));
+        localStorage.setItem('auth_token', (result.data as any).token);
+        localStorage.setItem('user_data', JSON.stringify((result.data as any).user));
         localStorage.setItem('current_tenant_id', tenantId);
 
         dispatch({
           type: 'AUTH_SUCCESS',
-          payload: result.data
+          payload: result.data as any
         });
       } else {
         dispatch({
@@ -288,13 +288,13 @@ export function WorkflowProvider({ children, initialContext }: WorkflowProviderP
 
       if (result.success) {
         // Store in localStorage
-        localStorage.setItem('auth_token', result.data.token);
-        localStorage.setItem('user_data', JSON.stringify(result.data.user));
+        localStorage.setItem('auth_token', (result.data as any).token);
+        localStorage.setItem('user_data', JSON.stringify((result.data as any).user));
         localStorage.setItem('current_tenant_id', tenantId);
 
         dispatch({
           type: 'AUTH_SUCCESS',
-          payload: result.data
+          payload: result.data as any
         });
       } else {
         dispatch({
@@ -347,8 +347,8 @@ export function WorkflowProvider({ children, initialContext }: WorkflowProviderP
         dispatch({
           type: 'TENANT_SUCCESS',
           payload: {
-            currentTenant: result.data.currentTenant,
-            availableTenants: result.data.availableTenants
+            currentTenant: (result.data as any).currentTenant,
+            availableTenants: (result.data as any).availableTenants
           }
         });
       } else {
@@ -381,8 +381,8 @@ export function WorkflowProvider({ children, initialContext }: WorkflowProviderP
         dispatch({
           type: 'TENANT_SUCCESS',
           payload: {
-            currentTenant: result.data.currentTenant,
-            availableTenants: result.data.availableTenants
+            currentTenant: (result.data as any).currentTenant,
+            availableTenants: (result.data as any).availableTenants
           }
         });
       } else {
@@ -412,8 +412,8 @@ export function WorkflowProvider({ children, initialContext }: WorkflowProviderP
         dispatch({
           type: 'TENANT_SUCCESS',
           payload: {
-            currentTenant: state.tenant.currentTenant,
-            availableTenants: result.data.availableTenants
+            currentTenant: state.tenant.currentTenant || null,
+            availableTenants: (result.data as any).availableTenants
           }
         });
       } else {
