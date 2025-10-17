@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { toast, Toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { 
   CheckCircle, 
   XCircle, 

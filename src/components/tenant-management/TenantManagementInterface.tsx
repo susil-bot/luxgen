@@ -63,8 +63,8 @@ import {
   X
 } from 'lucide-react';
 import { Tenant } from '../../types/multiTenancy';
-import apiServices from '../../services/apiServices';
-import { handleApiError, handleApiResponse } from '../../utils/errorHandler';
+import { apiServices } from '../../core/api/ApiService';
+import { errorManager } from '../../core/error/ErrorManager';
 import { toast } from 'react-hot-toast';
 import TenantSettingsManager from './TenantSettingsManager';
 
@@ -109,13 +109,13 @@ const TenantManagementInterface: React.FC = () => {
       setLoading(true);
       const response = await apiServices.getTenants();
       
-      if (handleApiResponse(response)) {
+      if (response.success) {
         setTenants(response.data || []);
         setFilteredTenants(response.data || []);
         calculateStats(response.data || []);
       }
     } catch (error) {
-      handleApiError(error, 'Failed to load tenants');
+      errorManager.handleError(error, 'Failed to load tenants');
     } finally {
       setLoading(false);
     }
@@ -162,24 +162,24 @@ const TenantManagementInterface: React.FC = () => {
   const createTenant = async (tenantData: Partial<Tenant>) => {
     try {
       const response = await apiServices.createTenant(tenantData);
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Tenant created successfully!');
         loadTenants();
       }
     } catch (error) {
-      handleApiError(error, 'Failed to create tenant');
+      errorManager.handleError(error, 'Failed to create tenant');
     }
   };
 
   const updateTenant = async (tenantId: string, updates: Partial<Tenant>) => {
     try {
       const response = await apiServices.updateTenant(tenantId, updates);
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Tenant updated successfully!');
         loadTenants();
       }
     } catch (error) {
-      handleApiError(error, 'Failed to update tenant');
+      errorManager.handleError(error, 'Failed to update tenant');
     }
   };
 
@@ -187,12 +187,12 @@ const TenantManagementInterface: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this tenant? This action cannot be undone.')) {
       try {
         const response = await apiServices.deleteTenant(tenantId);
-        if (handleApiResponse(response)) {
+        if (response.success) {
           toast.success('Tenant deleted successfully!');
           loadTenants();
         }
       } catch (error) {
-        handleApiError(error, 'Failed to delete tenant');
+        errorManager.handleError(error, 'Failed to delete tenant');
       }
     }
   };
@@ -200,24 +200,24 @@ const TenantManagementInterface: React.FC = () => {
   const suspendTenant = async (tenantId: string) => {
     try {
       const response = await apiServices.updateTenant(tenantId, { status: 'suspended' });
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Tenant suspended successfully!');
         loadTenants();
       }
     } catch (error) {
-      handleApiError(error, 'Failed to suspend tenant');
+      errorManager.handleError(error, 'Failed to suspend tenant');
     }
   };
 
   const activateTenant = async (tenantId: string) => {
     try {
       const response = await apiServices.updateTenant(tenantId, { status: 'active' });
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Tenant activated successfully!');
         loadTenants();
       }
     } catch (error) {
-      handleApiError(error, 'Failed to activate tenant');
+      errorManager.handleError(error, 'Failed to activate tenant');
     }
   };
 

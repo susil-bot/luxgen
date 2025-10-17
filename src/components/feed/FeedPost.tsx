@@ -4,7 +4,7 @@ import {
   ChevronDown, Smile, MapPin, Calendar, ExternalLink, Globe, Image, Bookmark
 } from 'lucide-react';
 import { FeedPost as FeedPostType } from '../../types/feed';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 
 interface FeedPostProps {
   post: FeedPostType;

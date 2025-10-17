@@ -10,7 +10,7 @@ import {
   Clock, Star, Filter, Search, MoreHorizontal, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 
 interface JobPosting {
   id: string;

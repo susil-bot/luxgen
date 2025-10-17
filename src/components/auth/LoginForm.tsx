@@ -4,9 +4,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { LoginForm as LoginFormType } from '../../types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useNotifications } from '../common/NotificationSystem';
-import { useErrorHandler } from '../../utils/errorHandler';
+// Removed old error handler import - using new error manager
 import ErrorDisplay from '../common/ErrorDisplay';
-import { formatFormError } from '../../utils/authErrorHandler';
+// Removed old auth error handler import - using new error manager
 import { 
   validateEmail, 
   validatePassword, 
@@ -34,7 +34,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { showSuccess, showError, showInfo, showWarning } = useNotifications();
-  const { handleError, handleAuthError } = useErrorHandler();
+  // Removed old error handler - using new error manager
   
   const [formData, setFormData] = useState<LoginFormType>({
     email: '',
@@ -371,7 +371,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         showInfo('Form Preserved', 'Your login details have been preserved. You can try again once the server is back online.', { duration: 4000 });
       } else {
         setError(err);
-        handleError(err, 'login-form');
+        // Removed old error handler - using new error manager
         showInfo('Form Preserved', 'Your login details have been preserved. You can try again.', { duration: 4000 });
       }
     } finally {

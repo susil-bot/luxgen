@@ -11,7 +11,7 @@ import {
   ChevronDown, ChevronUp, X, Plus, Grid, List, SortAsc, SortDesc
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 import { toast } from 'react-hot-toast';
 
 interface Job {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
-import { MultiTenancyProvider } from '../../contexts/MultiTenancyContext';
+import { TenantProvider } from '../../core/tenancy/TenantProvider';
 import { TenantLoadingScreen } from './TenantLoadingScreen';
 import { TenantErrorBoundary } from './TenantErrorBoundary';
 import { TenantNotFound } from './TenantNotFound';
@@ -103,13 +103,13 @@ export const TenantRouter: React.FC<TenantRouterProps> = ({ children }) => {
       
       case 'identified':
         return (
-          <MultiTenancyProvider>
+          <TenantProvider>
             <Suspense fallback={<TenantLoadingScreen />}>
               <TenantErrorBoundary>
                 {children}
               </TenantErrorBoundary>
             </Suspense>
-          </MultiTenancyProvider>
+          </TenantProvider>
         );
       
       default:

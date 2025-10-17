@@ -1,4 +1,4 @@
-import apiClient from './apiClient';
+import apiClient from '../core/api/ApiClient';
 import { securityConfig } from '../config/security';
 import { apiLogger } from '../utils/logger';
 
@@ -42,7 +42,7 @@ class ContentCreatorAPI {
   }
 
   private async getHeaders(): Promise<HeadersInit> {
-    const token = apiClient.getAuthToken();
+    const token = (apiClient as any).getAuthToken();
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,

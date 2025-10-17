@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Mail, CheckCircle, AlertCircle, RefreshCw, ArrowRight } from 'lucide-react';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 
 interface LocationState {
   email: string;

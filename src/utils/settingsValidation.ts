@@ -1,4 +1,9 @@
-import { TenantSettings } from '../services/TenantSettingsService';
+// import { TenantSettings } from '../services/TenantSettingsService'; // TODO: Implement TenantSettingsService
+interface TenantSettings {
+  ipWhitelist: string[];
+  allowedDomains: string[];
+  [key: string]: any;
+}
 
 export interface ValidationError {
   field: string;
@@ -124,7 +129,7 @@ class SettingsValidator {
     }
 
     // Validate IP whitelist
-    settings.ipWhitelist.forEach((ip, index) => {
+    settings.ipWhitelist.forEach((ip: string, index: number) => {
       if (!this.isValidIpAddress(ip)) {
         errors.push({
           field: `ipWhitelist.${index}`,
@@ -135,7 +140,7 @@ class SettingsValidator {
     });
 
     // Validate allowed domains
-    settings.allowedDomains.forEach((domain, index) => {
+    settings.allowedDomains.forEach((domain: string, index: number) => {
       if (!this.isValidDomain(domain)) {
         errors.push({
           field: `allowedDomains.${index}`,

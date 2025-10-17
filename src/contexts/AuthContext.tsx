@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User, AuthState, LoginForm, UserRole } from '../types';
-import apiServices from '../services/apiServices';
+import { apiServices } from '../core/api/ApiService';
 import { useNotifications } from '../components/common/NotificationSystem';
-import { useErrorHandler } from '../utils/errorHandler';
+import { errorManager } from '../core/error/ErrorManager';
 
 // User detection will be handled by the API response
 
@@ -71,7 +71,8 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const { showSuccess, showError, showInfo } = useNotifications();
-  const { handleError, handleAuthError } = useErrorHandler();
+  // Use the new error manager
+  const handleError = (error: any, context?: string) => errorManager.handleError(error, context);
 
   // Check for existing token on app load
   useEffect(() => {
@@ -93,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
     
     try {
-      const response = await apiServices.login({ email, password });
+      const response = await apiServices.auth.login({ email, password });
       
       if (response && response.success && response.data) {
         const apiUser = response.data.user;
@@ -179,7 +180,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     
     try {
-      await apiServices.logout();
+      await apiServices.auth.logout();
       showInfo('Logged Out', 'You have been successfully logged out.', { duration: 3000 });
     } catch (error: any) {
       console.error('Logout error:', error);

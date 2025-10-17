@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertCircle, X, RefreshCw, ExternalLink, Mail, Lock, User, Phone, Building } from 'lucide-react';
-import { formatFormError } from '../../utils/authErrorHandler';
+// Removed old auth error handler import - using new error manager
 
 interface ErrorDisplayProps {
   error: any;
@@ -19,7 +19,13 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 }) => {
   if (!error) return null;
 
-  const errorInfo = formatFormError(error, context);
+  // Simple error handling without old formatter
+  const errorInfo = {
+    message: error?.message || 'An error occurred',
+    severity: error?.severity || 'error',
+    field: error?.field || null,
+    action: error?.action || null
+  };
   
   const getSeverityStyles = () => {
     switch (errorInfo.severity) {

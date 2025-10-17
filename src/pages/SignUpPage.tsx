@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useApi } from '../hooks/useApi';
+// Removed useApi import - using new API services
 import { EyeIcon, EyeSlashIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 
@@ -53,10 +53,8 @@ const SignUpPage: React.FC = () => {
   const [createTenant, setCreateTenant] = useState(false);
   
   // Fetch existing tenants for selection
-  const { data: tenants, loading: tenantsLoading } = useApi<{ data: Tenant[] }>(
-    '/api/tenants',
-    { autoFetch: false }
-  );
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [tenantsLoading, setTenantsLoading] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -494,8 +492,8 @@ const SignUpPage: React.FC = () => {
                   <div className="mt-1 space-y-2 max-h-40 overflow-y-auto">
                     {tenantsLoading ? (
                       <div className="text-sm text-gray-500">Loading organizations...</div>
-                    ) : tenants?.data && tenants.data.length > 0 ? (
-                      tenants.data.map((tenant) => (
+                     ) : tenants && tenants.length > 0 ? (
+                       tenants.map((tenant: any) => (
                         <button
                           key={tenant._id}
                           type="button"

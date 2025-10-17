@@ -37,8 +37,8 @@ import {
   SortDesc
 } from 'lucide-react';
 import { Poll, PollQuestion, PollFeedback, Notification } from '../types/polls';
-import { useApi } from '../hooks/useApi';
-import apiServices from '../services/apiServices';
+// Removed useApi import - using new API services
+import { apiServices } from '../core/api/ApiService';
 
 const NichePollsPage: React.FC = () => {
   const [polls, setPolls] = useState<Poll[]>([

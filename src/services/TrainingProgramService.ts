@@ -1,5 +1,5 @@
 import { TrainingProgram, ProgramStatus, ProgramType, DifficultyLevel, ProgramStats, ProgramAnalytics, ProgramFilters } from '../types/training';
-import apiClient from './apiClient';
+import apiClient from '../core/api/ApiClient';
 
 class TrainingProgramService {
   /**

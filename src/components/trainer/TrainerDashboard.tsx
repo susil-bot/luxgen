@@ -37,8 +37,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import apiServices from '../../services/apiServices';
-import { handleApiError, handleApiResponse } from '../../utils/errorHandler';
+import { apiServices } from '../../core/api/ApiService';
+import { errorManager } from '../../core/error/ErrorManager';
 import { toast } from 'react-hot-toast';
 
 // Enhanced Types
@@ -303,7 +303,7 @@ const TrainerDashboard: React.FC = React.memo(() => {
       }
 
       if (participantsResponse.success) {
-        setParticipants((participantsResponse.data || []).filter(p => p.role === 'participant'));
+        setParticipants((participantsResponse.data || []).filter((p: any) => p.role === 'participant'));
       }
 
       if (analyticsResponse.success) {

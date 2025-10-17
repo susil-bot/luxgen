@@ -5,7 +5,7 @@ import {
   AlertCircle, CheckCircle2, XCircle as XCircleIcon, Clock as ClockIcon
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 import { toast } from 'react-hot-toast';
 
 interface JobApplication {

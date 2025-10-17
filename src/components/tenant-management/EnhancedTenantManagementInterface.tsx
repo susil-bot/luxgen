@@ -68,8 +68,8 @@ import {
   Tablet
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import apiServices from '../../services/apiServices';
-import { handleApiResponse, handleApiError } from '../../utils/errorHandler';
+import { apiServices } from '../../core/api/ApiService';
+import { errorManager } from '../../core/error/ErrorManager';
 import { Tenant } from '../../types/multiTenancy';
 
 interface EnhancedTenantManagementInterfaceProps {
@@ -178,13 +178,13 @@ const EnhancedTenantManagementInterface: React.FC<EnhancedTenantManagementInterf
       const startTime = Date.now();
       
       const response = await apiServices.getTenants();
-      if (handleApiResponse(response)) {
+      if (response.success) {
         setTenants(response.data || []);
         setApiLatency(Date.now() - startTime);
         setLastUpdate(new Date());
       }
     } catch (error) {
-      handleApiError(error, 'Failed to load tenants');
+      errorManager.handleError(error, 'Failed to load tenants');
       setError('Failed to load tenants');
     } finally {
       setLoading(false);
@@ -306,26 +306,26 @@ const EnhancedTenantManagementInterface: React.FC<EnhancedTenantManagementInterf
   const handleCreateTenant = async (tenantData: Partial<Tenant>) => {
     try {
       const response = await apiServices.createTenant(tenantData);
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Tenant created successfully!');
         loadTenants();
         setShowCreateModal(false);
       }
     } catch (error) {
-      handleApiError(error, 'Failed to create tenant');
+      errorManager.handleError(error, 'Failed to create tenant');
     }
   };
 
   const handleUpdateTenant = async (tenantId: string, updates: Partial<Tenant>) => {
     try {
       const response = await apiServices.updateTenant(tenantId, updates);
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Tenant updated successfully!');
         loadTenants();
         setShowEditModal(false);
       }
     } catch (error) {
-      handleApiError(error, 'Failed to update tenant');
+      errorManager.handleError(error, 'Failed to update tenant');
     }
   };
 
@@ -336,12 +336,12 @@ const EnhancedTenantManagementInterface: React.FC<EnhancedTenantManagementInterf
 
     try {
       const response = await apiServices.deleteTenant(tenantId);
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Tenant deleted successfully!');
         loadTenants();
       }
     } catch (error) {
-      handleApiError(error, 'Failed to delete tenant');
+      errorManager.handleError(error, 'Failed to delete tenant');
     }
   };
 
@@ -363,13 +363,13 @@ const EnhancedTenantManagementInterface: React.FC<EnhancedTenantManagementInterf
           return;
       }
       
-      if (response && handleApiResponse(response)) {
+      if (response && response.success) {
         toast.success(`Bulk ${action} completed successfully!`);
         loadTenants();
         setSelectedTenants([]);
       }
     } catch (error) {
-      handleApiError(error, `Failed to perform bulk ${action}`);
+      errorManager.handleError(error, `Failed to perform bulk ${action}`);
     }
   };
 

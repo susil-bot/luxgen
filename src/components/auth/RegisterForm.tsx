@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Phone, Building, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNotifications } from '../common/NotificationSystem';
-import { useErrorHandler } from '../../utils/errorHandler';
+// Removed old error handler import - using new error manager
 import ErrorDisplay from '../common/ErrorDisplay';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 
 interface RegisterFormData {
   email: string;
@@ -27,7 +27,7 @@ interface RegisterFormProps {
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin }) => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotifications();
-  const { handleError } = useErrorHandler();
+  // Removed old error handler - using new error manager
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -259,7 +259,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
                 onClick: async () => {
                   try {
                     // Import the API service
-                    const apiServices = (await import('../../services/apiServices')).default;
+                    const { apiServices } = await import('../../core/api/ApiService');
                     
                     // Get the registrationId from the current state or localStorage
                     const registrationId = localStorage.getItem('registrationId') || 
@@ -368,7 +368,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
         { duration: 6000 }
       );
       
-      handleError(error, 'registration-form');
+      // Removed old error handler - using new error manager
     } finally {
       setIsLoading(false);
     }

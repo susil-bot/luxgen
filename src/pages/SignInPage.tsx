@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useApi } from '../hooks/useApi';
+// Removed useApi import - using new API services
 import { EyeIcon, EyeSlashIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 
@@ -37,10 +37,21 @@ const SignInPage: React.FC = () => {
   const [showTenantSelector, setShowTenantSelector] = useState(false);
   
   // Fetch tenants for selector
-  const { data: tenants, loading: tenantsLoading } = useApi<{ data: Tenant[] }>(
-    '/api/tenants',
-    { autoFetch: false }
-  );
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [tenantsLoading, setTenantsLoading] = useState(false);
+
+  // Fetch tenants function
+  const fetchTenants = async () => {
+    setTenantsLoading(true);
+    try {
+      // TODO: Implement tenant fetching with new API services
+      setTenants([]);
+    } catch (error) {
+      console.error('Error fetching tenants:', error);
+    } finally {
+      setTenantsLoading(false);
+    }
+  };
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -274,8 +285,8 @@ const SignInPage: React.FC = () => {
                 <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                   {tenantsLoading ? (
                     <div className="px-4 py-2 text-sm text-gray-500">Loading organizations...</div>
-                  ) : tenants?.data && tenants.data.length > 0 ? (
-                    tenants.data.map((tenant) => (
+                  ) : tenants && tenants.length > 0 ? (
+                    tenants.map((tenant: any) => (
                       <button
                         key={tenant._id}
                         type="button"

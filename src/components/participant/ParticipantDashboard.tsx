@@ -28,8 +28,8 @@ import {
   Lock
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import apiServices from '../../services/apiServices';
-import { handleApiError, handleApiResponse } from '../../utils/errorHandler';
+import { apiServices } from '../../core/api/ApiService';
+import { errorManager } from '../../core/error/ErrorManager';
 import { toast } from 'react-hot-toast';
 
 interface EnrolledCourse {
@@ -103,9 +103,9 @@ const ParticipantDashboard: React.FC = () => {
       
       // Load enrolled courses
       const coursesResponse = await apiServices.getTrainingCourses();
-      if (handleApiResponse(coursesResponse)) {
+      if (coursesResponse.success) {
         // Convert API courses to enrolled courses format
-        const convertedCourses: EnrolledCourse[] = (coursesResponse.data || []).map(course => ({
+        const convertedCourses: EnrolledCourse[] = (coursesResponse.data || []).map((course: any) => ({
           id: course.id,
           title: course.title,
           description: course.description,
@@ -125,7 +125,7 @@ const ParticipantDashboard: React.FC = () => {
 
       // Load participant stats
       const statsResponse = await apiServices.getParticipantStats(user.id);
-      if (handleApiResponse(statsResponse)) {
+      if (statsResponse.success) {
         setStats(statsResponse.data);
       } else {
         setStats({
@@ -220,7 +220,7 @@ const ParticipantDashboard: React.FC = () => {
       setAchievements(mockAchievements);
 
     } catch (error) {
-      handleApiError(error, 'Loading participant data');
+      errorManager.handleError(error, 'Loading participant data');
     } finally {
       setLoading(false);
     }
@@ -231,12 +231,12 @@ const ParticipantDashboard: React.FC = () => {
     try {
       const response = await apiServices.completeModule(courseId, moduleId, user?.id || '');
       
-      if (handleApiResponse(response)) {
+      if (response.success) {
         toast.success('Module completed successfully!');
         loadParticipantData(); // Reload data
       }
     } catch (error) {
-      handleApiError(error, 'Completing module');
+      errorManager.handleError(error, 'Completing module');
     }
   };
 

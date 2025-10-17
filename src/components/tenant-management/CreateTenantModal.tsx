@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Save, Globe, Users, Database, Shield } from 'lucide-react';
 import { Tenant, TenantPlan } from '../../types/multiTenancy';
-import apiClient from '../../services/apiClient';
+import apiClient from '../../core/api/ApiClient';
 
 interface CreateTenantModalProps {
   isOpen: boolean;

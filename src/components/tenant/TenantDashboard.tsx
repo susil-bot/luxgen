@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useRobustTenant } from '../../contexts/RobustTenantContext';
+import { useTenant } from '../../core/tenancy/TenantProvider';
 import { useTenantFeatures, useTenantBranding, useTenantLimits, useTenantSecurity, useTenantAnalytics, useTenantHealth } from '../../hooks/useTenantManagement';
 import { TenantHealth, TenantAnalytics } from '../../types/tenant';
 
 const TenantDashboard: React.FC = () => {
-  const { state } = useRobustTenant();
+  const { tenant, loading, error } = useTenant();
   const { features } = useTenantFeatures();
   const { branding } = useTenantBranding();
   const { limits, usage, getRemainingLimit, isLimitExceeded } = useTenantLimits();
@@ -14,7 +14,7 @@ const TenantDashboard: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState('overview');
 
-  if (state.loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
@@ -22,14 +22,14 @@ const TenantDashboard: React.FC = () => {
     );
   }
 
-  if (state.error) {
+  if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-md p-4">
         <div className="flex">
           <div className="ml-3">
             <h3 className="text-sm font-medium text-red-800">Error</h3>
             <div className="mt-2 text-sm text-red-700">
-              <p>{state.error}</p>
+              <p>{error}</p>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@ const TenantDashboard: React.FC = () => {
         <div className="md:flex md:items-center md:justify-between">
           <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-              {state.currentTenant?.name || 'Tenant Dashboard'}
+              {tenant?.name || 'Tenant Dashboard'}
             </h2>
             <p className="mt-1 text-sm text-gray-500">
               Manage your tenant configuration and settings

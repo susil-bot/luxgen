@@ -428,7 +428,7 @@ import {
   FileText as FileAstroturfModules2
 } from 'lucide-react';
 import { Tenant, TenantPlan } from '../../types/multiTenancy';
-import apiClient from '../../services/apiClient';
+import apiClient from '../../core/api/ApiClient';
 import { toast } from 'react-hot-toast';
 
 interface CreateTenantFlowProps {

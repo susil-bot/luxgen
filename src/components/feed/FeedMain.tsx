@@ -7,7 +7,7 @@ import {
 import FeedPost from './FeedPost';
 import { JobPost } from '../jobpost';
 import JobsFeed from '../jobsfeed';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 import { FeedPost as FeedPostType } from '../../types/feed';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 
@@ -46,12 +46,7 @@ const FeedMain: React.FC<FeedMainProps> = () => {
   } = useInfiniteScroll<FeedPostType>(
     async (page, limit) => {
       const response = await apiServices.getFeedPosts({ page, limit });
-      return {
-        success: response.success,
-        data: response.data || [],
-        pagination: response.pagination,
-        error: response.error
-      };
+      return response;
     },
     { enabled: true }
   );

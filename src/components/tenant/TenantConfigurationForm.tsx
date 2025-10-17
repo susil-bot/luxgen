@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useRobustTenant } from '../../contexts/RobustTenantContext';
+import { useTenant } from '../../core/tenancy/TenantProvider';
 import { useTenantFeatures, useTenantBranding, useTenantSecurity, useTenantSettings } from '../../hooks/useTenantManagement';
 
 interface TenantConfigurationFormProps {
@@ -8,7 +8,7 @@ interface TenantConfigurationFormProps {
 }
 
 const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSave, onCancel }) => {
-  const { state, updateTenantConfig } = useRobustTenant();
+  const { tenant, switchTenant } = useTenant();
   const { updateFeatures } = useTenantFeatures();
   const { updateBranding } = useTenantBranding();
   const { updateSecurity } = useTenantSecurity();
@@ -17,7 +17,7 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
   const [formData, setFormData] = useState({
     name: '',
     domain: '',
-    features: [] as string[],
+    features: {} as Record<string, boolean>,
     branding: {
       theme: '',
       colors: {
@@ -49,39 +49,39 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (state.currentTenant) {
+    if (tenant) {
       setFormData({
-        name: state.currentTenant.name || '',
-        domain: state.currentTenant.domain || '',
-        features: state.currentTenant.features || [],
+        name: tenant.name || '',
+        domain: tenant.domain || '',
+        features: {},
         branding: {
-          theme: state.currentTenant.branding?.theme || '',
+          theme: '',
           colors: { 
-            primary: state.currentTenant.branding?.colors?.primary || '', 
-            secondary: state.currentTenant.branding?.colors?.secondary || '', 
-            accent: state.currentTenant.branding?.colors?.accent || '', 
-            background: state.currentTenant.branding?.colors?.background || '', 
-            text: state.currentTenant.branding?.colors?.text || '' 
+            primary: (tenant.branding as any)?.primaryColor || '', 
+            secondary: (tenant.branding as any)?.secondaryColor || '', 
+            accent: '', 
+            background: '', 
+            text: '' 
           },
           fonts: { 
-            primary: state.currentTenant.branding?.fonts?.primary || '', 
-            secondary: state.currentTenant.branding?.fonts?.secondary || '', 
-            sizes: state.currentTenant.branding?.fonts?.sizes || {} 
+            primary: '', 
+            secondary: '', 
+            sizes: {} 
           },
-          logo: state.currentTenant.branding?.logo || '',
-          favicon: state.currentTenant.branding?.favicon || ''
+          logo: tenant.branding?.logo || '',
+          favicon: tenant.branding?.favicon || ''
         },
         security: {
-          permissions: state.currentTenant.security?.permissions || [],
-          sso: state.currentTenant.security?.sso || false,
-          mfa: state.currentTenant.security?.mfa || false,
-          sessionTimeout: state.currentTenant.security?.sessionTimeout || 3600,
-          ipWhitelist: state.currentTenant.security?.ipWhitelist || []
+          permissions: [],
+          sso: false,
+          mfa: false,
+          sessionTimeout: 3600,
+          ipWhitelist: []
         },
-        settings: state.currentTenant.settings || {}
+        settings: {}
       });
     }
-  }, [state.currentTenant]);
+  }, [tenant]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -106,9 +106,10 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
   const handleFeatureToggle = (feature: string) => {
     setFormData(prev => ({
       ...prev,
-      features: prev.features.includes(feature)
-        ? prev.features.filter(f => f !== feature)
-        : [...prev.features, feature]
+      features: {
+        ...prev.features,
+        [feature]: !prev.features[feature]
+      }
     }));
   };
 
@@ -131,14 +132,14 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
 
     try {
       // Update tenant configuration
-      await updateTenantConfig({
-        name: formData.name,
-        domain: formData.domain,
-        features: formData.features,
-        branding: formData.branding,
-        security: formData.security,
-        settings: formData.settings
-      });
+      // TODO: Implement tenant update API call
+      console.log('Tenant config update:', formData);
+      
+      // Call individual update methods
+      await updateFeatures(formData.features);
+      await updateBranding(formData.branding);
+      await updateSecurity(formData.security);
+      await updateSettings(formData.settings);
 
       onSave?.();
     } catch (err) {
@@ -214,7 +215,7 @@ const TenantConfigurationForm: React.FC<TenantConfigurationFormProps> = ({ onSav
                 id={`feature-${feature}`}
                 name="features"
                 type="checkbox"
-                checked={formData.features.includes(feature)}
+                checked={formData.features[feature] || false}
                 onChange={() => handleFeatureToggle(feature)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />

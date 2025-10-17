@@ -1,5 +1,5 @@
 import { User, UserRole } from '../types';
-import apiServices from './apiServices';
+import { apiServices } from '../core/api/ApiService';
 
 // MongoDB User Management Interfaces
 export interface MongoDBUser {

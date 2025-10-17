@@ -3,7 +3,7 @@
  * API calls for ActivityFeed component
  */
 
-import apiClient from '../../../services/apiClient';
+import apiClient from '../../../core/api/ApiClient';
 import { ActivityFeedAPIResponse, ActivityFeedItem, ActivityFeedStats } from '../types/types';
 
 /**

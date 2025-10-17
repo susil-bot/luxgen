@@ -159,7 +159,7 @@ import {
   UserSearch as UserSearch10
 } from 'lucide-react';
 import { Tenant } from '../../types/multiTenancy';
-import apiClient from '../../services/apiClient';
+import apiClient from '../../core/api/ApiClient';
 import { toast } from 'react-hot-toast';
 
 interface TenantSettingsManagerProps {

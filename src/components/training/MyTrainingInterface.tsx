@@ -52,7 +52,7 @@ import {
   Menu
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import apiServices from '../../services/apiServices';
+import { apiServices } from '../../core/api/ApiService';
 import { toast } from 'react-hot-toast';
 
 // Types for My Training

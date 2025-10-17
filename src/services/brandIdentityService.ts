@@ -3,7 +3,7 @@
  * Frontend service for managing brand identity configurations
  */
 
-import apiClient from './apiClient';
+import apiClient from '../core/api/ApiClient';
 
 export interface BrandIdentity {
   colors?: {
@@ -65,7 +65,7 @@ class BrandIdentityService {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error((response.data as any)?.message || 'Failed to get brand identity');
     } catch (error) {
       console.error('Failed to get current brand identity:', error);
       throw error;
@@ -82,7 +82,7 @@ class BrandIdentityService {
         const data = response.data as any;
         return data.data?.availableBrands || data.availableBrands || [];
       }
-      throw new Error(response.error || 'Failed to get available brands');
+      throw new Error((response.data as any)?.message || 'Failed to get available brands');
     } catch (error) {
       console.error('Failed to get available brands:', error);
       throw error;
@@ -99,7 +99,7 @@ class BrandIdentityService {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error((response.data as any)?.message || 'Failed to get brand identity');
     } catch (error) {
       console.error(`Failed to get brand identity: ${brandId}`, error);
       throw error;
@@ -116,7 +116,7 @@ class BrandIdentityService {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error((response.data as any)?.message || 'Failed to get brand identity');
     } catch (error) {
       console.error(`Failed to create brand identity: ${brandId}`, error);
       throw error;
@@ -133,7 +133,7 @@ class BrandIdentityService {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error((response.data as any)?.message || 'Failed to get brand identity');
     } catch (error) {
       console.error(`Failed to update brand identity: ${brandId}`, error);
       throw error;
@@ -163,7 +163,7 @@ class BrandIdentityService {
         const data = response.data as any;
         return data.data?.assets || data.assets || [];
       }
-      throw new Error(response.error || 'Failed to get brand assets');
+      throw new Error((response.data as any)?.message || 'Failed to get brand assets');
     } catch (error) {
       console.error(`Failed to get brand assets: ${brandId}`, error);
       throw error;
@@ -183,7 +183,7 @@ class BrandIdentityService {
       if (response.success && response.data) {
         return response.data as string;
       }
-      throw new Error(response.error || 'Failed to get brand CSS');
+      throw new Error((response.data as any)?.message || 'Failed to get brand CSS');
     } catch (error) {
       console.error(`Failed to get brand CSS: ${brandId}`, error);
       throw error;
@@ -200,7 +200,7 @@ class BrandIdentityService {
         const data = response.data as any;
         return data.data || data;
       }
-      throw new Error(response.error || 'Failed to get response data');
+      throw new Error((response.data as any)?.message || 'Failed to get response data');
     } catch (error) {
       console.error(`Failed to get brand health: ${brandId}`, error);
       throw error;

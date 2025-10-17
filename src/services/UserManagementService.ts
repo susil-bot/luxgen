@@ -6,7 +6,7 @@ import {
   QueryOptions
 } from '../types/multiTenancy';
 import { User } from '../types';
-import { multiTenancyManager } from './MultiTenancyManager';
+// import { multiTenancyManager } from './MultiTenancyManager'; // TODO: Implement multiTenancyManager
 
 // User Management Interfaces
 export interface UserStats {
