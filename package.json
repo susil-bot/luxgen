@@ -29,6 +29,11 @@
     "uuid": "^11.1.0",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "cypress": "^13.15.0",
+    "cypress-mochawesome-reporter": "^3.6.0",
+    "cypress-real-events": "^1.10.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -38,7 +43,22 @@
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "type-check": "tsc --noEmit",
     "preview": "vercel --prod",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:run:headless": "cypress run --headless",
+    "test:api": "cypress run --spec 'cypress/e2e/api-endpoints.cy.ts'",
+    "test:api:headed": "cypress run --spec 'cypress/e2e/api-endpoints.cy.ts' --headed",
+    "test:api:chrome": "cypress run --spec 'cypress/e2e/api-endpoints.cy.ts' --browser chrome",
+    "test:api:firefox": "cypress run --spec 'cypress/e2e/api-endpoints.cy.ts' --browser firefox",
+    "test:api:edge": "cypress run --spec 'cypress/e2e/api-endpoints.cy.ts' --browser edge",
+    "test:api:all": "npm run test:api:chrome && npm run test:api:firefox && npm run test:api:edge",
+    "test:api:report": "npm run test:api && node scripts/generate-test-report.js",
+    "test:api:ci": "cypress run --spec 'cypress/e2e/api-endpoints.cy.ts' --browser chrome --headless --reporter json --reporter-options output=cypress/results/results.json",
+    "test:api:full": "npm run test:api:ci && node scripts/generate-test-report.js cypress/results/results.json",
+    "test:api:local": "API_BASE_URL=http://localhost:3000 npm run test:api",
+    "test:api:staging": "API_BASE_URL=https://staging-api.luxgen.com npm run test:api",
+    "test:api:production": "API_BASE_URL=https://luxgen-core-production.up.railway.app npm run test:api"
   },
   "eslintConfig": {
     "extends": [
