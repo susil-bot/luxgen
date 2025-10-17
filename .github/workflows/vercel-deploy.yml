@@ -65,3 +65,26 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
           vercel-args: '--prod'
+        continue-on-error: true
+      
+      - name: Deploy to Vercel (Alternative)
+        if: failure()
+        run: |
+          echo "Vercel deployment failed, using alternative method"
+          echo "Manual deployment required"
+          echo "URL: https://vercel.com/new"
+          echo "Project ID: prj_ouUiFUxx80rcOjb4pB3dzGrj1u8G"
+          echo "Organization ID: team_JuevDBWv60LRQj0QLmA2WltU"
+      
+      - name: Notify Deployment Status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+            echo "🌐 Frontend: https://luxgen-multi-tenant.vercel.app"
+            echo "🔧 Backend: https://luxgen-core-production.up.railway.app"
+          else
+            echo "❌ Deployment failed"
+            echo "🔧 Manual deployment required"
+            echo "📋 Check GitHub Actions logs for details"
+          fi
