@@ -126,7 +126,9 @@ export const SubdomainTenantRouter: React.FC<SubdomainTenantRouterProps> = ({ ch
           <TenantErrorBoundary 
             error={tenantState.error || 'Unknown error occurred'}
             onRetry={() => window.location.reload()}
-          />
+          >
+            <div>Error occurred</div>
+          </TenantErrorBoundary>
         );
       
       case 'found':
