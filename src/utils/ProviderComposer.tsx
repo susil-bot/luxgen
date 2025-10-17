@@ -25,8 +25,8 @@ export const ProviderComposer: React.FC<ProviderComposerProps> = ({
   providers, 
   children 
 }) => {
-  return providers.reduceRight(
-    (acc, { component: Component, props = {}, condition }) => {
+  const result = providers.reduceRight(
+    (acc: ReactNode, { component: Component, props = {}, condition }: ProviderConfig) => {
       // Skip provider if condition is false
       if (condition && !condition()) {
         return acc;
@@ -36,6 +36,9 @@ export const ProviderComposer: React.FC<ProviderComposerProps> = ({
     },
     children
   );
+  
+  // Ensure we always return a valid React element
+  return result as React.ReactElement;
 };
 
 /**

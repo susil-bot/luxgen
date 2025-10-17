@@ -36,5 +36,10 @@ apiClient.interceptors.response.use(
   }
 );
 
+// Add setAuthToken method
+(apiClient as any).setAuthToken = (token: string) => {
+  localStorage.setItem('authToken', token);
+};
+
 export default apiClient;
 export { apiClient };

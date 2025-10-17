@@ -135,7 +135,7 @@ class TenantService {
   clearCache(tenantId?: string): void {
     if (tenantId) {
       // Clear specific tenant cache
-      for (const [key, value] of this.cache.entries()) {
+      for (const [key, value] of Array.from(this.cache.entries())) {
         if (value.id === tenantId) {
           this.cache.delete(key);
         }

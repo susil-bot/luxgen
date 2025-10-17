@@ -31,7 +31,7 @@ const ContentEditor: React.FC = () => {
     try {
       const response = await contentCreatorAPI.improveContent(content, improvementType);
       
-      if (response.success && response.data) {
+      if (response.success && response.data?.content) {
         setContent(response.data.content);
       } else {
         console.error('AI enhancement failed:', response.error);

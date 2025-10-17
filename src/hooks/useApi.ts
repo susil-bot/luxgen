@@ -137,19 +137,27 @@ export function useApi<T = unknown>(
         },
       });
 
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         setCachedData(response.data);
       }
+
+      const apiResponse: ApiResponse<T> = {
+        success: response.status === 200 || response.status === 201,
+        data: response.data,
+        message: response.statusText,
+        status: response.status,
+        timestamp: new Date().toISOString(),
+      };
 
       setState({
         data: response.data || null,
         loading: false,
-        error: response.error || null,
-        success: response.success,
-        timestamp: response.timestamp || new Date().toISOString(),
+        error: null,
+        success: response.status === 200 || response.status === 201,
+        timestamp: new Date().toISOString(),
       });
 
-      return response;
+      return apiResponse;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred while fetching data';
       
@@ -267,11 +275,11 @@ export function useApiConnection() {
     try {
       const response = await apiServices.checkApiConnection();
       setConnectionStatus({
-        connected: response.success,
+        connected: response.status === 200 || response.status === 201,
         lastCheck: new Date().toISOString(),
-        error: response.error || null,
+        error: null,
       });
-      return response.success;
+      return response.status === 200 || response.status === 201;
     } catch (error: any) {
       setConnectionStatus({
         connected: false,
@@ -309,10 +317,10 @@ export function useDatabaseStatus() {
     
     try {
       const response = await apiServices.getDatabaseStatus();
-      if (response.success && response.data) {
-        setDbStatus(response.data);
+      if (response.status === 200 || response.status === 201) {
+        setDbStatus(response.data || null);
       } else {
-        setError(response.error || 'Failed to fetch database status');
+        setError('Failed to fetch database status');
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Database status check failed');
@@ -350,10 +358,10 @@ export function useHealthCheck() {
     
     try {
       const response = await apiServices.getDetailedHealth();
-      if (response.success && response.data) {
-        setHealth(response.data);
+      if (response.status === 200 || response.status === 201) {
+        setHealth(response.data || null);
       } else {
-        setError(response.error || 'Health check failed');
+        setError('Health check failed');
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Health check failed');

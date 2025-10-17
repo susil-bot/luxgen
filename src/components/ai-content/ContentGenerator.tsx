@@ -36,7 +36,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ contentType, isGene
         language: settings.language,
       });
 
-      if (response.success && response.data) {
+      if (response.success && response.data?.content) {
         setGeneratedContent(response.data.content);
       } else {
         // Fallback to mock content if API fails

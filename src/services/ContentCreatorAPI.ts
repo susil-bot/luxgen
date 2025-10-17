@@ -42,7 +42,7 @@ class ContentCreatorAPI {
   }
 
   private async getHeaders(): Promise<HeadersInit> {
-    const token = apiClient.getAuthToken();
+    const token = localStorage.getItem('authToken');
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,

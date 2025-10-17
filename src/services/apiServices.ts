@@ -317,15 +317,20 @@ class ApiServices {
     marketingConsent?: boolean;
   }): Promise<ApiResponse<AuthResponse>> {
     const response = await apiClient.post('/api/v1/auth/register', userData);
-    if (response.success && response.data) {
+    if (response.status === 200 || response.status === 201) {
       const authData = response.data as AuthResponse;
       if (authData.token) {
-        apiClient.setAuthToken(authData.token);
+        localStorage.setItem('authToken', authData.token);
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(authData.user));
       }
     }
-    return response as ApiResponse<AuthResponse>;
+    return {
+      success: response.status === 200 || response.status === 201,
+      data: response.data,
+      message: response.statusText,
+      status: response.status,
+    } as ApiResponse<AuthResponse>;
   }
 
   // Email Verification API
@@ -356,21 +361,31 @@ class ApiServices {
   // Authentication
   async login(credentials: { email: string; password: string }): Promise<ApiResponse<AuthResponse>> {
     const response = await apiClient.post('/api/v1/auth/login', credentials);
-    if (response.success && response.data) {
+    if (response.status === 200 || response.status === 201) {
       const authData = response.data as AuthResponse;
       if (authData.token) {
-        apiClient.setAuthToken(authData.token);
+        localStorage.setItem('authToken', authData.token);
         localStorage.setItem('user', JSON.stringify(authData.user));
       }
     }
-    return response as ApiResponse<AuthResponse>;
+    return {
+      success: response.status === 200 || response.status === 201,
+      data: response.data,
+      message: response.statusText,
+      status: response.status,
+    } as ApiResponse<AuthResponse>;
   }
 
   async logout(): Promise<ApiResponse<void>> {
     const response = await apiClient.post('/api/v1/auth/logout', {});
-    apiClient.setAuthToken(null);
+    localStorage.removeItem('authToken');
     localStorage.removeItem('user');
-    return response as ApiResponse<void>;
+    return {
+      success: response.status === 200 || response.status === 201,
+      data: response.data,
+      message: response.statusText,
+      status: response.status,
+    } as ApiResponse<void>;
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {

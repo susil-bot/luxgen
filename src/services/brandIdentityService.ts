@@ -61,11 +61,11 @@ class BrandIdentityService {
   async getCurrentBrandIdentity(): Promise<BrandIdentity> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/`);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error('Failed to get brand identity');
     } catch (error) {
       console.error('Failed to get current brand identity:', error);
       throw error;
@@ -78,11 +78,11 @@ class BrandIdentityService {
   async getAvailableBrands(): Promise<string[]> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/available`);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const data = response.data as any;
         return data.data?.availableBrands || data.availableBrands || [];
       }
-      throw new Error(response.error || 'Failed to get available brands');
+      throw new Error('Failed to get available brands');
     } catch (error) {
       console.error('Failed to get available brands:', error);
       throw error;
@@ -95,11 +95,11 @@ class BrandIdentityService {
   async getBrandIdentity(brandId: string): Promise<BrandIdentity> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/${brandId}`);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error('Failed to get brand identity');
     } catch (error) {
       console.error(`Failed to get brand identity: ${brandId}`, error);
       throw error;
@@ -112,11 +112,11 @@ class BrandIdentityService {
   async createBrandIdentity(brandId: string, brandIdentity: BrandIdentity): Promise<BrandIdentity> {
     try {
       const response = await apiClient.post(`${this.baseUrl}/${brandId}`, brandIdentity);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error('Failed to get brand identity');
     } catch (error) {
       console.error(`Failed to create brand identity: ${brandId}`, error);
       throw error;
@@ -129,11 +129,11 @@ class BrandIdentityService {
   async updateBrandIdentity(brandId: string, brandIdentity: BrandIdentity): Promise<BrandIdentity> {
     try {
       const response = await apiClient.put(`${this.baseUrl}/${brandId}`, brandIdentity);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const data = response.data as any;
         return data.data?.brandIdentity || data.brandIdentity || data;
       }
-      throw new Error(response.error || 'Failed to get brand identity');
+      throw new Error('Failed to get brand identity');
     } catch (error) {
       console.error(`Failed to update brand identity: ${brandId}`, error);
       throw error;
@@ -159,11 +159,11 @@ class BrandIdentityService {
   async getBrandAssets(brandId: string): Promise<BrandAssets> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/${brandId}/assets`);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const data = response.data as any;
         return data.data?.assets || data.assets || [];
       }
-      throw new Error(response.error || 'Failed to get brand assets');
+      throw new Error('Failed to get brand assets');
     } catch (error) {
       console.error(`Failed to get brand assets: ${brandId}`, error);
       throw error;
@@ -180,10 +180,10 @@ class BrandIdentityService {
           'Accept': 'text/css'
         }
       });
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         return response.data as string;
       }
-      throw new Error(response.error || 'Failed to get brand CSS');
+      throw new Error('Failed to get brand CSS');
     } catch (error) {
       console.error(`Failed to get brand CSS: ${brandId}`, error);
       throw error;
@@ -196,11 +196,11 @@ class BrandIdentityService {
   async getBrandHealth(brandId: string): Promise<BrandHealth> {
     try {
       const response = await apiClient.get(`${this.baseUrl}/${brandId}/health`);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const data = response.data as any;
         return data.data || data;
       }
-      throw new Error(response.error || 'Failed to get response data');
+      throw new Error('Failed to get response data');
     } catch (error) {
       console.error(`Failed to get brand health: ${brandId}`, error);
       throw error;

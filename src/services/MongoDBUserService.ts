@@ -146,9 +146,9 @@ class MongoDBUserService {
       const mongoUpdates = this.convertToMongoDBUser(updates);
       const response = await apiServices.updateUser(userId, mongoUpdates as any);
       
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         console.log('User updated successfully');
-        return this.convertMongoDBUser(response.data);
+        return this.convertMongoDBUser(response.data as any);
       } else {
         throw new Error(response.message || 'Failed to update user');
       }
@@ -180,8 +180,8 @@ class MongoDBUserService {
     try {
       const response = await apiServices.getUser(userId);
       
-      if (response.success && response.data) {
-        return this.convertMongoDBUser(response.data);
+      if (response.status === 200 || response.status === 201) {
+        return this.convertMongoDBUser(response.data as any);
       } else {
         throw new Error(response.message || 'User not found');
       }
@@ -198,8 +198,8 @@ class MongoDBUserService {
       
       const response = await apiServices.getUsers();
       
-      if (response.success && response.data) {
-        let users = response.data.map((user: any) => this.convertMongoDBUser(user));
+      if (response.status === 200 || response.status === 201) {
+        let users = (response.data || []).map((user: any) => this.convertMongoDBUser(user));
         
         // Apply filters
         if (filters) {
