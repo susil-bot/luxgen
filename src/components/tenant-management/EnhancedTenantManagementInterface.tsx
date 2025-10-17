@@ -194,9 +194,11 @@ const EnhancedTenantManagementInterface: React.FC<EnhancedTenantManagementInterf
   const loadStats = async () => {
     try {
       const response = await apiServices.getTenants();
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         const tenantData = response.data;
-        calculateStats(tenantData);
+        if (tenantData) {
+          calculateStats(tenantData);
+        }
       }
     } catch (error) {
       console.error('Error loading stats:', error);

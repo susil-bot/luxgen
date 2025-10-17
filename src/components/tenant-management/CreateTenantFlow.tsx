@@ -710,12 +710,12 @@ const CreateTenantFlow: React.FC<CreateTenantFlowProps> = ({ isOpen, onClose, on
       };
 
       const response = await apiClient.post('/api/tenants/create', payload);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         toast.success('Tenant created successfully!');
         onSuccess(response.data as Tenant);
         handleClose();
       } else {
-        toast.error(response.message || 'Failed to create tenant');
+        toast.error(response.data?.message || 'Failed to create tenant');
       }
     } catch (error) {
       console.error('Error creating tenant:', error);

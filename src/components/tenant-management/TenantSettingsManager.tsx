@@ -589,12 +589,12 @@ const TenantSettingsManager: React.FC<TenantSettingsManagerProps> = ({
       };
 
       const response = await apiClient.put(`/api/tenants/${tenant.id}`, updatedTenant);
-      if (response.success && response.data) {
+      if (response.status === 200 || response.status === 201) {
         toast.success('Settings saved successfully!');
         onUpdate(response.data as Tenant);
         setHasChanges(false);
       } else {
-        toast.error(response.message || 'Failed to save settings');
+        toast.error(response.data?.message || 'Failed to save settings');
       }
     } catch (error) {
       console.error('Error saving settings:', error);

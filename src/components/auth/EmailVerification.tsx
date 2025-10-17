@@ -85,7 +85,7 @@ const EmailVerification: React.FC = () => {
       // Note: This endpoint might need to be added to your API
       const response = await apiServices.checkEmailVerification(registrationId);
 
-      if (response.success && response.data?.isEmailVerified) {
+      if ((response.status === 200 || response.status === 201) && response.data?.isEmailVerified) {
         toast('Email verified successfully! You can now sign in.', {
           icon: '✅',
           style: {
