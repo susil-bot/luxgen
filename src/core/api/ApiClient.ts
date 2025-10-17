@@ -48,8 +48,10 @@ class RobustApiClient {
     return axios.create({
       baseURL: this.config.baseURL,
       timeout: this.config.timeout,
+      withCredentials: true, // Enable CORS credentials
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
     });
   }
