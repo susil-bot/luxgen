@@ -236,11 +236,11 @@ const CreateTenantModal: React.FC<CreateTenantModalProps> = ({ isOpen, onClose, 
 
       // Call backend API directly
       const response = await apiClient.post('/api/tenants/create', payload);
-      if (response.status === 200 || response.status === 201) {
+      if (response.success) {
         onSave(response.data as Omit<Tenant, 'id' | 'createdAt' | 'updatedAt'>); // Pass the created tenant back
         handleClose();
       } else {
-        alert(response.data?.message || 'Failed to create tenant');
+        alert(response.message || 'Failed to create tenant');
       }
     } catch (error) {
       console.error('Error creating tenant:', error);

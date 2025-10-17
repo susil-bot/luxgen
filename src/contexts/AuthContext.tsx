@@ -96,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiServices.auth.login({ email, password });
       
-      if (response && (response.status === 200 || response.status === 201) && response.data) {
+      if (response && response.success && response.data) {
         const apiUser = response.data.user;
         const token = response.data.token;
         
