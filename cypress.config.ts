@@ -14,7 +14,7 @@ export default defineConfig({
     responseTimeout: 10000,
     pageLoadTimeout: 30000,
     env: {
-      API_BASE_URL: 'https://luxgen-core-production.up.railway.app',
+      API_BASE_URL: 'https://luxgen-backend.netlify.app',
       TEST_USER_EMAIL: 'test@luxgen.com',
       TEST_USER_PASSWORD: 'TestPassword123!',
       ADMIN_EMAIL: 'admin@luxgen.com',

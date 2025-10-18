@@ -36,7 +36,7 @@ export const PRODUCTION_TENANT_CONFIGS: Record<string, ProductionTenantConfig> =
     slug: 'luxgen',
     subdomain: 'luxgen',
     domain: 'luxgen.vercel.app',
-    apiUrl: 'https://luxgen-core-production.up.railway.app',
+    apiUrl: 'https://luxgen-backend.netlify.app/api/v1',
     theme: {
       primaryColor: '#2563eb',
       secondaryColor: '#1e40af',
@@ -60,7 +60,7 @@ export const PRODUCTION_TENANT_CONFIGS: Record<string, ProductionTenantConfig> =
     slug: 'demo',
     subdomain: 'demo',
     domain: 'demo-luxgen.vercel.app',
-    apiUrl: 'https://luxgen-core-production.up.railway.app',
+    apiUrl: 'https://luxgen-backend.netlify.app/api/v1',
     theme: {
       primaryColor: '#059669',
       secondaryColor: '#047857',
@@ -84,7 +84,7 @@ export const PRODUCTION_TENANT_CONFIGS: Record<string, ProductionTenantConfig> =
     slug: 'test',
     subdomain: 'test',
     domain: 'test-luxgen.vercel.app',
-    apiUrl: 'https://luxgen-core-production.up.railway.app',
+    apiUrl: 'https://luxgen-backend.netlify.app/api/v1',
     theme: {
       primaryColor: '#dc2626',
       secondaryColor: '#b91c1c',
@@ -164,5 +164,5 @@ export const isProductionTenant = (): boolean => {
  */
 export const getProductionApiUrl = (): string => {
   const tenant = getCurrentProductionTenant();
-  return tenant?.apiUrl || 'https://luxgen-core-production.up.railway.app';
+  return tenant?.apiUrl || 'https://luxgen-backend.netlify.app/api/v1';
 };

@@ -4,7 +4,7 @@
  */
 
 describe('LuxGen API Endpoints E2E Tests', () => {
-  const API_BASE_URL = Cypress.env('API_BASE_URL') || 'https://luxgen-core-production.up.railway.app';
+  const API_BASE_URL = Cypress.env('API_BASE_URL') || 'https://luxgen-backend.netlify.app';
   let authToken: string;
   let testUserId: string;
   let testTenantId: string;
