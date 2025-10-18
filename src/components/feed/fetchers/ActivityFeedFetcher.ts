@@ -3,16 +3,16 @@
  * API calls for ActivityFeed component
  */
 
-import apiClient from '../../../core/api/ApiClient';
+import { apiServices } from '../../../services/apiServices';
 import { ActivityFeedAPIResponse, ActivityFeedItem, ActivityFeedStats } from '../types/types';
 
 /**
  * Get activities for a specific tenant
  * @param {string} tenantId - Tenant ID
  * @param {Object} options - Query options
- * @returns {Promise<ActivityFeedAPIResponse<ActivityFeedItem[]>>} API response
+ * @returns {Promise<Object>} API response
  */
-export const getActivities = async (tenantId: string, options: any = {}): Promise<ActivityFeedAPIResponse<ActivityFeedItem[]>> => {
+export const getActivities = async (tenantId, options = {}) => {
   try {
     if (!tenantId) {
       throw new Error('Tenant ID is required');
@@ -23,19 +23,19 @@ export const getActivities = async (tenantId: string, options: any = {}): Promis
       ...options
     });
 
-    const response = await apiClient.get(`/api/activities?${queryParams}`);
+    const response = await apiServices.get(`/api/activities?${queryParams}`);
     
     return {
       success: true,
-      data: response.data as ActivityFeedItem[],
+      data: response.data,
       message: 'Activities loaded successfully'
     };
   } catch (error) {
     console.error('Error fetching activities:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch activities',
-      data: undefined
+      error: error.message || 'Failed to fetch activities',
+      data: null
     };
   }
 };
@@ -43,27 +43,27 @@ export const getActivities = async (tenantId: string, options: any = {}): Promis
 /**
  * Get feed statistics for a tenant
  * @param {string} tenantId - Tenant ID
- * @returns {Promise<ActivityFeedAPIResponse<ActivityFeedStats>>} API response
+ * @returns {Promise<Object>} API response
  */
-export const getFeedStats = async (tenantId: string): Promise<ActivityFeedAPIResponse<ActivityFeedStats>> => {
+export const getFeedStats = async (tenantId) => {
   try {
     if (!tenantId) {
       throw new Error('Tenant ID is required');
     }
 
-    const response = await apiClient.get(`/api/activities/stats?tenantId=${tenantId}`);
+    const response = await apiServices.get(`/api/activities/stats?tenantId=${tenantId}`);
     
     return {
       success: true,
-      data: response.data as ActivityFeedStats,
+      data: response.data,
       message: 'Feed stats loaded successfully'
     };
   } catch (error) {
     console.error('Error fetching feed stats:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch feed stats',
-      data: undefined
+      error: error.message || 'Failed to fetch feed stats',
+      data: null
     };
   }
 };
@@ -74,9 +74,9 @@ export const getFeedStats = async (tenantId: string): Promise<ActivityFeedAPIRes
  * @param {string} action - Action type
  * @param {string} tenantId - Tenant ID
  * @param {Object} payload - Additional payload data
- * @returns {Promise<ActivityFeedAPIResponse<any>>} API response
+ * @returns {Promise<Object>} API response
  */
-export const performActivityAction = async (activityId: string, action: string, tenantId: string, payload: any = {}): Promise<ActivityFeedAPIResponse<any>> => {
+export const performActivityAction = async (activityId, action, tenantId, payload = {}) => {
   try {
     if (!activityId || !action || !tenantId) {
       throw new Error('Activity ID, action, and tenant ID are required');
@@ -89,7 +89,7 @@ export const performActivityAction = async (activityId: string, action: string, 
       ...payload
     };
 
-    const response = await apiClient.post(`/api/activities/${activityId}/actions`, requestData);
+    const response = await apiServices.post(`/api/activities/${activityId}/actions`, requestData);
     
     return {
       success: true,
@@ -100,8 +100,8 @@ export const performActivityAction = async (activityId: string, action: string, 
     console.error('Error performing activity action:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to perform action',
-      data: undefined
+      error: error.message || 'Failed to perform action',
+      data: null
     };
   }
 };
@@ -112,7 +112,7 @@ export const performActivityAction = async (activityId: string, action: string, 
  * @param {string} tenantId - Tenant ID
  * @returns {Promise<Object>} API response
  */
-export const createActivity = async (activityData: any, tenantId: string): Promise<ActivityFeedAPIResponse<any>> => {
+export const createActivity = async (activityData, tenantId) => {
   try {
     if (!activityData || !tenantId) {
       throw new Error('Activity data and tenant ID are required');
@@ -123,7 +123,7 @@ export const createActivity = async (activityData: any, tenantId: string): Promi
       tenantId
     };
 
-    const response = await apiClient.post('/api/activities', requestData);
+    const response = await apiServices.post('/api/activities', requestData);
     
     return {
       success: true,
@@ -134,8 +134,8 @@ export const createActivity = async (activityData: any, tenantId: string): Promi
     console.error('Error creating activity:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to create activity',
-      data: undefined
+      error: error.message || 'Failed to create activity',
+      data: null
     };
   }
 };
@@ -147,7 +147,7 @@ export const createActivity = async (activityData: any, tenantId: string): Promi
  * @param {string} tenantId - Tenant ID
  * @returns {Promise<Object>} API response
  */
-export const updateActivity = async (activityId: string, updateData: any, tenantId: string): Promise<ActivityFeedAPIResponse<any>> => {
+export const updateActivity = async (activityId, updateData, tenantId) => {
   try {
     if (!activityId || !updateData || !tenantId) {
       throw new Error('Activity ID, update data, and tenant ID are required');
@@ -158,7 +158,7 @@ export const updateActivity = async (activityId: string, updateData: any, tenant
       tenantId
     };
 
-    const response = await apiClient.put(`/api/activities/${activityId}`, requestData);
+    const response = await apiServices.put(`/api/activities/${activityId}`, requestData);
     
     return {
       success: true,
@@ -169,8 +169,8 @@ export const updateActivity = async (activityId: string, updateData: any, tenant
     console.error('Error updating activity:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to update activity',
-      data: undefined
+      error: error.message || 'Failed to update activity',
+      data: null
     };
   }
 };
@@ -181,13 +181,13 @@ export const updateActivity = async (activityId: string, updateData: any, tenant
  * @param {string} tenantId - Tenant ID
  * @returns {Promise<Object>} API response
  */
-export const deleteActivity = async (activityId: string, tenantId: string): Promise<ActivityFeedAPIResponse<any>> => {
+export const deleteActivity = async (activityId, tenantId) => {
   try {
     if (!activityId || !tenantId) {
       throw new Error('Activity ID and tenant ID are required');
     }
 
-    const response = await apiClient.delete(`/api/activities/${activityId}?tenantId=${tenantId}`);
+    const response = await apiServices.delete(`/api/activities/${activityId}?tenantId=${tenantId}`);
     
     return {
       success: true,
@@ -198,8 +198,8 @@ export const deleteActivity = async (activityId: string, tenantId: string): Prom
     console.error('Error deleting activity:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to delete activity',
-      data: undefined
+      error: error.message || 'Failed to delete activity',
+      data: null
     };
   }
 };
@@ -211,7 +211,7 @@ export const deleteActivity = async (activityId: string, tenantId: string): Prom
  * @param {Object} options - Query options
  * @returns {Promise<Object>} API response
  */
-export const getActivitiesByUser = async (userId: string, tenantId: string, options: any = {}): Promise<ActivityFeedAPIResponse<ActivityFeedItem[]>> => {
+export const getActivitiesByUser = async (userId, tenantId, options = {}) => {
   try {
     if (!userId || !tenantId) {
       throw new Error('User ID and tenant ID are required');
@@ -223,19 +223,19 @@ export const getActivitiesByUser = async (userId: string, tenantId: string, opti
       ...options
     });
 
-    const response = await apiClient.get(`/api/activities/user/${userId}?${queryParams}`);
+    const response = await apiServices.get(`/api/activities/user/${userId}?${queryParams}`);
     
     return {
       success: true,
-      data: response.data as ActivityFeedItem[],
+      data: response.data,
       message: 'User activities loaded successfully'
     };
   } catch (error) {
     console.error('Error fetching user activities:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch user activities',
-      data: undefined
+      error: error.message || 'Failed to fetch user activities',
+      data: null
     };
   }
 };
@@ -247,7 +247,7 @@ export const getActivitiesByUser = async (userId: string, tenantId: string, opti
  * @param {Object} options - Query options
  * @returns {Promise<Object>} API response
  */
-export const getActivitiesByType = async (type: string, tenantId: string, options: any = {}): Promise<ActivityFeedAPIResponse<ActivityFeedItem[]>> => {
+export const getActivitiesByType = async (type, tenantId, options = {}) => {
   try {
     if (!type || !tenantId) {
       throw new Error('Activity type and tenant ID are required');
@@ -259,19 +259,19 @@ export const getActivitiesByType = async (type: string, tenantId: string, option
       ...options
     });
 
-    const response = await apiClient.get(`/api/activities/type/${type}?${queryParams}`);
+    const response = await apiServices.get(`/api/activities/type/${type}?${queryParams}`);
     
     return {
       success: true,
-      data: response.data as ActivityFeedItem[],
+      data: response.data,
       message: 'Activities by type loaded successfully'
     };
   } catch (error) {
     console.error('Error fetching activities by type:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch activities by type',
-      data: undefined
+      error: error.message || 'Failed to fetch activities by type',
+      data: null
     };
   }
 };
@@ -283,7 +283,7 @@ export const getActivitiesByType = async (type: string, tenantId: string, option
  * @param {Object} options - Query options
  * @returns {Promise<Object>} API response
  */
-export const searchActivities = async (searchTerm: string, tenantId: string, options: any = {}): Promise<ActivityFeedAPIResponse<ActivityFeedItem[]>> => {
+export const searchActivities = async (searchTerm, tenantId, options = {}) => {
   try {
     if (!searchTerm || !tenantId) {
       throw new Error('Search term and tenant ID are required');
@@ -295,19 +295,19 @@ export const searchActivities = async (searchTerm: string, tenantId: string, opt
       ...options
     });
 
-    const response = await apiClient.get(`/api/activities/search?${queryParams}`);
+    const response = await apiServices.get(`/api/activities/search?${queryParams}`);
     
     return {
       success: true,
-      data: response.data as ActivityFeedItem[],
+      data: response.data,
       message: 'Search results loaded successfully'
     };
   } catch (error) {
     console.error('Error searching activities:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to search activities',
-      data: undefined
+      error: error.message || 'Failed to search activities',
+      data: null
     };
   }
 };
@@ -318,13 +318,13 @@ export const searchActivities = async (searchTerm: string, tenantId: string, opt
  * @param {string} tenantId - Tenant ID
  * @returns {Promise<Object>} API response
  */
-export const getActivityEngagement = async (activityId: string, tenantId: string): Promise<ActivityFeedAPIResponse<any>> => {
+export const getActivityEngagement = async (activityId, tenantId) => {
   try {
     if (!activityId || !tenantId) {
       throw new Error('Activity ID and tenant ID are required');
     }
 
-    const response = await apiClient.get(`/api/activities/${activityId}/engagement?tenantId=${tenantId}`);
+    const response = await apiServices.get(`/api/activities/${activityId}/engagement?tenantId=${tenantId}`);
     
     return {
       success: true,
@@ -335,8 +335,8 @@ export const getActivityEngagement = async (activityId: string, tenantId: string
     console.error('Error fetching activity engagement:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch activity engagement',
-      data: undefined
+      error: error.message || 'Failed to fetch activity engagement',
+      data: null
     };
   }
 };
