@@ -6,7 +6,7 @@
  * Login command to authenticate user
  */
 Cypress.Commands.add('login', (email: string, password: string) => {
-  const API_BASE_URL = Cypress.env('API_BASE_URL') || 'https://luxgen-core-production.up.railway.app';
+  const API_BASE_URL = Cypress.env('API_BASE_URL') || 'https://luxgen-backend.netlify.app';
   
   cy.request({
     method: 'POST',
@@ -43,7 +43,7 @@ Cypress.Commands.add('getAuthToken', () => {
  * Make authenticated API request
  */
 Cypress.Commands.add('apiRequest', (method: string, endpoint: string, body?: any) => {
-  const API_BASE_URL = Cypress.env('API_BASE_URL') || 'https://luxgen-core-production.up.railway.app';
+  const API_BASE_URL = Cypress.env('API_BASE_URL') || 'https://luxgen-backend.netlify.app';
   
   return cy.getAuthToken().then((token) => {
     const headers: any = {};

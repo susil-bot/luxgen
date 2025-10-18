@@ -58,7 +58,7 @@
     "test:api:full": "npm run test:api:ci && node scripts/generate-test-report.js cypress/results/results.json",
     "test:api:local": "API_BASE_URL=http://localhost:3000 npm run test:api",
     "test:api:staging": "API_BASE_URL=https://staging-api.luxgen.com npm run test:api",
-    "test:api:production": "API_BASE_URL=https://luxgen-core-production.up.railway.app npm run test:api"
+    "test:api:production": "API_BASE_URL=https://luxgen-backend.netlify.app npm run test:api"
   },
   "eslintConfig": {
     "extends": [
