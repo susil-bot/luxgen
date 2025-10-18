@@ -4,6 +4,9 @@ import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
+// Import theme styles
+import './styles/theme.css';
+
 // Core Providers
 import { TenantProvider } from './core/tenancy/TenantProvider';
 import { AuthProvider } from './contexts/AuthContext';
