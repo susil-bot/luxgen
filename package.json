@@ -30,20 +30,46 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.24.0",
+    "@types/react-router-dom": "^5.3.3",
+    "autoprefixer": "^10.4.21",
+    "clsx": "^2.1.1",
     "cypress": "^13.15.0",
     "cypress-mochawesome-reporter": "^3.6.0",
-    "cypress-real-events": "^1.10.0"
+    "cypress-real-events": "^1.10.0",
+    "html-webpack-plugin": "^5.6.0",
+    "postcss": "^8.5.6",
+    "serve": "^14.2.1",
+    "tailwind-merge": "^2.6.0",
+    "webpack-bundle-analyzer": "^4.10.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:optimized": "./scripts/build.sh",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "type-check": "tsc --noEmit",
+    "quality": "npm run lint && npm run type-check && npm run test:coverage",
     "preview": "vercel --prod",
     "deploy": "vercel --prod",
+    "deploy:staging": "./scripts/deploy.sh staging",
+    "deploy:production": "./scripts/deploy.sh production",
+    "deploy:force": "./scripts/deploy.sh production true",
+    "analyze": "ANALYZE=true npm run build",
+    "clean": "rm -rf build dist node_modules/.cache",
+    "setup": "npm ci && npm run type-check",
+    "dev": "npm start",
+    "prod": "npm run build:optimized && npm run deploy:production",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "cypress:run:headless": "cypress run --headless",
@@ -77,12 +103,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@babel/preset-env": "^7.24.0",
-    "@babel/preset-react": "^7.23.3",
-    "@types/react-router-dom": "^5.3.3",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6"
   }
 }
