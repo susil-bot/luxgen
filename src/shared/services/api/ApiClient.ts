@@ -16,6 +16,13 @@ class ApiClient {
   constructor() {
     const config = getCurrentEnvironment();
     
+    // Debug logging
+    console.log('🔧 API Client Configuration:', {
+      baseURL: config.apiUrl,
+      timeout: 10000,
+      nodeEnv: process.env.NODE_ENV,
+    });
+    
     this.instance = axios.create({
       baseURL: config.apiUrl,
       timeout: 10000,

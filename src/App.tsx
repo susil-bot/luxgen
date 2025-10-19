@@ -67,6 +67,7 @@ const App: React.FC = () => {
                     {/* Public Routes */}
                     <Route path="/signin" element={<SignInPage />} />
                     <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/register" element={<SignUpPage />} />
                     
                     {/* Protected Routes */}
                     <Route

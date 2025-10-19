@@ -21,7 +21,7 @@ export interface EnvironmentConfig {
 
 export const environments: Record<string, EnvironmentConfig> = {
   development: {
-    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3001',
+    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:4004',
     debug: true,
     logging: 'verbose',
     features: {

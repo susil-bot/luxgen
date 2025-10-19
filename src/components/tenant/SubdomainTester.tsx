@@ -169,11 +169,11 @@ export const SubdomainTester: React.FC = () => {
         <div style={{ fontSize: '12px', color: '#6b7280' }}>
           <strong>Testing URLs:</strong>
           <br />
-          • luxgen: <code>http://localhost:3000?tenant=luxgen</code>
+          • luxgen: <code>http://localhost:3003?tenant=luxgen</code>
           <br />
-          • demo: <code>http://localhost:3000?tenant=demo</code>
+          • demo: <code>http://localhost:3003?tenant=demo</code>
           <br />
-          • test: <code>http://localhost:3000?tenant=test</code>
+          • test: <code>http://localhost:3003?tenant=test</code>
         </div>
       </div>
     </div>

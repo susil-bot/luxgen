@@ -3,7 +3,7 @@
 
 export const securityConfig = {
   // API Configuration
-  apiBaseUrl: process.env.REACT_APP_API_URL || 'https://luxgen-backend.netlify.app',
+  apiBaseUrl: process.env.REACT_APP_API_URL || 'http://localhost:4004',
   
   // JWT Configuration
   jwt: {
@@ -16,8 +16,8 @@ export const securityConfig = {
   // CORS Configuration
   cors: {
     allowedOrigins: [
-      'http://localhost:3000',
-      'http://localhost:3001',
+      'http://localhost:3003',
+      'http://localhost:4004',
       'http://localhost:5000'
     ],
     credentials: true

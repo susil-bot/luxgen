@@ -5,6 +5,7 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from 'react-hot-toast';
+import { environmentConfig } from '../../config/environment';
 
 // Standard API Response Interface
 export interface ApiResponse<T = any> {
@@ -307,14 +308,16 @@ class RobustApiClient {
   }
 }
 
+
 // Debug environment variables
 console.log('🔍 Environment Debug:');
 console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('API URL:', environmentConfig.apiUrl);
 
 // Create singleton instance
 const apiClient = new RobustApiClient({
-  baseURL: process.env.REACT_APP_API_URL || 'https://luxgen-backend.netlify.app',
+  baseURL: environmentConfig.apiUrl,
   timeout: 10000,
   retryAttempts: 3,
   retryDelay: 1000,

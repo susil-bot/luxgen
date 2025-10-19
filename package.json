@@ -48,8 +48,8 @@
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "start:development": "REACT_APP_ENVIRONMENT=development react-scripts start",
+    "start": "PORT=3003 react-scripts start",
+    "start:development": "PORT=3003 REACT_APP_ENVIRONMENT=development react-scripts start",
     "start:production": "REACT_APP_ENVIRONMENT=production react-scripts start",
     "build": "react-scripts build",
     "build:development": "REACT_APP_ENVIRONMENT=development react-scripts build",

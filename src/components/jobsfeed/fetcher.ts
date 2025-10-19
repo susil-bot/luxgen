@@ -27,7 +27,7 @@ export interface JobsFeedResponse {
 }
 
 export class JobsFeedFetcher {
-  private static baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  private static baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:4004';
 
   /**
    * Get jobs with pagination and filters
