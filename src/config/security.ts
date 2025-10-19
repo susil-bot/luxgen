@@ -3,7 +3,7 @@
 
 export const securityConfig = {
   // API Configuration
-  apiBaseUrl: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  apiBaseUrl: process.env.REACT_APP_API_URL || 'https://luxgen-backend.netlify.app',
   
   // JWT Configuration
   jwt: {

@@ -3,12 +3,12 @@
  * Data transformation for FeedPost component
  */
 
-import { formatters, utils, contentProcessors } from './FeedPostHelper';
+import { formatters, utils, contentProcessors } from './feedPostHelper';
 
 // Transform API response to component props
 export const transformers = {
   // Transform post data for display
-  transformPost: (apiPost) => {
+  transformPost: (apiPost: any) => {
     if (!apiPost) return null;
     
     return {
@@ -49,14 +49,14 @@ export const transformers = {
   },
 
   // Transform multiple posts
-  transformPosts: (apiPosts) => {
+  transformPosts: (apiPosts: any) => {
     if (!Array.isArray(apiPosts)) return [];
     
-    return apiPosts.map(post => transformers.transformPost(post));
+    return apiPosts.map((post: any) => transformers.transformPost(post));
   },
 
   // Transform comment data
-  transformComment: (apiComment) => {
+  transformComment: (apiComment: any) => {
     if (!apiComment) return null;
     
     return {
@@ -83,17 +83,17 @@ export const transformers = {
   },
 
   // Transform multiple comments
-  transformComments: (apiComments) => {
+  transformComments: (apiComments: any) => {
     if (!Array.isArray(apiComments)) return [];
     
-    return apiComments.map(comment => transformers.transformComment(comment));
+    return apiComments.map((comment: any) => transformers.transformComment(comment));
   }
 };
 
 // Business logic
 export const businessLogic = {
   // Determine if user can interact with post
-  canUserInteract: (post, userId, userRole) => {
+  canUserInteract: (post: any, userId: any, userRole: any) => {
     if (!post || !userId) return false;
     
     // User can always interact with their own posts
@@ -108,7 +108,7 @@ export const businessLogic = {
   },
 
   // Determine if user can edit post
-  canUserEdit: (post, userId, userRole) => {
+  canUserEdit: (post: any, userId: any, userRole: any) => {
     if (!post || !userId) return false;
     
     // User can edit their own posts
@@ -121,7 +121,7 @@ export const businessLogic = {
   },
 
   // Determine if user can delete post
-  canUserDelete: (post, userId, userRole) => {
+  canUserDelete: (post: any, userId: any, userRole: any) => {
     if (!post || !userId) return false;
     
     // User can delete their own posts
@@ -134,7 +134,7 @@ export const businessLogic = {
   },
 
   // Calculate post engagement score
-  calculateEngagementScore: (post) => {
+  calculateEngagementScore: (post: any) => {
     const { likes, comments, shares, views } = post.engagement;
     const totalEngagement = likes + comments + shares;
     const engagementRate = views > 0 ? (totalEngagement / views) * 100 : 0;
@@ -152,7 +152,7 @@ export const businessLogic = {
   },
 
   // Determine post priority for feed
-  calculatePostPriority: (post, userPreferences = {}) => {
+  calculatePostPriority: (post: any, userPreferences: any = {}) => {
     const engagementScore = businessLogic.calculateEngagementScore(post);
     const timeDecay = Math.max(0, 1 - (Date.now() - new Date(post.createdAt).getTime()) / (24 * 60 * 60 * 1000));
     
@@ -169,7 +169,7 @@ export const businessLogic = {
       priority += 0.2;
     }
     
-    if (userPreferences.interests && post.hashtags.some(tag => userPreferences.interests.includes(tag))) {
+    if (userPreferences.interests && post.hashtags.some((tag: any) => userPreferences.interests.includes(tag))) {
       priority += 0.1;
     }
     
@@ -180,7 +180,7 @@ export const businessLogic = {
 // Data mapping
 export const mappers = {
   // Map post data for different views
-  mapPostForFeed: (post) => {
+  mapPostForFeed: (post: any) => {
     return {
       ...post,
       displayType: 'feed',
@@ -190,7 +190,7 @@ export const mappers = {
     };
   },
 
-  mapPostForDetail: (post) => {
+  mapPostForDetail: (post: any) => {
     return {
       ...post,
       displayType: 'detail',
@@ -201,7 +201,7 @@ export const mappers = {
     };
   },
 
-  mapPostForProfile: (post) => {
+  mapPostForProfile: (post: any) => {
     return {
       ...post,
       displayType: 'profile',
@@ -212,7 +212,7 @@ export const mappers = {
   },
 
   // Map post data for editing
-  mapPostForEdit: (post) => {
+  mapPostForEdit: (post: any) => {
     return {
       id: post.id,
       content: post.content.text,
@@ -224,7 +224,7 @@ export const mappers = {
   },
 
   // Map post data for creation
-  mapPostForCreate: (formData) => {
+  mapPostForCreate: (formData: any) => {
     const processedContent = contentProcessors.processPostContent(formData.content);
     
     return {
@@ -246,9 +246,9 @@ export const mappers = {
 };
 
 // Content processing
-export const contentProcessors = {
+export const contentProcessorsTransformer = {
   // Process post content for display
-  processPostContent: (content) => {
+  processPostContent: (content: any) => {
     if (!content) return { text: '', formatted: '', hashtags: [], mentions: [] };
     
     const processed = contentProcessors.processPostContent(content);
@@ -263,10 +263,10 @@ export const contentProcessors = {
   },
 
   // Process images for display
-  processImages: (images) => {
+  processImages: (images: any) => {
     if (!Array.isArray(images)) return [];
     
-    return images.map((image, index) => ({
+    return images.map((image: any, index: number) => ({
       url: image,
       alt: `Post image ${index + 1}`,
       thumbnail: image,
@@ -276,10 +276,10 @@ export const contentProcessors = {
   },
 
   // Process links for display
-  processLinks: (links) => {
+  processLinks: (links: any) => {
     if (!Array.isArray(links)) return [];
     
-    return links.map(link => ({
+    return links.map((link: any) => ({
       url: link.url,
       title: link.title || 'Untitled',
       description: link.description || '',
@@ -292,41 +292,41 @@ export const contentProcessors = {
 // Filter and sort functions
 export const filters = {
   // Filter posts by user role and permissions
-  filterPostsByUser: (posts, userId, userRole) => {
-    return posts.filter(post => businessLogic.canUserInteract(post, userId, userRole));
+  filterPostsByUser: (posts: any, userId: any, userRole: any) => {
+    return posts.filter((post: any) => businessLogic.canUserInteract(post, userId, userRole));
   },
 
   // Filter posts by engagement level
-  filterPostsByEngagement: (posts, minEngagement = 0) => {
-    return posts.filter(post => {
+  filterPostsByEngagement: (posts: any, minEngagement: number = 0) => {
+    return posts.filter((post: any) => {
       const score = businessLogic.calculateEngagementScore(post);
       return score.totalEngagement >= minEngagement;
     });
   },
 
   // Filter posts by date range
-  filterPostsByDate: (posts, startDate, endDate) => {
+  filterPostsByDate: (posts: any, startDate: any, endDate: any) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     
-    return posts.filter(post => {
+    return posts.filter((post: any) => {
       const postDate = new Date(post.createdAt);
       return postDate >= start && postDate <= end;
     });
   },
 
   // Filter posts by hashtags
-  filterPostsByHashtags: (posts, hashtags) => {
+  filterPostsByHashtags: (posts: any, hashtags: any) => {
     if (!Array.isArray(hashtags) || hashtags.length === 0) return posts;
     
-    return posts.filter(post => 
-      post.hashtags && post.hashtags.some(tag => hashtags.includes(tag))
+    return posts.filter((post: any) => 
+      post.hashtags && post.hashtags.some((tag: any) => hashtags.includes(tag))
     );
   },
 
   // Sort posts by priority
-  sortPostsByPriority: (posts, userPreferences = {}) => {
-    return posts.sort((a, b) => {
+  sortPostsByPriority: (posts: any, userPreferences: any = {}) => {
+    return posts.sort((a: any, b: any) => {
       const priorityA = businessLogic.calculatePostPriority(a, userPreferences);
       const priorityB = businessLogic.calculatePostPriority(b, userPreferences);
       return priorityB - priorityA;
@@ -334,8 +334,8 @@ export const filters = {
   },
 
   // Sort posts by engagement
-  sortPostsByEngagement: (posts) => {
-    return posts.sort((a, b) => {
+  sortPostsByEngagement: (posts: any) => {
+    return posts.sort((a: any, b: any) => {
       const scoreA = businessLogic.calculateEngagementScore(a);
       const scoreB = businessLogic.calculateEngagementScore(b);
       return scoreB.weightedScore - scoreA.weightedScore;
@@ -346,7 +346,7 @@ export const filters = {
 // Analytics
 export const analytics = {
   // Calculate post performance metrics
-  calculatePostMetrics: (post) => {
+  calculatePostMetrics: (post: any) => {
     const engagementScore = businessLogic.calculateEngagementScore(post);
     const timeSincePost = Date.now() - new Date(post.createdAt).getTime();
     const hoursSincePost = timeSincePost / (1000 * 60 * 60);
@@ -361,10 +361,10 @@ export const analytics = {
   },
 
   // Calculate user engagement metrics
-  calculateUserEngagement: (posts) => {
+  calculateUserEngagement: (posts: any) => {
     if (!Array.isArray(posts) || posts.length === 0) return { totalPosts: 0, totalEngagement: 0, avgEngagement: 0 };
     
-    const totalEngagement = posts.reduce((sum, post) => {
+    const totalEngagement = posts.reduce((sum: any, post: any) => {
       const score = businessLogic.calculateEngagementScore(post);
       return sum + score.totalEngagement;
     }, 0);
@@ -385,7 +385,7 @@ export default {
   transformers,
   businessLogic,
   mappers,
-  contentProcessors,
+  contentProcessors: contentProcessorsTransformer,
   filters,
   analytics
 };

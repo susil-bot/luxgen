@@ -1,12 +1,19 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import RegisterForm from '../RegisterForm';
-import apiServices from '../../../services/apiServices';
+import ModernRegisterForm from '../ModernRegisterForm';
+import { apiServices } from '../../../core/api/ApiService';
 import { toast } from 'react-hot-toast';
 
 // Mock dependencies
-jest.mock('../../../services/apiServices');
+const mockRegister = jest.fn();
+jest.mock('../../../core/api/ApiService', () => ({
+  apiServices: {
+    auth: {
+      register: mockRegister,
+    },
+  },
+}));
 jest.mock('react-hot-toast', () => ({
   success: jest.fn(),
   error: jest.fn(),
@@ -38,13 +45,13 @@ describe('RegisterForm', () => {
     mockNavigate.mockClear();
   });
 
-  const renderComponent = () => {
-    return render(
-      <BrowserRouter>
-        <RegisterForm />
-      </BrowserRouter>
-    );
-  };
+const renderComponent = () => {
+  return render(
+    <BrowserRouter>
+      <ModernRegisterForm />
+    </BrowserRouter>
+  );
+};
 
   describe('Component Rendering', () => {
     test('renders registration form with step indicator', () => {
@@ -271,7 +278,7 @@ describe('RegisterForm', () => {
 
   describe('API Error Handling', () => {
     test('shows email error in step 1 when email already exists', async () => {
-      apiServices.register.mockResolvedValue({
+      mockRegister.mockResolvedValue({
         success: false,
         message: 'Email already exists'
       });
@@ -315,7 +322,7 @@ describe('RegisterForm', () => {
     });
 
     test('shows password error in step 1 when password is weak', async () => {
-      apiServices.register.mockResolvedValue({
+      mockRegister.mockResolvedValue({
         success: false,
         message: 'Password is too weak'
       });
@@ -359,7 +366,7 @@ describe('RegisterForm', () => {
     });
 
     test('shows personal info error in step 2 when name is missing', async () => {
-      apiServices.register.mockResolvedValue({
+      mockRegister.mockResolvedValue({
         success: false,
         message: 'First name is required'
       });
@@ -403,7 +410,7 @@ describe('RegisterForm', () => {
     });
 
     test('shows terms error in step 3 when terms not accepted', async () => {
-      apiServices.register.mockResolvedValue({
+      mockRegister.mockResolvedValue({
         success: false,
         message: 'Terms and conditions must be accepted'
       });
@@ -449,7 +456,7 @@ describe('RegisterForm', () => {
 
   describe('Successful Registration', () => {
     test('handles successful registration with automatic login', async () => {
-      apiServices.register.mockResolvedValue({
+      mockRegister.mockResolvedValue({
         success: true,
         data: {
           token: 'mock-token',
@@ -500,7 +507,7 @@ describe('RegisterForm', () => {
     });
 
     test('handles successful registration with email verification', async () => {
-      apiServices.register.mockResolvedValue({
+      mockRegister.mockResolvedValue({
         success: true,
         data: {
           registrationId: 'reg-123'
@@ -568,7 +575,7 @@ describe('RegisterForm', () => {
     });
 
     test('clears step errors when user makes changes', async () => {
-      apiServices.register.mockResolvedValue({
+      mockRegister.mockResolvedValue({
         success: false,
         message: 'Email already exists'
       });
@@ -639,7 +646,7 @@ describe('RegisterForm', () => {
 
   describe('Loading States', () => {
     test('shows loading state during submission', async () => {
-      apiServices.register.mockImplementation(() => 
+      mockRegister.mockImplementation(() => 
         new Promise(resolve => setTimeout(() => resolve({ success: true }), 100))
       );
 

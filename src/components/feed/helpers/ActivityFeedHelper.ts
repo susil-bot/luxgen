@@ -3,8 +3,8 @@
  * Utility functions for ActivityFeed component
  */
 
-import { FEED_CONSTANTS } from '../constants/constants';
-import { ActivityFeedItem, ActivityFeedFilter } from '../types/types';
+import { FEED_CONSTANTS } from '../constants/CONSTANTS';
+import { ActivityFeedItem, ActivityFeedFilter } from '../types/Types.types';
 
 /**
  * Filter activities based on search term and filter type

@@ -35,7 +35,7 @@ export const TENANT_CONFIGS: Record<string, TenantConfig> = {
     slug: 'luxgen',
     domain: 'luxgen.com',
     subdomain: 'luxgen',
-    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+    apiUrl: process.env.REACT_APP_API_URL || 'https://luxgen-backend.netlify.app',
     theme: {
       primaryColor: '#2563eb',
       secondaryColor: '#1e40af',
@@ -59,7 +59,7 @@ export const TENANT_CONFIGS: Record<string, TenantConfig> = {
     slug: 'demo',
     domain: 'demo.luxgen.com',
     subdomain: 'demo',
-    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+    apiUrl: process.env.REACT_APP_API_URL || 'https://luxgen-backend.netlify.app',
     theme: {
       primaryColor: '#059669',
       secondaryColor: '#047857',
@@ -83,7 +83,7 @@ export const TENANT_CONFIGS: Record<string, TenantConfig> = {
     slug: 'test',
     domain: 'test.luxgen.com',
     subdomain: 'test',
-    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+    apiUrl: process.env.REACT_APP_API_URL || 'https://luxgen-backend.netlify.app',
     theme: {
       primaryColor: '#dc2626',
       secondaryColor: '#b91c1c',

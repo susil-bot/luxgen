@@ -1,4 +1,4 @@
-import { JobPostItem } from './types';
+import { JobPostItem } from './Types.types';
 
 export interface JobsFeedTransformer {
   transformJobs(jobs: JobPostItem[]): JobPostItem[];

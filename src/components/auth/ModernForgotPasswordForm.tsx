@@ -53,7 +53,7 @@ const ModernForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess
       
       if (response.success) {
         setIsSubmitted(true);
-        showSuccess('Password reset instructions sent to your email!');
+        showSuccess('Success!', 'Password reset instructions sent to your email!');
         onSuccess?.();
       } else {
         setApiError({
@@ -162,7 +162,7 @@ const ModernForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSuccess
             <div className="mb-6">
               <ErrorDisplay
                 error={apiError}
-                context="forgot-password"
+                context="password-reset"
                 onDismiss={() => setApiError(null)}
               />
             </div>

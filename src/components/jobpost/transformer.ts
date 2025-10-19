@@ -1,4 +1,4 @@
-import { JobPostItem, JobPostStats, User } from './types';
+import { JobPostItem, JobPostStats, User } from './Types.types';
 
 /**
  * Transformer interface for data transformation operations

@@ -180,8 +180,8 @@ const FeedMain: React.FC<FeedMainProps> = () => {
 
       {/* Jobs Feed Section */}
       <JobsFeed
-        onError={(error) => console.error('JobsFeed Error:', error)}
-        onSuccess={(message) => console.log('JobsFeed Success:', message)}
+        onError={(error: any) => console.error('JobsFeed Error:', error)}
+        onSuccess={(message: any) => console.log('JobsFeed Success:', message)}
       />
     </div>
   );

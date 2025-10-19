@@ -16,7 +16,7 @@ export const CONSTANTS = {
 
 // Validation functions
 export const validate = {
-  postContent: (content) => {
+  postContent: (content: any) => {
     if (!content || typeof content !== 'string') {
       return { isValid: false, error: 'Content is required' };
     }
@@ -26,7 +26,7 @@ export const validate = {
     return { isValid: true };
   },
 
-  commentContent: (content) => {
+  commentContent: (content: any) => {
     if (!content || typeof content !== 'string') {
       return { isValid: false, error: 'Comment content is required' };
     }
@@ -36,7 +36,7 @@ export const validate = {
     return { isValid: true };
   },
 
-  hashtags: (hashtags) => {
+  hashtags: (hashtags: any) => {
     if (!Array.isArray(hashtags)) {
       return { isValid: false, error: 'Hashtags must be an array' };
     }
@@ -46,7 +46,7 @@ export const validate = {
     return { isValid: true };
   },
 
-  mentions: (mentions) => {
+  mentions: (mentions: any) => {
     if (!Array.isArray(mentions)) {
       return { isValid: false, error: 'Mentions must be an array' };
     }
@@ -56,7 +56,7 @@ export const validate = {
     return { isValid: true };
   },
 
-  reactionType: (reaction) => {
+  reactionType: (reaction: any) => {
     if (!CONSTANTS.REACTION_TYPES.includes(reaction)) {
       return { isValid: false, error: 'Invalid reaction type' };
     }
@@ -66,19 +66,19 @@ export const validate = {
 
 // Utility functions
 export const utils = {
-  extractHashtags: (text) => {
+  extractHashtags: (text: any) => {
     const hashtagRegex = /#[\w\u0590-\u05ff]+/g;
     const hashtags = text.match(hashtagRegex) || [];
-    return hashtags.map(tag => tag.substring(1)); // Remove # symbol
+    return hashtags.map((tag: any) => tag.substring(1)); // Remove # symbol
   },
 
-  extractMentions: (text) => {
+  extractMentions: (text: any) => {
     const mentionRegex = /@[\w\u0590-\u05ff]+/g;
     const mentions = text.match(mentionRegex) || [];
-    return mentions.map(mention => mention.substring(1)); // Remove @ symbol
+    return mentions.map((mention: any) => mention.substring(1)); // Remove @ symbol
   },
 
-  formatEngagementCount: (count) => {
+  formatEngagementCount: (count: any) => {
     if (count >= 1000000) {
       return `${(count / 1000000).toFixed(1)}M`;
     }
@@ -88,35 +88,35 @@ export const utils = {
     return count.toString();
   },
 
-  calculateEngagementRate: (likes, comments, shares, views) => {
+  calculateEngagementRate: (likes: any, comments: any, shares: any, views: any) => {
     if (views === 0) return 0;
     const totalEngagement = likes + comments + shares;
     return ((totalEngagement / views) * 100).toFixed(1);
   },
 
-  isPostLiked: (post, userId) => {
-    return post.likes && post.likes.some(like => like.userId === userId);
+  isPostLiked: (post: any, userId: any) => {
+    return post.likes && post.likes.some((like: any) => like.userId === userId);
   },
 
-  isPostSaved: (post, userId) => {
+  isPostSaved: (post: any, userId: any) => {
     return post.savedBy && post.savedBy.includes(userId);
   },
 
-  canEditPost: (post, userId) => {
+  canEditPost: (post: any, userId: any) => {
     return post.author.userId === userId;
   },
 
-  canDeletePost: (post, userId, userRole) => {
+  canDeletePost: (post: any, userId: any, userRole: any) => {
     return post.author.userId === userId || userRole === 'super_admin';
   }
 };
 
 // Formatting functions
 export const formatters = {
-  formatPostDate: (dateString) => {
+  formatPostDate: (dateString: any) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     
     if (diffInSeconds < 60) return 'Just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
@@ -126,7 +126,7 @@ export const formatters = {
     return date.toLocaleDateString();
   },
 
-  formatPostContent: (content) => {
+  formatPostContent: (content: any) => {
     // Convert hashtags to clickable links
     let formatted = content.replace(/#[\w\u0590-\u05ff]+/g, '<span class="hashtag">$&</span>');
     
@@ -143,7 +143,7 @@ export const formatters = {
     return formatted;
   },
 
-  formatEngagementStats: (post) => {
+  formatEngagementStats: (post: any) => {
     const { likes, comments, shares, views } = post.engagement;
     const totalEngagement = likes + comments + shares;
     const engagementRate = utils.calculateEngagementRate(likes, comments, shares, views);
@@ -158,19 +158,19 @@ export const formatters = {
     };
   },
 
-  formatPostVisibility: (visibility) => {
+  formatPostVisibility: (visibility: any) => {
     const visibilityMap = {
       'public': 'Public',
       'connections': 'Connections only',
       'private': 'Private'
     };
-    return visibilityMap[visibility] || 'Unknown';
+    return visibilityMap[visibility as keyof typeof visibilityMap] || 'Unknown';
   }
 };
 
 // Content processing functions
 export const contentProcessors = {
-  processPostContent: (content) => {
+  processPostContent: (content: any) => {
     const hashtags = utils.extractHashtags(content);
     const mentions = utils.extractMentions(content);
     const formattedContent = formatters.formatPostContent(content);
@@ -185,7 +185,7 @@ export const contentProcessors = {
     };
   },
 
-  processImageContent: (images) => {
+  processImageContent: (images: any) => {
     if (!Array.isArray(images)) return [];
     
     return images.map(image => ({
@@ -196,7 +196,7 @@ export const contentProcessors = {
     }));
   },
 
-  processLinkContent: (links) => {
+  processLinkContent: (links: any) => {
     if (!Array.isArray(links)) return [];
     
     return links.map(link => ({
@@ -211,8 +211,8 @@ export const contentProcessors = {
 
 // Post filtering and sorting
 export const filters = {
-  filterPostsByVisibility: (posts, userRole, userId) => {
-    return posts.filter(post => {
+  filterPostsByVisibility: (posts: any, userRole: any, userId: any) => {
+    return posts.filter((post: any) => {
       if (post.visibility.type === 'public') return true;
       if (post.visibility.type === 'connections' && userRole !== 'guest') return true;
       if (post.visibility.type === 'private' && post.author.userId === userId) return true;
@@ -220,26 +220,26 @@ export const filters = {
     });
   },
 
-  filterPostsByHashtag: (posts, hashtag) => {
-    return posts.filter(post => 
+  filterPostsByHashtag: (posts: any, hashtag: any) => {
+    return posts.filter((post: any) => 
       post.hashtags && post.hashtags.includes(hashtag)
     );
   },
 
-  filterPostsByUser: (posts, userId) => {
-    return posts.filter(post => post.author.userId === userId);
+  filterPostsByUser: (posts: any, userId: any) => {
+    return posts.filter((post: any) => post.author.userId === userId);
   },
 
-  sortPostsByDate: (posts, order = 'desc') => {
-    return posts.sort((a, b) => {
+  sortPostsByDate: (posts: any, order: string = 'desc') => {
+    return posts.sort((a: any, b: any) => {
       const dateA = new Date(a.createdAt);
       const dateB = new Date(b.createdAt);
-      return order === 'desc' ? dateB - dateA : dateA - dateB;
+      return order === 'desc' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
     });
   },
 
-  sortPostsByEngagement: (posts) => {
-    return posts.sort((a, b) => {
+  sortPostsByEngagement: (posts: any) => {
+    return posts.sort((a: any, b: any) => {
       const engagementA = a.engagement.likes + a.engagement.comments + a.engagement.shares;
       const engagementB = b.engagement.likes + b.engagement.comments + b.engagement.shares;
       return engagementB - engagementA;
@@ -249,30 +249,30 @@ export const filters = {
 
 // Error handling
 export const errorHandlers = {
-  handlePostCreationError: (error) => {
+  handlePostCreationError: (error: any) => {
     console.error('Post creation error:', error);
     return {
       success: false,
       message: 'Failed to create post. Please try again.',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     };
   },
 
-  handlePostUpdateError: (error) => {
+  handlePostUpdateError: (error: any) => {
     console.error('Post update error:', error);
     return {
       success: false,
       message: 'Failed to update post. Please try again.',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     };
   },
 
-  handlePostDeleteError: (error) => {
+  handlePostDeleteError: (error: any) => {
     console.error('Post deletion error:', error);
     return {
       success: false,
       message: 'Failed to delete post. Please try again.',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     };
   }
 };

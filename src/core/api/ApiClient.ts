@@ -307,9 +307,14 @@ class RobustApiClient {
   }
 }
 
+// Debug environment variables
+console.log('🔍 Environment Debug:');
+console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 // Create singleton instance
 const apiClient = new RobustApiClient({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  baseURL: process.env.REACT_APP_API_URL || 'https://luxgen-backend.netlify.app',
   timeout: 10000,
   retryAttempts: 3,
   retryDelay: 1000,

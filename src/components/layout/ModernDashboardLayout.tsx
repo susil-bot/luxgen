@@ -22,7 +22,7 @@ const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({
       <ModernNavigation />
       
       <main className="py-8">
-        <ResponsiveContainer maxWidth="7xl" padding="lg">
+        <ResponsiveContainer maxWidth="2xl" padding="lg">
           {/* Header */}
           {(title || subtitle || actions) && (
             <div className="mb-8">

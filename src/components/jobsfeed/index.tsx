@@ -5,10 +5,10 @@ import {
   ExternalLink, ChevronDown, Filter, Search,
   Briefcase, DollarSign, Star
 } from 'lucide-react';
-import { JobsFeedHelper } from './JobsFeedHelper';
+import { JobsFeedHelper } from './jobsFeedHelper';
 import { JobsFeedFetcher } from './fetcher';
 import { JobsFeedTransformer } from './transformer';
-import { JobsFeedProps, JobsFeedState, JobPostItem } from './types';
+import { JobsFeedProps, JobsFeedState, JobPostItem } from './Types.types';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 
 const JobsFeed: React.FC<JobsFeedProps> = ({ 

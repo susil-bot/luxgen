@@ -132,7 +132,7 @@ const ModernRegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchTo
       });
       
       if (response.success) {
-        showSuccess('Registration successful! Welcome to LuxGen.');
+        showSuccess('Success!', 'Registration successful! Welcome to LuxGen.');
         onSuccess?.();
         navigate('/dashboard');
       } else {

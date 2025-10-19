@@ -5,11 +5,11 @@ import {
   AlertCircle, Loader2, Filter, Search, Star,
   Building, GraduationCap, DollarSign
 } from 'lucide-react';
-import { JobPostHelper } from './JobPostHelper';
+import { JobPostHelper } from './jobPostHelper';
 import { JobPostFetcher } from './fetcher';
 import { JobPostTransformer } from './transformer';
-import { JobPostProps, JobPostItem, CreateJobPostData } from './types';
-import { JOB_POST_CONSTANTS } from './constants';
+import { JobPostProps, JobPostItem, CreateJobPostData } from './Types.types';
+import { JOB_POST_CONSTANTS } from './CONSTANTS';
 import { Button } from '../common/SimpleThemeComponents';
 import JobPostForm from './JobPostForm';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';

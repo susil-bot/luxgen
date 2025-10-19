@@ -16,10 +16,10 @@ interface LoginFormProps {
 }
 
 const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
-  const { login, loading } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { showSuccess, showError } = useNotifications();
+  const { showSuccess } = useNotifications();
   
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -37,7 +37,7 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   useEffect(() => {
     const state = location.state as any;
     if (state?.message) {
-      showSuccess(state.message);
+      showSuccess('Success!', state.message);
       if (state.email) {
         setFormData(prev => ({ ...prev, email: state.email }));
       }
@@ -76,7 +76,7 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       const response = await login(formData.email, formData.password);
       
       if (response.success) {
-        showSuccess('Login successful! Welcome back.');
+        showSuccess('Success!', 'Login successful! Welcome back.');
         onSuccess?.();
         navigate('/dashboard');
       } else {
@@ -103,27 +103,28 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   };
 
   const getInputClasses = (field: string) => {
-    const baseClasses = "w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
-    const errorClasses = errors[field] ? "border-red-300 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500";
-    const focusClasses = isFocused === field ? "ring-2 ring-blue-500 border-blue-500" : "";
+    const baseClasses = "w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm sm:text-base";
+    const errorClasses = errors[field] ? "border-red-300 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500 bg-white";
+    const focusClasses = isFocused === field ? "ring-2 ring-blue-500 border-blue-500 shadow-sm" : "";
+    const disabledClasses = isLoading ? "opacity-50 cursor-not-allowed" : "";
     
-    return `${baseClasses} ${errorClasses} ${focusClasses}`;
+    return `${baseClasses} ${errorClasses} ${focusClasses} ${disabledClasses}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-md mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
-            <LogIn className="w-8 h-8 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+            <LogIn className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your account to continue</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <p className="text-sm sm:text-base text-gray-600">Sign in to your account to continue</p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
           {apiError && (
             <div className="mb-6">
               <ErrorDisplay
@@ -134,7 +135,7 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -259,7 +260,7 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {isLoading ? (
                 <>
@@ -291,7 +292,7 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+              className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -303,7 +304,7 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             </button>
             <button
               type="button"
-              className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+              className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -314,12 +315,12 @@ const ModernLoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-gray-600">
+        <div className="text-center mt-6 sm:mt-8">
+          <p className="text-sm sm:text-base text-gray-600">
             Don't have an account?{' '}
             <button
               onClick={() => navigate('/register')}
-              className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+              className="text-blue-600 hover:text-blue-800 font-medium transition-colors underline-offset-4 hover:underline"
             >
               Sign up for free
             </button>

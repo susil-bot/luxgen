@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '../../../contexts/ThemeContext';
 import { AuthProvider } from '../../../contexts/AuthContext';
-import NotificationSystem from '../NotificationSystem';
+import { NotificationProvider } from '../NotificationSystem';
 
 // Mock the API services
 jest.mock('../../../services/apiServices', () => ({
@@ -57,14 +57,16 @@ const mockAudio = {
   muted: false,
 };
 
-global.Audio = jest.fn(() => mockAudio);
+global.Audio = jest.fn(() => mockAudio) as any;
 
 const renderNotificationSystem = () => {
   return render(
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <NotificationSystem />
+          <NotificationProvider>
+            <div>Test Content</div>
+          </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

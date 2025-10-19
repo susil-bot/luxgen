@@ -1,4 +1,4 @@
-import { JobPostItem, JobPostStats, CreateJobPostData, UpdateJobPostData, JobPostQueryParams, JobPostResponse } from './types';
+import { JobPostItem, JobPostStats, CreateJobPostData, UpdateJobPostData, JobPostQueryParams, JobPostResponse } from './Types.types';
 
 /**
  * Fetcher interface for API operations

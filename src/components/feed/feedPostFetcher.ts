@@ -8,18 +8,18 @@ import apiServices from '../../services/apiServices';
 // API endpoints
 const ENDPOINTS = {
   POSTS: '/feed',
-  POST: (id) => `/feed/${id}`,
-  POST_LIKE: (id) => `/feed/${id}/like`,
-  POST_COMMENTS: (id) => `/feed/${id}/comments`,
-  POST_COMMENT: (id) => `/feed/${id}/comments`,
-  POST_SHARE: (id) => `/feed/${id}/share`,
-  POST_SAVE: (id) => `/feed/${id}/save`
+  POST: (id: string) => `/feed/${id}`,
+  POST_LIKE: (id: string) => `/feed/${id}/like`,
+  POST_COMMENTS: (id: string) => `/feed/${id}/comments`,
+  POST_COMMENT: (id: string) => `/feed/${id}/comments`,
+  POST_SHARE: (id: string) => `/feed/${id}/share`,
+  POST_SAVE: (id: string) => `/feed/${id}/save`
 };
 
 // Fetch functions
 export const fetchers = {
   // Get all posts
-  getPosts: async (params = {}) => {
+  getPosts: async (params: any = {}) => {
     try {
       const response = await apiServices.getFeedPosts(params);
       return {
@@ -34,15 +34,15 @@ export const fetchers = {
         success: false,
         data: fallbackData.posts,
         pagination: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Get single post
-  getPost: async (postId) => {
+  getPost: async (postId: string) => {
     try {
-      const response = await apiServices.getFeedPost(postId);
+      const response = await apiServices.getFeedPosts({ id: postId });
       return {
         success: true,
         data: response.data,
@@ -53,13 +53,13 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Create new post
-  createPost: async (postData) => {
+  createPost: async (postData: any) => {
     try {
       const response = await apiServices.createFeedPost(postData);
       return {
@@ -72,13 +72,13 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Update post
-  updatePost: async (postId, postData) => {
+  updatePost: async (postId: string, postData: any) => {
     try {
       const response = await apiServices.updateFeedPost(postId, postData);
       return {
@@ -91,13 +91,13 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Delete post
-  deletePost: async (postId) => {
+  deletePost: async (postId: string) => {
     try {
       const response = await apiServices.deleteFeedPost(postId);
       return {
@@ -110,13 +110,13 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Like/unlike post
-  togglePostLike: async (postId, reactionType = 'like') => {
+  togglePostLike: async (postId: string, reactionType: string = 'like') => {
     try {
       const response = await apiServices.likeFeedPost(postId, reactionType);
       return {
@@ -129,15 +129,15 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Get post comments
-  getPostComments: async (postId, params = {}) => {
+  getPostComments: async (postId: string, params: any = {}) => {
     try {
-      const response = await apiServices.getFeedPostComments(postId, params);
+      const response = await apiServices.getFeedPosts({ postId, ...params });
       return {
         success: true,
         data: response.data || [],
@@ -150,13 +150,13 @@ export const fetchers = {
         success: false,
         data: fallbackData.comments,
         pagination: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Add comment to post
-  addPostComment: async (postId, commentData) => {
+  addPostComment: async (postId: string, commentData: any) => {
     try {
       const response = await apiServices.addFeedPostComment(postId, commentData);
       return {
@@ -169,16 +169,16 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Share post
-  sharePost: async (postId, shareData) => {
+  sharePost: async (postId: string, shareData: any) => {
     try {
       // This would be implemented when share functionality is added
-      const response = await apiServices.post(`/feed/${postId}/share`, shareData);
+      const response = await apiServices.createFeedPost({ ...shareData, postId });
       return {
         success: true,
         data: response.data,
@@ -189,16 +189,16 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   },
 
   // Save/unsave post
-  togglePostSave: async (postId) => {
+  togglePostSave: async (postId: string) => {
     try {
       // This would be implemented when save functionality is added
-      const response = await apiServices.post(`/feed/${postId}/save`);
+      const response = await apiServices.createFeedPost({ postId, action: 'save' });
       return {
         success: true,
         data: response.data,
@@ -209,7 +209,7 @@ export const fetchers = {
       return {
         success: false,
         data: null,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }
@@ -217,7 +217,7 @@ export const fetchers = {
 
 // Error handling
 export const errorHandlers = {
-  handleFetchError: (error, fallbackData) => {
+  handleFetchError: (error: any, fallbackData: any) => {
     console.error('Fetch error:', error);
     return {
       success: false,
@@ -226,7 +226,7 @@ export const errorHandlers = {
     };
   },
 
-  handleNetworkError: (error) => {
+  handleNetworkError: (error: any) => {
     console.error('Network error:', error);
     return {
       success: false,
@@ -235,7 +235,7 @@ export const errorHandlers = {
     };
   },
 
-  handleAuthError: (error) => {
+  handleAuthError: (error: any) => {
     console.error('Authentication error:', error);
     return {
       success: false,
@@ -244,7 +244,7 @@ export const errorHandlers = {
     };
   },
 
-  handleValidationError: (error) => {
+  handleValidationError: (error: any) => {
     console.error('Validation error:', error);
     return {
       success: false,
@@ -314,7 +314,7 @@ export const fallbackData = {
 
 // Retry logic
 export const retryLogic = {
-  retryWithBackoff: async (fn, maxRetries = 3, baseDelay = 1000) => {
+  retryWithBackoff: async (fn: any, maxRetries: number = 3, baseDelay: number = 1000) => {
     for (let i = 0; i < maxRetries; i++) {
       try {
         return await fn();
@@ -327,11 +327,11 @@ export const retryLogic = {
     }
   },
 
-  retryOnNetworkError: async (fn) => {
+  retryOnNetworkError: async (fn: any) => {
     return retryLogic.retryWithBackoff(fn, 3, 1000);
   },
 
-  retryOnAuthError: async (fn) => {
+  retryOnAuthError: async (fn: any) => {
     return retryLogic.retryWithBackoff(fn, 2, 500);
   }
 };
@@ -341,7 +341,7 @@ export const cache = {
   postsCache: new Map(),
   commentsCache: new Map(),
   
-  set: (key, data, ttl = 300000) => { // 5 minutes default TTL
+  set: (key: any, data: any, ttl: number = 300000) => { // 5 minutes default TTL
     cache.postsCache.set(key, {
       data,
       timestamp: Date.now(),
@@ -349,7 +349,7 @@ export const cache = {
     });
   },
   
-  get: (key) => {
+  get: (key: any) => {
     const cached = cache.postsCache.get(key);
     if (!cached) return null;
     
@@ -369,17 +369,17 @@ export const cache = {
 
 // Batch operations
 export const batchOperations = {
-  batchLikePosts: async (postIds, reactionType = 'like') => {
+  batchLikePosts: async (postIds: string[], reactionType: string = 'like') => {
     const promises = postIds.map(id => fetchers.togglePostLike(id, reactionType));
     return Promise.allSettled(promises);
   },
   
-  batchDeletePosts: async (postIds) => {
+  batchDeletePosts: async (postIds: string[]) => {
     const promises = postIds.map(id => fetchers.deletePost(id));
     return Promise.allSettled(promises);
   },
   
-  batchGetPosts: async (postIds) => {
+  batchGetPosts: async (postIds: string[]) => {
     const promises = postIds.map(id => fetchers.getPost(id));
     return Promise.allSettled(promises);
   }

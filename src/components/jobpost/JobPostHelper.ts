@@ -1,4 +1,4 @@
-import { JobPostItem, JobPostFilters, JobPostStats } from './types';
+import { JobPostItem, JobPostFilters, JobPostStats } from './Types.types';
 
 export class JobPostHelper {
   /**

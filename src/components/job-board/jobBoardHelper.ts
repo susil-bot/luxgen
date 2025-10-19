@@ -142,7 +142,7 @@ export const utils = {
   formatDate: (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
     if (diffInDays === 0) return 'Today';
     if (diffInDays === 1) return 'Yesterday';
@@ -186,7 +186,7 @@ export const utils = {
   calculateJobAge: (postedDate) => {
     const posted = new Date(postedDate);
     const now = new Date();
-    const diffInDays = Math.floor((now - posted) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor((now.getTime() - posted.getTime()) / (1000 * 60 * 60 * 24));
     return diffInDays;
   },
 
@@ -212,6 +212,43 @@ export const utils = {
     );
     
     return foundSkills;
+  },
+
+  categorizeRequirement: (requirement) => {
+    const req = requirement.toLowerCase();
+    if (req.includes('experience') || req.includes('years')) return 'experience';
+    if (req.includes('degree') || req.includes('education') || req.includes('bachelor') || req.includes('master')) return 'education';
+    if (req.includes('skill') || req.includes('technology') || req.includes('programming')) return 'skill';
+    if (req.includes('certification') || req.includes('certificate')) return 'certification';
+    if (req.includes('language') || req.includes('english')) return 'language';
+    return 'other';
+  },
+
+  calculateRequirementPriority: (requirement) => {
+    const req = requirement.toLowerCase();
+    if (req.includes('required') || req.includes('must') || req.includes('essential')) return 'high';
+    if (req.includes('preferred') || req.includes('nice to have') || req.includes('bonus')) return 'low';
+    if (req.includes('experience') || req.includes('years')) return 'high';
+    if (req.includes('degree') || req.includes('education')) return 'medium';
+    return 'medium';
+  },
+
+  categorizeSkill: (skill) => {
+    const skillLower = skill.toLowerCase();
+    if (skillLower.includes('javascript') || skillLower.includes('python') || skillLower.includes('java') || skillLower.includes('react') || skillLower.includes('node')) return 'programming';
+    if (skillLower.includes('html') || skillLower.includes('css') || skillLower.includes('frontend')) return 'frontend';
+    if (skillLower.includes('database') || skillLower.includes('sql') || skillLower.includes('mongodb')) return 'database';
+    if (skillLower.includes('aws') || skillLower.includes('cloud') || skillLower.includes('devops')) return 'infrastructure';
+    if (skillLower.includes('agile') || skillLower.includes('scrum') || skillLower.includes('project')) return 'methodology';
+    return 'other';
+  },
+
+  calculateSkillLevel: (skill) => {
+    const skillLower = skill.toLowerCase();
+    if (skillLower.includes('senior') || skillLower.includes('lead') || skillLower.includes('expert')) return 'senior';
+    if (skillLower.includes('junior') || skillLower.includes('entry') || skillLower.includes('beginner')) return 'junior';
+    if (skillLower.includes('intermediate') || skillLower.includes('mid')) return 'intermediate';
+    return 'intermediate';
   },
 
   matchSkills: (jobSkills, candidateSkills) => {
@@ -431,7 +468,7 @@ export const filters = {
     return jobs.sort((a, b) => {
       const dateA = new Date(a.postedAt);
       const dateB = new Date(b.postedAt);
-      return order === 'desc' ? dateB - dateA : dateA - dateB;
+      return order === 'desc' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
     });
   },
 

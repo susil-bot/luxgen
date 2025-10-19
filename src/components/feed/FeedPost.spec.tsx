@@ -4,9 +4,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { CONSTANTS, validate, utils, formatters, contentProcessors, filters } from './FeedPostHelper';
-import { fetchers, errorHandlers, fallbackData, retryLogic, cache, batchOperations } from './FeedPostFetcher';
-import { transformers, businessLogic, mappers, analytics } from './FeedPostTransformer';
+import { CONSTANTS, validate, utils, formatters, contentProcessors, filters } from './feedPostHelper';
+import { fetchers, errorHandlers, fallbackData, retryLogic, cache, batchOperations } from './feedPostFetcher';
+import { transformers, businessLogic, mappers, analytics } from './feedPostTransformer';
 
 // Mock API services
 jest.mock('../../services/apiServices', () => ({
@@ -409,12 +409,13 @@ describe('FeedPost Module', () => {
         };
 
         const transformed = transformers.transformPost(apiPost);
-        expect(transformed.id).toBe('1');
-        expect(transformed.author.name).toBe('John Doe');
-        expect(transformed.content.text).toBe('Hello world');
-        expect(transformed.engagement.likes).toBe(10);
-        expect(transformed.hashtags).toEqual(['react']);
-        expect(transformed.formattedDate).toBeDefined();
+        expect(transformed).not.toBeNull();
+        expect(transformed!.id).toBe('1');
+        expect(transformed!.author.name).toBe('John Doe');
+        expect(transformed!.content.text).toBe('Hello world');
+        expect(transformed!.engagement.likes).toBe(10);
+        expect(transformed!.hashtags).toEqual(['react']);
+        expect(transformed!.formattedDate).toBeDefined();
       });
 
       it('should transform multiple posts correctly', () => {
@@ -424,9 +425,12 @@ describe('FeedPost Module', () => {
         ];
 
         const transformed = transformers.transformPosts(apiPosts);
+        expect(transformed).not.toBeNull();
         expect(transformed).toHaveLength(2);
-        expect(transformed[0].id).toBe('1');
-        expect(transformed[1].id).toBe('2');
+        if (transformed) {
+          expect(transformed[0].id).toBe('1');
+          expect(transformed[1].id).toBe('2');
+        }
       });
 
       it('should transform comment data correctly', () => {

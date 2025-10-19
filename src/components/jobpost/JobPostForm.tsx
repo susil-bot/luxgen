@@ -4,8 +4,8 @@ import { Modal, ModalHeader, ModalBody, ModalFooter } from '../common/Modal';
 import { Input, Select, Textarea, Checkbox, MultiSelect } from '../common/FormComponents';
 import { Button } from '../common/SimpleThemeComponents';
 import { useFormValidation, JobPostRules } from '../../utils/formValidation';
-import { CreateJobPostData, JobPostItem } from './types';
-import { JOB_POST_CONSTANTS } from './constants';
+import { CreateJobPostData, JobPostItem } from './Types.types';
+import { JOB_POST_CONSTANTS } from './CONSTANTS';
 
 interface JobPostFormProps {
   isOpen: boolean;

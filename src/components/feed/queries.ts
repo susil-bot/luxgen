@@ -5,12 +5,15 @@
 
 const mongoose = require('mongoose');
 
+// Export empty object to make this a module
+export {};
+
 /**
  * Get activities for a tenant with pagination and filtering
  * @param {Object} options - Query options
  * @returns {Promise<Array>} Activities array
  */
-const getActivities = async (options = {}) => {
+const getActivities = async (options: any = {}) => {
   try {
     const {
       tenantId,
@@ -31,7 +34,7 @@ const getActivities = async (options = {}) => {
     }
 
     // Build query
-    const query = { tenantId, status };
+    const query: any = { tenantId, status };
 
     if (type) {
       query.type = type;
@@ -95,7 +98,7 @@ const getActivities = async (options = {}) => {
  * @param {Object} options - Query options
  * @returns {Promise<Object>} Statistics object
  */
-const getActivityStats = async (options = {}) => {
+const getActivityStats = async (options: any = {}) => {
   try {
     const {
       tenantId,
@@ -110,7 +113,7 @@ const getActivityStats = async (options = {}) => {
     }
 
     // Build base query
-    const baseQuery = { tenantId, status: 'active' };
+    const baseQuery: any = { tenantId, status: 'active' };
 
     if (userId) {
       baseQuery.userId = userId;
@@ -204,7 +207,7 @@ const getActivityStats = async (options = {}) => {
  * @param {Object} options - Query options
  * @returns {Promise<Array>} User activities array
  */
-const getActivitiesByUser = async (options = {}) => {
+const getActivitiesByUser = async (options: any = {}) => {
   try {
     const {
       userId,
@@ -222,7 +225,7 @@ const getActivitiesByUser = async (options = {}) => {
       throw new Error('User ID and Tenant ID are required');
     }
 
-    const query = { userId, tenantId, status: 'active' };
+    const query: any = { userId, tenantId, status: 'active' };
 
     if (type) {
       query.type = type;
@@ -270,7 +273,7 @@ const getActivitiesByUser = async (options = {}) => {
  * @param {Object} options - Query options
  * @returns {Promise<Array>} Activities by type array
  */
-const getActivitiesByType = async (options = {}) => {
+const getActivitiesByType = async (options: any = {}) => {
   try {
     const {
       type,
@@ -287,7 +290,7 @@ const getActivitiesByType = async (options = {}) => {
       throw new Error('Type and Tenant ID are required');
     }
 
-    const query = { type, tenantId, status: 'active' };
+    const query: any = { type, tenantId, status: 'active' };
 
     if (dateFrom || dateTo) {
       query.createdAt = {};
@@ -331,7 +334,7 @@ const getActivitiesByType = async (options = {}) => {
  * @param {Object} options - Search options
  * @returns {Promise<Array>} Search results array
  */
-const searchActivities = async (options = {}) => {
+const searchActivities = async (options: any = {}) => {
   try {
     const {
       query: searchQuery,
@@ -347,7 +350,7 @@ const searchActivities = async (options = {}) => {
       throw new Error('Search query and Tenant ID are required');
     }
 
-    const query = {
+    const query: any = {
       tenantId,
       status: 'active',
       $or: [
@@ -414,7 +417,7 @@ const searchActivities = async (options = {}) => {
  * @param {Object} options - Query options
  * @returns {Promise<Object>} Engagement metrics
  */
-const getActivityEngagement = async (options = {}) => {
+const getActivityEngagement = async (options: any = {}) => {
   try {
     const { activityId, tenantId } = options;
 
@@ -503,7 +506,7 @@ const getActivityEngagement = async (options = {}) => {
  * @param {Object} activityData - Activity data
  * @returns {Promise<Object>} Created activity
  */
-const createActivity = async (activityData) => {
+const createActivity = async (activityData: any) => {
   try {
     const {
       title,
@@ -554,7 +557,7 @@ const createActivity = async (activityData) => {
  * @param {Object} options - Update options
  * @returns {Promise<Object>} Updated activity
  */
-const updateActivity = async (options = {}) => {
+const updateActivity = async (options: any = {}) => {
   try {
     const {
       activityId,
@@ -588,7 +591,7 @@ const updateActivity = async (options = {}) => {
  * @param {Object} options - Delete options
  * @returns {Promise<Object>} Deletion result
  */
-const deleteActivity = async (options = {}) => {
+const deleteActivity = async (options: any = {}) => {
   try {
     const { activityId, tenantId } = options;
 

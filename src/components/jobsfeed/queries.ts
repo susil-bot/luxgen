@@ -1,4 +1,4 @@
-import { JobPostItem, JobsFeedFilters, JobsFeedSortOptions } from './types';
+import { JobPostItem, JobsFeedFilters, JobsFeedSortOptions } from './Types.types';
 
 export class JobsFeedQueries {
   /**

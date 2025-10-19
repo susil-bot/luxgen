@@ -3,7 +3,7 @@
  * Data transformation functions for ActivityFeed component
  */
 
-import { ActivityFeedItem, ActivityFeedStats, ActivityFeedUser } from '../types/types';
+import { ActivityFeedItem, ActivityFeedStats, ActivityFeedUser } from '../types/Types.types';
 
 /**
  * Transform raw activity data from API to component format

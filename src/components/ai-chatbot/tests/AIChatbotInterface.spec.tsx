@@ -291,7 +291,7 @@ describe('AIChatbotInterface', () => {
         href: '',
         download: '',
         click: mockClick,
-      };
+      } as any;
       
       jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor);
 

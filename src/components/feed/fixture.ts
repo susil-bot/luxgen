@@ -3,7 +3,7 @@
  * Mock data for ActivityFeed component testing and development
  */
 
-const mockUsers = [
+export const mockUsers = [
   {
     id: 'user-1',
     name: 'John Doe',
@@ -51,7 +51,7 @@ const mockUsers = [
   }
 ];
 
-const mockActivities = [
+export const mockActivities = [
   {
     id: 'activity-1',
     title: 'New User Joined the Platform',
@@ -284,7 +284,7 @@ const mockActivities = [
   }
 ];
 
-const mockStats = {
+export const mockStats = {
   totalActivities: 156,
   activeUsers: 45,
   engagementRate: 78.5,
@@ -298,7 +298,7 @@ const mockStats = {
   growthRate: 15.2
 };
 
-const mockEngagement = {
+export const mockEngagement = {
   likes: 15,
   comments: 8,
   shares: 3,
@@ -340,7 +340,7 @@ const mockEngagement = {
   ]
 };
 
-const mockFilters = {
+export const mockFilters = {
   types: ['user_joined', 'program_created', 'session_completed', 'assessment_taken'],
   dateRange: {
     start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -352,7 +352,7 @@ const mockFilters = {
   priority: 'all'
 };
 
-const mockSearchResults = {
+export const mockSearchResults = {
   activities: mockActivities.slice(0, 5),
   total: 5,
   page: 1,
@@ -362,7 +362,7 @@ const mockSearchResults = {
   filters: mockFilters
 };
 
-const mockAnalytics = {
+export const mockAnalytics = {
   byType: {
     user_joined: 12,
     program_created: 8,
@@ -396,7 +396,7 @@ const mockAnalytics = {
   }
 };
 
-const mockNotifications = [
+export const mockNotifications = [
   {
     id: 'notif-1',
     type: 'new_activity',
@@ -426,7 +426,7 @@ const mockNotifications = [
   }
 ];
 
-const mockSettings = {
+export const mockSettings = {
   autoRefresh: true,
   refreshInterval: 30000,
   itemsPerPage: 20,

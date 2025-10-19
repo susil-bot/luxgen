@@ -38,7 +38,7 @@ const ModernResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSuccess }
     if (tokenFromUrl) {
       setToken(tokenFromUrl);
     } else {
-      showError('Invalid or missing reset token');
+      showError('Error!', 'Invalid or missing reset token');
       navigate('/forgot-password');
     }
   }, [searchParams, navigate, showError]);
@@ -77,7 +77,7 @@ const ModernResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSuccess }
       
       if (response.success) {
         setIsSubmitted(true);
-        showSuccess('Password reset successfully! You can now sign in with your new password.');
+        showSuccess('Success!', 'Password reset successfully! You can now sign in with your new password.');
         onSuccess?.();
       } else {
         setApiError({
@@ -179,7 +179,7 @@ const ModernResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSuccess }
             <div className="mb-6">
               <ErrorDisplay
                 error={apiError}
-                context="reset-password"
+                context="password-reset"
                 onDismiss={() => setApiError(null)}
               />
             </div>
