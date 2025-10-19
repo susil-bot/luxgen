@@ -1,50 +1,57 @@
 import React from 'react';
-import { Search, Home, ArrowLeft } from 'lucide-react';
+import { AlertCircle, Home, RefreshCw } from 'lucide-react';
 
-export const TenantNotFound: React.FC = () => {
-  const handleGoHome = () => {
-    window.location.href = '/';
-  };
+interface TenantNotFoundProps {
+  tenantSlug?: string;
+  onRetry?: () => void;
+  onGoHome?: () => void;
+}
 
-  const handleGoBack = () => {
-    window.history.back();
-  };
-
+const TenantNotFound: React.FC<TenantNotFoundProps> = ({ 
+  tenantSlug, 
+  onRetry, 
+  onGoHome 
+}) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-      <div className="max-w-md mx-auto text-center p-8">
-        <div className="mb-8">
-          <div className="h-16 w-16 mx-auto mb-4 bg-gradient-to-r from-gray-600 to-blue-600 rounded-full flex items-center justify-center">
-            <Search className="h-8 w-8 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Workspace Not Found
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            The workspace you're looking for doesn't exist or you don't have access to it.
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="mb-6">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Tenant Not Found
+          </h1>
+          <p className="text-gray-600">
+            {tenantSlug 
+              ? `The tenant "${tenantSlug}" could not be found.`
+              : 'The requested tenant could not be found.'
+            }
           </p>
         </div>
-        
+
         <div className="space-y-4">
-          <button
-            onClick={handleGoHome}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors"
-          >
-            <Home className="h-4 w-4" />
-            <span>Go to Homepage</span>
-          </button>
-          
-          <button
-            onClick={handleGoBack}
-            className="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Go Back</span>
-          </button>
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try Again
+            </button>
+          )}
+
+          {onGoHome && (
+            <button
+              onClick={onGoHome}
+              className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Go to Home
+            </button>
+          )}
         </div>
-        
-        <div className="mt-8 text-sm text-gray-500 dark:text-gray-400">
-          <p>Check the URL or contact your administrator for access.</p>
+
+        <div className="mt-6 text-sm text-gray-500">
+          <p>If you believe this is an error, please contact support.</p>
         </div>
       </div>
     </div>

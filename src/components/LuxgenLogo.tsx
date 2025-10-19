@@ -1,101 +1,45 @@
 import React from 'react';
 
 interface LuxgenLogoProps {
-  size?: 'small' | 'medium' | 'large' | 'xl';
-  variant?: 'full' | 'icon' | 'text';
   className?: string;
-  style?: React.CSSProperties;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'light' | 'dark' | 'color';
 }
 
 const LuxgenLogo: React.FC<LuxgenLogoProps> = ({ 
-  size = 'medium', 
-  variant = 'full',
-  className = '',
-  style = {}
+  className = '', 
+  size = 'md', 
+  variant = 'color' 
 }) => {
-  const sizeMap = {
-    small: { width: 120, height: 36 },
-    medium: { width: 160, height: 48 },
-    large: { width: 200, height: 60 },
-    xl: { width: 240, height: 72 }
+  const sizeClasses = {
+    sm: 'w-8 h-8',
+    md: 'w-12 h-12',
+    lg: 'w-16 h-16'
   };
 
-  const dimensions = sizeMap[size];
+  const colorClasses = {
+    light: 'text-white',
+    dark: 'text-gray-900',
+    color: 'text-blue-600'
+  };
 
-  const renderIcon = () => (
-    <g transform="translate(15, 15)">
-      {/* Outer circle */}
-      <circle cx="15" cy="15" r="12" fill="none" stroke="#FF6B35" strokeWidth="2"/>
-      {/* Four-pointed star */}
-      <g transform="translate(15, 15)">
-        <line x1="0" y1="-8" x2="0" y2="8" stroke="#FF6B35" strokeWidth="3" strokeLinecap="round"/>
-        <line x1="-8" y1="0" x2="8" y2="0" stroke="#FF6B35" strokeWidth="3" strokeLinecap="round"/>
-      </g>
-    </g>
-  );
-
-  const renderText = () => (
-    <text 
-      x="10" 
-      y="40" 
-      fontFamily="Arial, sans-serif" 
-      fontSize="32" 
-      fontWeight="bold" 
-      fill="#FF6B35"
-    >
-      Luxgen
-    </text>
-  );
-
-  const renderPeriod = () => (
-    <circle cx="190" cy="35" r="2" fill="#FF6B35"/>
-  );
-
-  if (variant === 'icon') {
-    return (
-      <svg 
-        width={dimensions.width} 
-        height={dimensions.height} 
-        viewBox="0 0 200 60" 
-        className={className}
-        style={style}
-      >
-        <rect width="200" height="60" fill="#000000"/>
-        {renderIcon()}
-      </svg>
-    );
-  }
-
-  if (variant === 'text') {
-    return (
-      <svg 
-        width={dimensions.width} 
-        height={dimensions.height} 
-        viewBox="0 0 200 60" 
-        className={className}
-        style={style}
-      >
-        <rect width="200" height="60" fill="#000000"/>
-        {renderText()}
-        {renderPeriod()}
-      </svg>
-    );
-  }
-
-  // Full logo (default)
   return (
-    <svg 
-      width={dimensions.width} 
-      height={dimensions.height} 
-      viewBox="0 0 200 60" 
-      className={className}
-      style={style}
-    >
-      <rect width="200" height="60" fill="#000000"/>
-      {renderText()}
-      {renderIcon()}
-      {renderPeriod()}
-    </svg>
+    <div className={`flex items-center ${className}`}>
+      <div className={`${sizeClasses[size]} ${colorClasses[variant]} flex items-center justify-center`}>
+        <svg
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-full h-full"
+        >
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+      </div>
+      <span className={`ml-2 font-bold ${colorClasses[variant]} ${
+        size === 'sm' ? 'text-sm' : size === 'md' ? 'text-lg' : 'text-xl'
+      }`}>
+        LuxGen
+      </span>
+    </div>
   );
 };
 

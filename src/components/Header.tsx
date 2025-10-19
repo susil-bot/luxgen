@@ -11,7 +11,7 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <LuxgenLogo size="medium" className="mr-4" />
+          <LuxgenLogo size="md" className="mr-4" />
           <h1 className="text-xl font-bold text-orange-500">
             Trainer Platform
           </h1>

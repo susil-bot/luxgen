@@ -37,7 +37,7 @@ const MainLayout: React.FC = () => {
 
               {/* Logo for mobile */}
               <div className="lg:hidden ml-2">
-                <LuxgenLogo size="small" variant="icon" />
+                <LuxgenLogo size="sm" variant="color" />
               </div>
 
               {/* Page title - will be dynamic based on route */}

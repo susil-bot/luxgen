@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { TenantProvider } from '../../core/tenancy/TenantProvider';
 import { TenantLoadingScreen } from './TenantLoadingScreen';
 import { TenantErrorBoundary } from './TenantErrorBoundary';
-import { TenantNotFound } from './TenantNotFound';
+import TenantNotFound from './TenantNotFound';
 import { TenantSuspended } from './TenantSuspended';
 import { TenantExpired } from './TenantExpired';
 import { getCurrentTenant } from '../../config/subdomainMapping';
