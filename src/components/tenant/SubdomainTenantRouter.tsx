@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCurrentTenant, getTenantBySubdomain, TenantConfig } from '../../config/subdomainMapping';
 import { TenantLoadingScreen } from './TenantLoadingScreen';
-import { TenantNotFound } from './TenantNotFound';
+import TenantNotFound from './TenantNotFound';
 import { TenantSuspended } from './TenantSuspended';
 import { TenantExpired } from './TenantExpired';
 import { TenantErrorBoundary } from './TenantErrorBoundary';

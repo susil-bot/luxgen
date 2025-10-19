@@ -102,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
-          <LuxgenLogo size="small" variant="full" className="mr-2" />
+          <LuxgenLogo size="sm" variant="color" className="mr-2" />
         </div>
         <button
           onClick={() => setIsMobileOpen(false)}
