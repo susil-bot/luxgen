@@ -1,121 +1,343 @@
-# Development Setup Guide
+# 🚀 LuxGen Frontend Development Guide
 
-## 🎯 Your Plan: Deploy API Freely + Run Frontend Locally
+## 📋 Table of Contents
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Development Workflow](#development-workflow)
+- [Module Architecture](#module-architecture)
+- [Deployment](#deployment)
+- [Best Practices](#best-practices)
 
-### Phase 1: Deploy API (Choose One)
+## 🚀 Getting Started
 
-#### Option A: Render (Recommended - Free)
-1. **Push to GitHub:**
-   ```bash
-   git add .
-   git commit -m "Setup API for deployment"
-   git push origin main
-   ```
+### Prerequisites
+- Node.js 18+ 
+- npm 9+
+- Git
 
-2. **Deploy to Render:**
-   - Go to [render.com](https://render.com)
-   - Sign up/Login with GitHub
-   - Click "New +" → "Web Service"
-   - Connect your GitHub repository
-   - Configure:
-     - Name: `trainer-platform-api`
-     - Environment: `Node`
-     - Build Command: `npm install`
-     - Start Command: `npm start`
-   - Set Environment Variables:
-     - `MONGODB_URL`: Your MongoDB Atlas connection string
-     - `JWT_SECRET`: A strong secret key
-     - `CORS_ORIGIN`: `http://localhost:3000`
-     - `NODE_ENV`: `production`
-   - Deploy!
-
-#### Option B: Railway
-1. Go to [railway.app](https://railway.app)
-2. Connect GitHub repository
-3. Set environment variables
-4. Deploy!
-
-#### Option C: Heroku
-1. Install Heroku CLI
-2. Run: `heroku create your-app-name`
-3. Set environment variables
-4. Deploy: `git push heroku main`
-
-### Phase 2: Update Frontend Configuration
-
-1. **Get your deployed API URL** (e.g., `https://your-api-name.onrender.com`)
-
-2. **Update frontend environment:**
-   ```bash
-   # Edit .env file
-   REACT_APP_API_URL=https://your-api-name.onrender.com
-   ```
-
-3. **Start frontend locally:**
-   ```bash
-   npm start
-   ```
-
-### Phase 3: Development Workflow
-
-#### Making API Changes:
-1. Make changes to backend code
-2. Test locally: `cd backend && npm run dev`
-3. Push to GitHub
-4. API automatically redeploys (if using Render/Railway)
-
-#### Making Frontend Changes:
-1. Make changes to frontend code
-2. Frontend automatically reloads (hot reload)
-3. Test with deployed API
-
-### Environment Variables Reference
-
-#### Backend (.env.production.template):
-```
-MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/trainer_platform
-JWT_SECRET=your-super-secret-jwt-key-here
-CORS_ORIGIN=http://localhost:3000
-NODE_ENV=production
-PORT=10000
-```
-
-#### Frontend (.env):
-```
-REACT_APP_API_URL=https://your-api-name.onrender.com
-REACT_APP_ENV=development
-REACT_APP_DEBUG_MODE=true
-```
-
-### Quick Commands
-
+### Installation
 ```bash
-# Start frontend only (connects to deployed API)
-npm start
+# Clone the repository
+git clone https://github.com/susil-bot/luxgen.git
+cd luxgen/luxgen-frontend
 
-# Test API locally (for development)
-cd backend && npm run dev
+# Install dependencies
+npm ci
 
-# Deploy API changes
-git add . && git commit -m "Update API" && git push
+# Setup environment
+cp env.example .env.local
 
-# Check API health
-curl https://your-api-name.onrender.com/health
+# Start development server
+npm run dev
 ```
 
-### Troubleshooting
+### Environment Setup
+```bash
+# Development
+REACT_APP_API_URL=http://localhost:3001
+REACT_APP_ENVIRONMENT=development
 
-#### Frontend not connecting to API:
-1. Check `REACT_APP_API_URL` in `.env`
-2. Verify API is deployed and running
-3. Check CORS settings in API
+# Staging
+REACT_APP_API_URL=https://staging-api.luxgen.com
+REACT_APP_ENVIRONMENT=staging
 
-#### API deployment issues:
-1. Check environment variables in deployment platform
-2. Verify MongoDB Atlas connection
-3. Check deployment logs
+# Production
+REACT_APP_API_URL=https://luxgen-backend.netlify.app
+REACT_APP_ENVIRONMENT=production
+```
 
-#### Local development:
-1. Use `npm run dev` in backend for local API
-2. Update `REACT_APP_API_URL` to `http://localhost:3001`
-3. Restart frontend after changing environment variables
+## 🏗️ Project Structure
+
+```
+luxgen-frontend/
+├── 📁 src/
+│   ├── 📁 app/                    # Application core
+│   │   ├── 📁 config/            # App configuration
+│   │   ├── 📁 constants/        # App constants
+│   │   ├── 📁 providers/        # Context providers
+│   │   └── 📁 store/            # State management
+│   │
+│   ├── 📁 modules/               # Feature modules
+│   │   ├── 📁 auth/             # Authentication module
+│   │   ├── 📁 dashboard/        # Dashboard module
+│   │   ├── 📁 feed/             # Feed module
+│   │   ├── 📁 jobs/             # Jobs module
+│   │   ├── 📁 profile/          # Profile module
+│   │   └── 📁 settings/         # Settings module
+│   │
+│   ├── 📁 shared/               # Shared resources
+│   │   ├── 📁 components/       # Reusable components
+│   │   ├── 📁 services/         # Shared services
+│   │   ├── 📁 hooks/            # Shared hooks
+│   │   ├── 📁 types/            # Shared types
+│   │   └── 📁 utils/            # Shared utilities
+│   │
+│   ├── 📁 pages/                # Page components
+│   └── 📁 assets/               # Static assets
+│
+├── 📁 .github/workflows/         # CI/CD pipelines
+├── 📁 config/                    # Build configurations
+├── 📁 docs/                     # Documentation
+└── 📁 scripts/                  # Build scripts
+```
+
+## 🔄 Development Workflow
+
+### Daily Development
+```bash
+# Start development server
+npm run dev
+
+# Run quality checks
+npm run quality
+
+# Run tests
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e:open
+```
+
+### Code Quality
+```bash
+# Lint code
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Type check
+npm run type-check
+
+# Run all quality checks
+npm run quality
+```
+
+### Testing
+```bash
+# Unit tests
+npm run test
+
+# Coverage report
+npm run test:coverage
+
+# E2E tests
+npm run test:e2e
+
+# API tests
+npm run test:api
+```
+
+## 🏗️ Module Architecture
+
+### Creating a New Module
+```typescript
+// src/modules/feature-name/
+├── components/          # Module components
+├── services/           # Business logic
+├── hooks/              # Custom hooks
+├── types/              # TypeScript types
+├── utils/              # Utility functions
+├── constants/          # Module constants
+├── tests/              # Module tests
+└── index.ts            # Module exports
+```
+
+### Module Example
+```typescript
+// src/modules/feature-name/index.ts
+export { FeatureComponent } from './components/FeatureComponent';
+export { useFeature } from './hooks/useFeature';
+export { featureService } from './services/FeatureService';
+export type { FeatureType } from './types';
+```
+
+### Shared Components
+```typescript
+// src/shared/components/ui/Button.tsx
+import { cn } from '../../utils/cn';
+
+export interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  // ... other props
+}
+
+export const Button: React.FC<ButtonProps> = ({ ... }) => {
+  // Component implementation
+};
+```
+
+## 🚀 Deployment
+
+### Local Build
+```bash
+# Standard build
+npm run build
+
+# Optimized build
+npm run build:optimized
+
+# Analyze bundle
+npm run analyze
+```
+
+### Deployment Commands
+```bash
+# Deploy to staging
+npm run deploy:staging
+
+# Deploy to production
+npm run deploy:production
+
+# Force deployment
+npm run deploy:force
+
+# Full production pipeline
+npm run prod
+```
+
+### CI/CD Pipeline
+The project includes automated CI/CD pipelines:
+
+1. **Quality Checks**: ESLint, TypeScript, Security audit
+2. **Testing**: Unit tests, E2E tests, API tests
+3. **Build**: Optimized production build
+4. **Deploy**: Automatic deployment to Vercel
+
+## 📚 Best Practices
+
+### Code Organization
+- **Single Responsibility**: Each module handles one feature
+- **Separation of Concerns**: UI, business logic, and data separated
+- **Reusability**: Shared components and utilities
+- **Type Safety**: Full TypeScript coverage
+
+### Component Guidelines
+```typescript
+// ✅ Good: Proper component structure
+interface ComponentProps {
+  title: string;
+  onAction: () => void;
+  variant?: 'primary' | 'secondary';
+}
+
+export const Component: React.FC<ComponentProps> = ({
+  title,
+  onAction,
+  variant = 'primary'
+}) => {
+  // Component logic
+  return (
+    <div className={cn('base-classes', variantClasses[variant])}>
+      {title}
+    </div>
+  );
+};
+```
+
+### Service Guidelines
+```typescript
+// ✅ Good: Service with proper error handling
+class FeatureService {
+  async getData(): Promise<ApiResponse<Data>> {
+    try {
+      const response = await apiClient.get('/api/endpoint');
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch data');
+    }
+  }
+}
+```
+
+### Testing Guidelines
+```typescript
+// ✅ Good: Comprehensive test coverage
+describe('Component', () => {
+  it('should render correctly', () => {
+    render(<Component title="Test" />);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('should handle user interaction', async () => {
+    const mockAction = jest.fn();
+    render(<Component onAction={mockAction} />);
+    
+    await user.click(screen.getByRole('button'));
+    expect(mockAction).toHaveBeenCalled();
+  });
+});
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+```bash
+# Required
+REACT_APP_API_URL=https://luxgen-backend.netlify.app
+REACT_APP_ENVIRONMENT=production
+
+# Optional
+REACT_APP_ANALYTICS_ID=your-analytics-id
+REACT_APP_MONITORING_URL=your-monitoring-url
+```
+
+### Build Configuration
+- **Webpack**: Custom configuration for optimization
+- **Babel**: TypeScript and React presets
+- **PostCSS**: Tailwind CSS processing
+- **Bundle Analysis**: Automated bundle size monitoring
+
+## 📊 Performance
+
+### Optimization Features
+- **Code Splitting**: Automatic route-based splitting
+- **Lazy Loading**: Component-level lazy loading
+- **Bundle Optimization**: Tree shaking and minification
+- **Caching**: Strategic caching strategies
+
+### Monitoring
+- **Bundle Size**: Automated size tracking
+- **Performance**: Lighthouse score monitoring
+- **Error Tracking**: Comprehensive error reporting
+- **Analytics**: User behavior tracking
+
+## 🐛 Troubleshooting
+
+### Common Issues
+1. **Build Failures**: Check TypeScript errors and dependencies
+2. **Test Failures**: Verify test environment setup
+3. **Deployment Issues**: Check environment variables and Vercel configuration
+4. **Performance Issues**: Run bundle analysis and optimize imports
+
+### Debug Commands
+```bash
+# Debug build
+npm run build -- --verbose
+
+# Debug tests
+npm run test -- --verbose
+
+# Debug deployment
+npm run deploy:staging -- --debug
+```
+
+## 📖 Additional Resources
+
+- [Architecture Guide](./ARCHITECTURE.md)
+- [Deployment Guide](./DEPLOYMENT.md)
+- [API Integration Guide](./API_INTEGRATION.md)
+- [Testing Guide](./TESTING.md)
+
+## 🤝 Contributing
+
+1. Follow the established code style
+2. Write comprehensive tests
+3. Update documentation
+4. Ensure all quality checks pass
+5. Submit pull request with clear description
+
+---
+
+**Happy Coding! 🚀**
